@@ -21,12 +21,21 @@ permissions:
   contents: write
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            os: windows-latest
+          - arch: arm64
+            os: windows-11-arm
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          architecture: ${{ matrix.arch }}
       - name: Install tools
         run: python -m pip install -U pyinstaller pywebview pillow
       - name: Stage web files
@@ -35,6 +44,7 @@ jobs:
       - name: Build exe
         run: python -m PyInstaller --onefile --noconsole --name FridgeChef --icon fridgechef-windows/FridgeChef.ico --add-data "build_web/web;web" fridgechef-windows/fridge_chef.pyw
       - name: Publish release
+        if: matrix.arch == 'x64'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,6 +58,7 @@ jobs:
           MSIX_PUB: ${{ inputs.msix_publisher || 'CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A' }}
           MSIX_PUBNAME: ${{ inputs.msix_publisher_name || 'Yathin-Apps' }}
           RUN: ${{ github.run_number }}
+          ARCH: ${{ matrix.arch }}
         run: |
           import os, shutil, glob, subprocess
           from xml.sax.saxutils import escape as e
@@ -71,14 +82,14 @@ jobs:
             xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
             xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
             IgnorableNamespaces="uap rescap">
-            <Identity Name="{e(os.environ['MSIX_NAME'])}" Publisher="{e(os.environ['MSIX_PUB'])}" Version="1.{v}.0.0" ProcessorArchitecture="x64"/>
+            <Identity Name="{e(os.environ['MSIX_NAME'])}" Publisher="{e(os.environ['MSIX_PUB'])}" Version="1.{v}.0.0" ProcessorArchitecture="{os.environ['ARCH']}"/>
             <Properties>
               <DisplayName>Fridge Chef</DisplayName>
               <PublisherDisplayName>{e(os.environ['MSIX_PUBNAME'])}</PublisherDisplayName>
               <Logo>Assets\\StoreLogo.png</Logo>
             </Properties>
             <Dependencies>
-              <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0"/>
+              <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0"/>
             </Dependencies>
             <Resources><Resource Language="en-us"/></Resources>
             <Applications>
@@ -97,10 +108,10 @@ jobs:
           </Package>
           """
           open(root + "/AppxManifest.xml", "w", encoding="utf-8").write(manifest)
-          tool = sorted(glob.glob(r"C:\Program Files (x86)\Windows Kits\10\bin\10.*\x64\makeappx.exe"))[-1]
-          subprocess.run([tool, "pack", "/d", root, "/p", "dist/FridgeChef-" + v + ".msix", "/o"], check=True)
+          tool = sorted(glob.glob(r"C:\Program Files (x86)\Windows Kits\10\bin\10.*\*\makeappx.exe"))[-1]
+          subprocess.run([tool, "pack", "/d", root, "/p", "dist/FridgeChef-" + v + "-" + os.environ["ARCH"] + ".msix", "/o"], check=True)
       - name: Keep Store package (private, for Partner Center upload)
         uses: actions/upload-artifact@v4
         with:
-          name: FridgeChef-msix
+          name: FridgeChef-msix-${{ matrix.arch }}
           path: dist/*.msix
