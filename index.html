@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Yathin Apps</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root { --hark-blur: blur(12px); }
+      html { scroll-behavior: auto; }
+      .x-app { display: flex; flex-direction: column; gap: 12px; }
+      .x-app__top { display: flex; align-items: center; gap: 14px; }
+      .x-app__top h3 { margin: 0; }
+      .x-icon { flex: none; width: 56px; height: 56px; border-radius: var(--r-s); object-fit: cover; background: var(--fill-primary-on); }
+      .x-icon--emoji { display: grid; place-items: center; font-size: 30px; line-height: 1; border: 1px solid var(--stroke-secondary); }
+      .x-app__desc { color: var(--text-secondary); }
+      .x-app__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+      .x-app .links { margin-top: auto; align-items: center; }
+      .x-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
+      <main class="main">
+        <section class="hero">
+          <img class="hero__img" src="yathinapps_hero.jpg" alt="A maker's desk with a laptop and tools" />
+          <div class="hero__copy">
+            <p><span class="chip chip--solid">Free · Created by Yathin Pedamallu</span></p>
+            <h1>Yathin Apps</h1>
+            <p class="hero__sub">Free apps for school, home and fun, powered by Gemini.</p>
+            <div class="links"><a class="btn" href="#apps">See the apps</a></div>
+          </div>
+        </section>
+
+        <section class="section" id="apps" data-nav="Apps">
+          <div class="head">
+            <h2>Pick an app and open it.</h2>
+            <p class="head__sub">Each one opens in a new tab.</p>
+          </div>
+          <div class="cards">
+            <div class="x-app">
+              <div class="x-app__top">
+                <img class="x-icon" src="magiccursor_logo.png" alt="Magic Cursor icon" />
+                <h3>Magic Cursor</h3>
+              </div>
+              <p class="x-app__desc">Circle anything on your Windows 11 screen and ask Gemini about it, in any app.</p>
+              <p class="x-app__tags"><span class="pill">Windows 11</span><span class="pill">Gemini</span></p>
+              <div class="links">
+                <a class="btn" href="magiccursor/" target="_blank" rel="noopener">Open</a>
+                <a class="btn" href="https://github.com/praveenp-works/magic_cursor/releases/latest/download/MagicCursor.exe">Download</a>
+                <a class="link fineprint" href="https://www.youtube.com/watch?v=YV_6v9oF0uc" target="_blank" rel="noopener">Watch video</a>
+              </div>
+            </div>
+            <div class="x-app">
+              <div class="x-app__top">
+                <img class="x-icon" src="classview_icon.png" alt="ClassView icon" />
+                <h3>ClassView</h3>
+              </div>
+              <p class="x-app__desc">Watch your class's Chromebook screens, open tabs and sites in one view. Demo version.</p>
+              <p class="x-app__tags"><span class="pill">Chromebooks</span><span class="pill">Teachers</span><span class="pill">Demo</span></p>
+              <div class="links">
+                <a class="btn" href="classview/" target="_blank" rel="noopener">Open</a>
+              </div>
+            </div>
+            <div class="x-app">
+              <div class="x-app__top">
+                <img class="x-icon" src="fridgechef_icon.png" alt="Fridge Chef icon" />
+                <h3>Fridge Chef</h3>
+              </div>
+              <p class="x-app__desc">Snap your fridge, get three recipes you can make tonight, with step-by-step cook mode.</p>
+              <p class="x-app__tags"><span class="pill">Cooking</span><span class="pill">Gemini</span></p>
+              <div class="links">
+                <a class="btn" href="fridgechef/" target="_blank" rel="noopener">Open</a>
+              </div>
+            </div>
+            <div class="x-app">
+              <div class="x-app__top">
+                <span class="x-icon x-icon--emoji" role="img" aria-label="Robot">🤖</span>
+                <h3>Finko</h3>
+              </div>
+              <p class="x-app__desc">A homemade WALL-E-style AI robot pet built on a Raspberry Pi.</p>
+              <p class="x-app__tags"><span class="chip">In progress</span></p>
+              <div class="links">
+                <span class="btn x-disabled" aria-disabled="true">Coming soon</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="about" data-nav="About">
+          <div class="head"><h2>Free apps that make everyday things easier.</h2></div>
+          <div class="prose">
+            <p>Yathin builds free apps that use Google Gemini to make everyday things easier.</p>
+            <p>Most apps need a free Gemini API key from <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.</p>
+          </div>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>Yathin Apps · Created by Yathin Pedamallu. Not affiliated with Google.</p>
+        <nav aria-label="Back to sections" data-auto></nav>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+  </body>
+</html>

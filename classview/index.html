@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Classroom Chromebook Monitor · ClassView</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root {
+        --x-bg: #f5f5f7; --x-surf: #fff; --x-tint: rgb(29 29 31 / 0.05); --x-surf2: #f0f0f2; --x-tx: #1d1d1f; --x-mu: #636366;
+        --x-bd: #1d1d1f12; --x-bd3: rgb(29 29 31 / 0.22);
+        --x-grad: linear-gradient(90deg, #2dd4bf, #14b8a6, #0ea5e9); --x-ongrad: #0b2530;
+        --x-on: #00a665; --x-idle: #ff4d00; --x-off: #da2f35; --x-gone: #8e8e93; --x-offtx: #c4262c;
+        --x-mock: #e8e8ed; --x-lock: rgb(255 255 255 / 0.86); --x-blk: rgb(255 236 237 / 0.92);
+        --x-mono: "Geist Mono", ui-monospace, monospace; --x-sans: "Geist", var(--sans);
+      }
+      :root[data-theme="dark"] {
+        --x-bg: #0a0a0b; --x-surf: #1c1c1e; --x-tint: rgb(245 245 247 / 0.07); --x-surf2: #2c2c2e; --x-tx: #f5f5f7; --x-mu: #a1a1a6;
+        --x-bd: rgb(245 245 247 / 0.1); --x-bd3: rgb(245 245 247 / 0.26); --x-offtx: #ff8a8e;
+        --x-mock: #121216; --x-lock: rgb(11 18 38 / 0.84); --x-blk: rgb(60 10 14 / 0.86);
+      }
+      body { background: var(--x-bg); color: var(--x-tx); font-family: var(--x-sans); }
+      .x-dash *, .x-hero *, .x-pill * { box-sizing: border-box; }
+
+      /* floating pill nav */
+      .x-pill { position: sticky; top: 12px; z-index: 10; justify-self: center; display: flex; align-items: center; gap: 2px;
+        max-width: 100%; padding: 5px; border-radius: 999px; background: rgb(29 29 31 / 0.9); border: 1px solid #3a3a3c;
+        box-shadow: 0 12px 32px rgb(0 0 0 / 0.18), 0 1px 3px rgb(0 0 0 / 0.12);
+        -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
+        overflow-x: auto; scrollbar-width: none; }
+      .x-pill::-webkit-scrollbar { display: none; }
+      .x-nav { flex: none; display: inline-flex; align-items: center; gap: 7px; min-height: var(--tap); padding: 0 16px;
+        border-radius: 999px; border: 0; background: none; color: #d1d1d6; font: 500 14px var(--x-sans); cursor: pointer; white-space: nowrap; }
+      .x-nav:hover { color: #fff; background: rgb(255 255 255 / 0.08); }
+      .x-nav.is-on { background-color: #2dd4bf; background-image: var(--x-grad); color: var(--x-ongrad); }
+      .x-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--x-off); color: #fff;
+        font: 500 12px var(--x-mono); display: grid; place-items: center; }
+      .x-badge:empty { display: none; }
+      .x-theme { flex: none; width: var(--tap); height: var(--tap); margin-left: 6px; border-radius: 50%; border: 0;
+        background: #1d1d1f; color: #d1d1d6; display: grid; place-items: center; cursor: pointer; }
+      .x-theme:hover { color: #fff; background: #000; }
+      .x-theme::before { content: ""; width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor;
+        background: linear-gradient(to right, currentColor 50%, transparent 50%); }
+
+      /* hero card */
+      .x-hero { position: relative; isolation: isolate; overflow: hidden; border-radius: 36px; min-height: 560px; padding: 40px;
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px); gap: 28px; align-items: end; color: #fff; background: #161f39; }
+      .x-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+      .x-hero::before { content: ""; position: absolute; inset: 0; z-index: -1;
+        background: linear-gradient(to top right, rgb(22 31 57 / 0.78) 0%, rgb(22 31 57 / 0.55) 40%, transparent 78%); }
+      .x-copy { display: grid; gap: 16px; justify-items: start; max-width: 580px; }
+      .x-icon { width: 110px; height: 110px; object-fit: contain; filter: drop-shadow(0 12px 28px rgb(0 0 0 / 0.35)); }
+      .x-gchip { display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 999px;
+        font: 500 13px var(--x-sans); color: #fff; background: rgb(22 31 57 / 0.5); border: 1px solid rgb(255 255 255 / 0.3);
+        -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+      .x-title { font: 600 clamp(44px, 7vw, 76px) / 1.02 var(--x-sans); letter-spacing: -0.035em; }
+      .x-title .g { display: block; padding-bottom: 0.05em; background: var(--x-grad);
+        -webkit-background-clip: text; background-clip: text; color: #2dd4bf; -webkit-text-fill-color: transparent; }
+      .x-title .w { display: block; color: #fff; font-size: 0.55em; letter-spacing: -0.02em; text-shadow: 0 1px 14px rgb(0 0 0 / 0.3); }
+      .x-hsub { font: 400 17px / 1.45 var(--x-sans); color: #fff; max-width: 470px; text-shadow: 0 1px 14px rgb(0 0 0 / 0.35); }
+      .x-get { color: #1d1d1f; background: rgb(255 255 255 / 0.84); border: 1px solid rgb(255 255 255 / 0.6); border-radius: 28px;
+        padding: 22px; display: grid; gap: 12px; box-shadow: 0 20px 50px rgb(0 0 0 / 0.22);
+        -webkit-backdrop-filter: blur(50px) saturate(1.6); backdrop-filter: blur(50px) saturate(1.6); }
+      .x-get__h { font: 500 13px var(--x-sans); color: #515154; }
+      .x-get__lead { font: 600 18px / 1.35 var(--x-sans); }
+      .x-ctas { display: flex; flex-wrap: wrap; gap: 8px; }
+      .x-cta { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 18px; border-radius: 999px;
+        border: 1px solid rgb(29 29 31 / 0.3); background: rgb(255 255 255 / 0.55); color: #1d1d1f; text-decoration: none; font: 500 14px var(--x-sans); }
+      .x-cta:hover { background: #fff; }
+      .x-get__fine { font: 400 12px / 1.5 var(--x-sans); color: #515154; }
+
+      /* dashboard */
+      .x-dash { display: grid; gap: 16px; min-width: 0; scroll-margin-top: 84px; color: var(--x-tx); font-family: var(--x-sans); }
+      .x-glass { background: var(--x-surf); border: 1px solid var(--x-bd); }
+      .x-top { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 12px 14px; border-radius: 24px; }
+      .x-sel { font: 500 13px var(--x-sans); color: var(--x-tx); background: var(--x-surf);
+        border: 1px solid var(--x-bd3); border-radius: 999px; padding: 0 14px; min-height: 40px; }
+      .x-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; color: var(--x-mu); }
+      .x-meta span { padding: 9px 14px; border-radius: 999px; background: var(--x-surf2); white-space: nowrap; }
+      .x-meta b { color: var(--x-tx); font-weight: 500; font-family: var(--x-mono); }
+      .x-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+      .x-btn { font: 500 13px var(--x-sans); color: var(--x-tx); background: var(--x-surf);
+        border: 1px solid var(--x-bd3); border-radius: 999px; padding: 0 16px; min-height: 40px; cursor: pointer; white-space: nowrap; }
+      .x-btn:hover { background: var(--x-tint); }
+      .x-btn--p, .x-btn--p:hover { background-color: #2dd4bf; background-image: var(--x-grad); border-color: transparent; color: var(--x-ongrad); }
+      .x-btn--p:hover { filter: brightness(1.06); }
+      .x-btn--d { border-color: rgb(218 47 53 / 0.55); color: var(--x-offtx); }
+      .x-btn--s { min-height: 32px; padding: 0 12px; font-size: 12px; }
+      .x-main { min-width: 0; }
+      .x-h { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 4px; }
+      .x-sub { color: var(--x-mu); font-size: 13px; margin-bottom: 16px; }
+      .x-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+      .x-card { border-radius: 24px; padding: 16px 18px; }
+      .x-fig { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; display: block; }
+      .x-lab { font-size: 12px; color: var(--x-mu); }
+      .x-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+      .x-chip { font: 500 13px var(--x-sans); color: var(--x-tx); background: var(--x-surf); border: 1px solid var(--x-bd3);
+        border-radius: 999px; padding: 0 16px; min-height: 36px; cursor: pointer; }
+      .x-chip.is-on { color: var(--x-ongrad); background-color: #2dd4bf; background-image: var(--x-grad); border-color: transparent; }
+      .x-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+      .x-tile { border-radius: 24px; padding: 12px; cursor: pointer; text-align: left; color: inherit; font: inherit; transition: border-color .2s, box-shadow .2s; }
+      .x-tile:hover { border-color: var(--x-bd3); box-shadow: 0 8px 24px rgb(0 0 0 / 0.06); }
+      .x-tile.is-off { border-color: rgb(218 47 53 / 0.85); box-shadow: 0 0 0 1px rgb(218 47 53 / 0.4) inset; }
+      .x-tile.is-gone { opacity: .55; }
+      .x-who { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+      .x-who small { margin-left: auto; color: var(--x-mu); font: 12px var(--x-mono); }
+      .x-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--x-gone); }
+      .x-dot.on { background: var(--x-on); box-shadow: 0 0 8px var(--x-on); }
+      .x-dot.idle { background: var(--x-idle); }
+      .x-dot.off { background: var(--x-off); box-shadow: 0 0 8px var(--x-off); }
+      .x-mock { position: relative; border-radius: 14px; overflow: hidden; background: var(--x-mock); border: 1px solid var(--x-bd); }
+      .x-bar { display: flex; align-items: center; gap: 4px; padding: 5px 7px; background: var(--x-tint); }
+      .x-bar i { width: 6px; height: 6px; border-radius: 50%; background: var(--x-bd3); }
+      .x-url { flex: 1; margin-left: 4px; font: 12px var(--x-mono); color: var(--x-mu); background: var(--x-surf);
+        border-radius: 8px; padding: 2px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .x-pg { height: 92px; padding: 10px; display: grid; gap: 6px; align-content: start; }
+      .x-mock--big .x-pg { height: 260px; padding: 18px; gap: 10px; }
+      .x-mock--big .x-url { font-size: 13px; }
+      .x-pg b { display: block; height: 12px; width: 55%; border-radius: 4px; background: rgb(255 255 255 / 0.85); }
+      .x-pg span { display: block; height: 7px; border-radius: 4px; background: rgb(255 255 255 / 0.4); }
+      .x-mock--big .x-pg b { height: 20px; } .x-mock--big .x-pg span { height: 11px; }
+      .x-ov { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-weight: 600; font-size: 14px;
+        color: var(--x-tx); background: var(--x-lock); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+      .x-ov--b { color: var(--x-offtx); background: var(--x-blk); }
+      .x-ov small { display: block; font: 400 12px var(--x-mono); color: var(--x-mu); }
+      .x-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .x-tbl th, .x-tbl td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--x-bd); }
+      .x-tbl thead th { font-size: 12px; font-weight: 500; color: var(--x-mu); }
+      .x-tbl tr:last-child td { border-bottom: 0; }
+      .x-wrap { border-radius: 24px; overflow: auto; }
+      .x-mono { font-family: var(--x-mono); font-size: 12px; }
+      .x-st { display: inline-flex; align-items: center; gap: 6px; }
+      .x-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+      .x-in { font: 13px var(--x-mono); color: var(--x-tx); background: var(--x-surf); border: 1px solid var(--x-bd3);
+        border-radius: 999px; padding: 0 16px; min-height: 40px; min-width: 220px; flex: 1; max-width: 360px; }
+      .x-in::placeholder { color: var(--x-mu); }
+      .x-bl { display: inline-flex; align-items: center; gap: 4px; padding: 4px 4px 4px 14px; border-radius: 999px;
+        border: 1px solid rgb(218 47 53 / 0.5); background: rgb(218 47 53 / 0.08); font: 13px var(--x-mono); }
+      .x-bl button { width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--x-tint); color: var(--x-tx); cursor: pointer; }
+      .x-tog { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+      .x-tog input { appearance: none; width: 42px; height: 24px; border-radius: 12px; background: var(--x-bd3); position: relative; cursor: pointer; margin: 0; transition: background .2s; }
+      .x-tog input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.2); transition: left .2s; }
+      .x-tog input:checked { background: var(--x-grad); }
+      .x-tog input:checked::after { left: 21px; }
+      .x-feed { list-style: none; margin: 0; padding: 0; border-radius: 24px; overflow: hidden; }
+      .x-feed li { display: flex; gap: 14px; padding: 11px 18px; border-bottom: 1px solid var(--x-bd); font-size: 14px; }
+      .x-feed li:last-child { border: 0; }
+      .x-feed time { font: 12px var(--x-mono); color: var(--x-mu); flex: none; padding-top: 2px; }
+      .x-alerts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+      .x-alert { border-radius: 24px; padding: 16px 18px; border-left: 3px solid var(--x-off); display: grid; gap: 8px; }
+      .x-alert p { font-size: 14px; } .x-alert time { font: 12px var(--x-mono); color: var(--x-mu); }
+      .x-empty { color: var(--x-mu); padding: 30px; text-align: center; border-radius: 24px; }
+      .x-modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; background: rgb(5 8 20 / 0.45);
+        color: var(--x-tx); font-family: var(--x-sans); }
+      .x-modal[hidden] { display: none; }
+      .x-dlg { width: min(760px, 100%); max-height: 92vh; overflow: auto; border-radius: 28px; padding: 22px; box-shadow: 0 30px 80px rgb(0 0 0 / 0.25); }
+      .x-dlg-g { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin: 14px 0; }
+      .x-tabs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+      .x-tabs li { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 14px; background: var(--x-tint); }
+      .x-tabs li span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+      .x-tabs li.bad span { color: var(--x-offtx); }
+      .x-toasts { position: fixed; right: 16px; bottom: 16px; z-index: 30; display: grid; gap: 8px; }
+      .x-toast { border-radius: 16px; padding: 10px 16px; font: 14px var(--x-sans); color: var(--x-tx); border-color: var(--x-bd3);
+        box-shadow: 0 10px 30px rgb(0 0 0 / 0.12); animation: x-in .25s ease-out; }
+      @keyframes x-in { from { opacity: 0; transform: translateY(8px); } }
+
+      /* sign-in gate */
+      .x-gate { position: fixed; inset: 0; z-index: 25; overflow: auto; display: grid; place-items: center; align-content: center; gap: 12px; padding: 24px 16px;
+        font-family: var(--x-sans); background: radial-gradient(circle at 15% 10%, rgb(45 212 191 / 0.35), transparent 50%),
+        radial-gradient(circle at 85% 90%, rgb(14 165 233 / 0.3), transparent 50%), #161f39; }
+      .x-gate[hidden] { display: none; }
+      .x-gate *, .x-gf * { box-sizing: border-box; }
+      .x-gcard { width: min(420px, 100%); justify-items: center; text-align: center; }
+      .x-gcard .x-icon { width: 72px; height: 72px; }
+      .x-gt { font: 600 38px / 1.05 var(--x-sans); letter-spacing: -0.03em; background: linear-gradient(90deg, #0f766e, #0369a1);
+        -webkit-background-clip: text; background-clip: text; color: #0f766e; -webkit-text-fill-color: transparent; }
+      .x-seg { display: flex; width: 100%; padding: 4px; border-radius: 999px; background: #e8e8ed; }
+      .x-seg button { flex: 1; min-height: var(--tap); border: 0; border-radius: 999px; background: #e8e8ed; font: 500 14px var(--x-sans); color: #1d1d1f; cursor: pointer; }
+      .x-seg button.is-on { background-color: #2dd4bf; background-image: var(--x-grad); color: var(--x-ongrad); }
+      .x-gf { display: grid; gap: 10px; width: 100%; text-align: left; font-size: 14px; }
+      .x-gf label { display: grid; gap: 4px; font: 500 12px var(--x-sans); color: var(--x-mu); }
+      .x-gf .x-in, .x-gf .x-sel { width: 100%; max-width: none; min-width: 0; border-radius: 14px; font-family: var(--x-sans); }
+      .x-gate .x-gf label { color: #515154; }
+      .x-gate .x-in, .x-gate .x-sel { background: #fff; color: #1d1d1f; border-color: rgb(29 29 31 / 0.3); }
+      .x-gate .x-btn:not(.x-btn--p) { background: #fff; color: #1d1d1f; border-color: rgb(29 29 31 / 0.3); }
+      .x-codein { font: 500 22px var(--x-mono) !important; letter-spacing: 0.3em; text-align: center; }
+      .x-err { font: 500 12px var(--x-sans); color: var(--x-offtx); }
+      .x-gate .x-err { color: #c4262c; }
+      .x-err:empty { display: none; }
+      .x-glink { border: 0; background: none; color: #fff; font: 500 14px var(--x-sans); text-decoration: underline; text-underline-offset: 3px; min-height: var(--tap); cursor: pointer; }
+
+      /* teacher row, modes, students */
+      .x-user { flex-basis: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; font-size: 13px; color: var(--x-mu);
+        padding-bottom: 10px; border-bottom: 1px solid var(--x-bd); }
+      .x-user b { color: var(--x-tx); font-weight: 500; }
+      .x-user .x-btn { margin-left: auto; }
+      .x-tag { padding: 3px 10px; border-radius: 999px; background-color: #2dd4bf; background-image: var(--x-grad); color: var(--x-ongrad); font: 500 12px var(--x-sans); }
+      .x-modes { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-bottom: 20px; }
+      .x-mcard { border-radius: 24px; padding: 6px; display: grid; gap: 2px; align-content: start; }
+      .x-mcard.is-on { border-color: #14b8a6; box-shadow: 0 0 0 1px #14b8a6 inset; }
+      .x-mpick { display: grid; gap: 4px; text-align: left; padding: 12px; border: 0; border-radius: 18px; background: none; color: inherit; font: inherit; cursor: pointer; }
+      .x-mpick:hover { background: var(--x-tint); }
+      .x-mpick b { font-size: 16px; font-weight: 600; }
+      .x-mrow { display: flex; gap: 6px; padding: 0 8px 8px; }
+      .x-madd { border-radius: 24px; border: 1px dashed var(--x-bd3); background: none; color: var(--x-tx); font: 500 14px var(--x-sans); cursor: pointer; min-height: 96px; }
+      .x-madd:hover { background: var(--x-tint); }
+      .x-note { border-radius: 18px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; background: rgb(20 184 166 / 0.1); border: 1px solid rgb(20 184 166 / 0.4); }
+      .x-bl.ok { border-color: rgb(0 166 101 / 0.5); background: rgb(0 166 101 / 0.08); }
+      .x-h2 { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+      .x-code { font: 500 30px var(--x-mono); letter-spacing: 0.18em; }
+      .x-dlg-g--eq { grid-template-columns: 1fr 1fr; align-items: start; }
+      .x-dlg-g--eq .x-card { display: grid; gap: 10px; justify-items: start; }
+      .x-tabs li small { display: block; color: var(--x-mu); font-size: 12px; }
+      @media (max-width: 760px) {
+        .x-pill { justify-self: stretch; }
+        .x-hero { grid-template-columns: 1fr; min-height: 0; padding: 28px 20px 20px; border-radius: 28px; }
+        .x-hero::before { background: linear-gradient(to top, rgb(22 31 57 / 0.86) 0%, rgb(22 31 57 / 0.62) 60%, rgb(22 31 57 / 0.4) 100%); }
+        .x-icon { width: 88px; height: 88px; }
+        .x-sum { grid-template-columns: repeat(2, 1fr); }
+        .x-dlg-g { grid-template-columns: 1fr; }
+        .x-acts { margin-left: 0; }
+        .x-btn, .x-chip, .x-sel, .x-in { min-height: 44px; }
+        .x-bl button { width: 44px; height: 44px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <nav class="x-pill" aria-label="Dashboard views">
+        <button class="x-nav is-on" data-view="screens">Live Screens</button>
+        <button class="x-nav" data-view="tabs">Open Tabs</button>
+        <button class="x-nav" data-view="block">Modes &amp; Sites</button>
+        <button class="x-nav" data-view="log">Activity Log</button>
+        <button class="x-nav" data-view="alerts">Alerts <span class="x-badge" id="badge"></span></button>
+        <button class="x-theme" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>
+      </nav>
+      <section class="x-hero">
+        <img class="x-hero__img" src="classview_hero.jpg" alt="A Chromebook on a classroom desk showing a grid dashboard with one tile glowing teal" />
+        <div class="x-copy">
+          <img class="x-icon" src="classview_icon.png" alt="ClassView app icon" />
+          <span class="x-gchip">Free · Chromebooks · Created by Yathin Pedamallu</span>
+          <h1 class="x-title"><span class="g">ClassView</span><span class="w">for Chromebook classrooms</span></h1>
+          <p class="x-hsub">See every student's screen, close off-task tabs, and block sites, all from one dashboard.</p>
+        </div>
+        <aside class="x-get" aria-label="Get started">
+          <p class="x-get__h">Get started</p>
+          <p class="x-get__lead">Start a class session. Pick your period and go.</p>
+          <div class="x-ctas">
+            <a class="x-cta" href="#dash">Start session</a>
+            <a class="x-cta" href="https://praveenp-works.github.io/yathin_apps/classview/" target="_blank" rel="noopener">View on GitHub ↗</a>
+          </div>
+          <div>
+            <p class="x-get__fine">Demo mode, simulated students.</p>
+            <p class="x-get__fine">Real version uses a managed Chrome extension.</p>
+          </div>
+        </aside>
+      </section>
+      <div class="x-dash" id="dash">
+        <header class="x-top x-glass">
+          <div class="x-user" id="who"></div>
+          <select class="x-sel" id="cls" aria-label="Class">
+            <option>Period 2 – 7th Grade Science</option>
+            <option>Period 4 – 8th Grade Math</option>
+          </select>
+          <div class="x-meta"><span>Session <b id="timer">00:00</b></span><span>Online <b id="online">0/0</b></span><span>Mode: <b id="modep">Normal</b></span></div>
+          <div class="x-acts">
+            <button class="x-btn" data-act="students">+ Add students</button>
+            <button class="x-btn" data-act="lockall">Lock All</button>
+            <button class="x-btn" data-act="unlockall">Unlock All</button>
+            <button class="x-btn x-btn--p" data-act="msgall">Message All</button>
+            <button class="x-btn x-btn--d" data-act="end">End Session</button>
+          </div>
+        </header>
+        <main class="x-main" id="view"></main>
+      </div>
+      <div class="x-modal" id="modal" hidden><div class="x-dlg x-glass" role="dialog" aria-modal="true" id="dlg"></div></div>
+      <div class="x-gate" id="gate">
+        <div class="x-get x-gcard" role="dialog" aria-modal="true" aria-label="Sign in to ClassView">
+          <img class="x-icon" src="classview_icon.png" alt="ClassView app icon" />
+          <h1 class="x-gt">ClassView</h1>
+          <p class="x-get__fine">For teachers. Sign up or sign in to monitor your class.</p>
+          <div class="x-seg" role="tablist"><button type="button" data-gtab="up">Sign up</button><button type="button" data-gtab="in">Sign in</button></div>
+          <div id="gbody" style="width:100%"></div>
+        </div>
+        <button class="x-glink" type="button" data-act="demo">Just exploring? Try demo mode</button>
+      </div>
+      <div class="x-toasts" id="toasts" aria-live="polite"></div>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      (() => {
+        const SITES = {
+          "docs.google.com": { c: "#2f6fe4", t: "Lab Report – Draft", edu: 1 },
+          "classroom.google.com": { c: "#1e8e3e", t: "Classroom – Assignments", edu: 1 },
+          "khanacademy.org": { c: "#14bf96", t: "Khan Academy – Practice", edu: 1 },
+          "desmos.com": { c: "#7b3fe4", t: "Desmos Graphing", edu: 1 },
+          "youtube.com": { c: "#d62020", t: "YouTube", edu: 0 },
+          "coolmathgames.com": { c: "#e88a00", t: "Coolmath Games", edu: 0 },
+        };
+        const DOMS = Object.keys(SITES), EDU = DOMS.filter((d) => SITES[d].edu), FUN = DOMS.filter((d) => !SITES[d].edu);
+        const ROSTERS = [
+          ["Aiden Patel", "Sofia Ramirez", "Liam Chen", "Maya Johnson", "Noah Kim", "Ava Thompson", "Ethan Nguyen", "Zoe Williams",
+           "Lucas Okafor", "Isabella Rossi", "Mateo Hernández", "Amara Mensah", "Kai Nakamura", "Priya Sharma", "Elijah Brooks", "Layla Haddad"],
+          ["Jayden Lee", "Camila Torres", "Omar Farouk", "Hannah Schmidt", "Diego Morales", "Chloe Martin", "Arjun Mehta", "Grace O'Brien",
+           "Malik Washington", "Yuna Park", "Santiago Cruz", "Fatima Ali", "Owen Murphy", "Leah Cohen", "Tariq Jones", "Mei Lin"],
+        ];
+        const STLAB = { on: "On task", idle: "Idle", off: "Off task", gone: "Offline" };
+        const $ = (s) => document.querySelector(s);
+        const rnd = (a) => a[Math.floor(Math.random() * a.length)];
+        const esc = (s) => String(s).replace(/[&<>"']/g, (c) => "&#" + c.charCodeAt(0) + ";");
+        const now = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+        let S, view = "screens", filter = "all", openId = null, live = true;
+        let log = [], alerts = [], blockedN = 0, start = Date.now(), aid = 0;
+        const modes = [
+          { id: "normal", name: "Normal", type: "block", fixed: 1, sites: new Set(["youtube.com", "tiktok.com", "roblox.com", "coolmathgames.com", "discord.com"]) },
+          { id: "test", name: "Test", type: "allow", fixed: 1, sites: new Set(["classroom.google.com", "docs.google.com"]) },
+        ];
+        let modeId = "normal", mid = 0;
+        const M = () => modes.find((m) => m.id === modeId);
+        const isBlocked = (d) => (M().type === "allow" ? !M().sites.has(d) : M().sites.has(d));
+        const resync = () => S.forEach((s) => (s.blocked = isBlocked(s.site)));
+        const clean = (v) => v.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
+
+        // teacher accounts and student joins, in memory only
+        const DIST = ["Frisco ISD", "Plano ISD", "Allen ISD", "McKinney ISD", "Prosper ISD", "Dallas ISD", "Houston ISD", "Austin ISD", "Northside ISD", "Other"];
+        const POOL = ["Ruby Alvarez", "Ben Carter", "Nia Robinson", "Felix Wagner", "Aria Gupta", "Leo Duarte", "Sana Iqbal", "Miles Turner", "Elena Petrova", "Jonah Reyes"];
+        let T = null, acct = null, draft = null, code = "", pending = [], pid = 0;
+        const mkCode = () => Array.from({ length: 6 }, () => rnd([..."ABCDEFGHJKLMNPQRSTUVWXYZ23456789"])).join("");
+        const dom = () => (T && T.email ? T.email.split("@")[1] : "friscoisd.org");
+        const status = (s) => (!s.online ? "gone" : !SITES[s.site].edu ? "off" : s.idle ? "idle" : "on");
+
+        function load(i) {
+          S = ROSTERS[i].map((name, id) => {
+            const site = Math.random() < 0.85 ? rnd(EDU) : rnd(FUN);
+            const tabs = [...new Set([site, rnd(EDU), ...(Math.random() < 0.4 ? [rnd(DOMS)] : [])])];
+            return { id, name, site, tabs, idle: Math.random() < 0.1, online: Math.random() > 0.07, locked: false, blocked: false };
+          });
+          resync();
+          log = []; alerts = []; blockedN = 0; start = Date.now(); live = true; code = mkCode(); pending = [];
+          addLog("Session started for " + $("#cls").value);
+        }
+        function addLog(msg) { log.unshift({ t: now(), msg }); if (log.length > 200) log.pop(); }
+        function addAlert(s, msg) { alerts.unshift({ id: ++aid, sid: s.id, t: now(), msg }); }
+        function toast(msg) {
+          const el = document.createElement("div");
+          el.className = "x-toast x-glass"; el.textContent = msg; $("#toasts").append(el);
+          setTimeout(() => el.remove(), 3000);
+        }
+
+        function mock(s, big) {
+          const m = SITES[s.site], path = s.site + "/" + m.t.toLowerCase().split(" ")[0];
+          const ov = s.locked
+            ? `<div class="x-ov">🔒 Screen locked<small>by teacher</small></div>`
+            : s.blocked ? `<div class="x-ov x-ov--b">⛔ Blocked<small>${esc(s.site)}</small></div>` : "";
+          return `<div class="x-mock${big ? " x-mock--big" : ""}"><div class="x-bar"><i></i><i></i><i></i><span class="x-url">${esc(path)}</span></div>
+            <div class="x-pg" style="background:linear-gradient(160deg,${m.c},${m.c}99)"><b></b><span style="width:90%"></span><span style="width:75%"></span><span style="width:82%"></span>${big ? '<span style="width:60%"></span><span style="width:70%"></span>' : ""}</div>${ov}</div>`;
+        }
+
+        function tick() {
+          if (!live) return;
+          const pool = S.filter((s) => !s.locked);
+          for (let n = 0; n < 3 && pool.length; n++) {
+            const s = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], r = Math.random();
+            if (r < 0.07) { s.online = !s.online; addLog(`${s.name} ${s.online ? "came online" : "went offline"}`); continue; }
+            if (!s.online) continue;
+            if (r < 0.2) { s.idle = !s.idle; if (s.idle) addLog(`${s.name} is idle on ${s.site}`); continue; }
+            const site = Math.random() < 0.65 ? rnd(EDU) : rnd(FUN);
+            if (site === s.site) continue;
+            s.site = site; s.idle = false;
+            if (!s.tabs.includes(site)) s.tabs.push(site);
+            s.blocked = isBlocked(site);
+            if (s.blocked) {
+              blockedN++;
+              addLog(`${s.name} tried to open ${site} — blocked`);
+              addAlert(s, `Tried to open blocked site ${site}`);
+            } else if (!SITES[site].edu) {
+              addLog(`${s.name} went off task: ${site}`);
+              addAlert(s, `Off task on ${site}`);
+            } else addLog(`${s.name} opened ${site}`);
+          }
+          render();
+        }
+
+        function header() {
+          const on = S.filter((s) => s.online).length;
+          $("#online").textContent = `${on}/${S.length}`;
+          $("#badge").textContent = alerts.length || "";
+          $("#modep").textContent = M().name;
+        }
+
+        const V = {
+          screens() {
+            const on = S.filter((s) => s.online), st = on.map(status);
+            const pct = on.length ? Math.round((st.filter((x) => x === "on").length / on.length) * 100) : 0;
+            const avg = on.length ? (on.reduce((a, s) => a + s.tabs.length, 0) / on.length).toFixed(1) : "0";
+            const list = S.filter((s) => filter === "all" || status(s) === filter);
+            return `<h1 class="x-h">Live Screens</h1><p class="x-sub">Updates every 4 seconds. Click a screen for details.</p>
+            <div class="x-sum">
+              <div class="x-card x-glass"><span class="x-fig">${pct}%</span><span class="x-lab">On task</span></div>
+              <div class="x-card x-glass"><span class="x-fig" style="color:var(--x-offtx)">${st.filter((x) => x === "off").length}</span><span class="x-lab">Off task</span></div>
+              <div class="x-card x-glass"><span class="x-fig">${blockedN}</span><span class="x-lab">Blocked attempts</span></div>
+              <div class="x-card x-glass"><span class="x-fig">${avg}</span><span class="x-lab">Avg tabs</span></div>
+            </div>
+            <div class="x-chips">${[["all", "All"], ["on", "On task"], ["off", "Off task"], ["idle", "Idle"]]
+              .map(([k, l]) => `<button class="x-chip${filter === k ? " is-on" : ""}" data-filter="${k}">${l}</button>`).join("")}</div>
+            <div class="x-grid">${list.map((s) => {
+              const k = status(s);
+              return `<button class="x-tile x-glass${k === "off" ? " is-off" : ""}${k === "gone" ? " is-gone" : ""}" data-open="${s.id}">
+                <div class="x-who"><span class="x-dot ${k}" title="${STLAB[k]}"></span>${esc(s.name)}<small>${s.tabs.length} tabs</small></div>${mock(s)}</button>`;
+            }).join("") || '<p class="x-empty x-glass">No students match this filter.</p>'}</div>`;
+          },
+          tabs() {
+            return `<h1 class="x-h">Open Tabs</h1><p class="x-sub">Every tab open on each Chromebook right now.</p>
+            <div class="x-wrap x-glass"><table class="x-tbl"><thead><tr><th>Student</th><th>Tabs</th><th>Active site</th><th>Status</th><th></th></tr></thead><tbody>
+            ${S.map((s) => {
+              const k = status(s), bad = s.tabs.filter((d) => !SITES[d].edu).length;
+              return `<tr><td>${esc(s.name)}</td><td class="x-mono">${s.tabs.length}</td><td class="x-mono">${esc(s.site)}</td>
+              <td><span class="x-st"><span class="x-dot ${k}"></span>${STLAB[k]}</span></td>
+              <td><button class="x-btn x-btn--s" data-closeoff="${s.id}"${bad ? "" : " disabled style='opacity:.4'"}>Close off-task tabs${bad ? ` (${bad})` : ""}</button></td></tr>`;
+            }).join("")}</tbody></table></div>`;
+          },
+          block() {
+            const m = M(), al = m.type === "allow";
+            return `<h1 class="x-h">Modes &amp; Sites</h1><p class="x-sub">The active mode applies to every Chromebook in this class.</p>
+            <div class="x-modes">${modes.map((x) => `<div class="x-mcard x-glass${x.id === modeId ? " is-on" : ""}">
+              <button class="x-mpick" data-mode="${x.id}" aria-pressed="${x.id === modeId}"><b>${esc(x.name)}</b>
+              <span class="x-lab">${x.type === "allow" ? "Allow-only" : "Block list applies"} · ${x.sites.size} site${x.sites.size === 1 ? "" : "s"}${x.id === modeId ? " · Active" : ""}</span></button>
+              ${x.fixed ? "" : `<div class="x-mrow"><button class="x-btn x-btn--s" data-rename="${x.id}">Rename</button><button class="x-btn x-btn--s x-btn--d" data-delmode="${x.id}">Delete</button></div>`}</div>`).join("")}
+              <button class="x-madd" data-act="addmode">+ Add mode</button></div>
+            <h2 class="x-h2">${al ? "Allowed sites" : "Blocked sites"} · ${esc(m.name)}</h2>
+            ${al ? `<p class="x-note">In ${esc(m.name)} mode, everything is blocked except the allowed sites. You can only edit allowed sites.</p>` : ""}
+            <form class="x-row" id="addf"><input class="x-in" id="addd" placeholder="Add a domain, e.g. ${al ? "khanacademy.org" : "netflix.com"}" aria-label="Domain to ${al ? "allow" : "block"}" /><button class="x-btn x-btn--p">${al ? "Allow domain" : "Block domain"}</button></form>
+            <div class="x-chips">${[...m.sites].map((d) => `<span class="x-bl${al ? " ok" : ""}">${esc(d)}<button data-unblock="${esc(d)}" aria-label="Remove ${esc(d)}">×</button></span>`).join("") || `<span class="x-lab">No ${al ? "allowed" : "blocked"} domains.</span>`}</div>`;
+          },
+          log() {
+            return `<div class="x-row" style="justify-content:space-between"><div><h1 class="x-h">Activity Log</h1><p class="x-sub" style="margin:0">Newest first · ${log.length} entries</p></div>
+            <button class="x-btn x-btn--p" data-act="csv">Export CSV</button></div>
+            <ul class="x-feed x-glass">${log.map((e) => `<li><time>${e.t}</time><span>${esc(e.msg)}</span></li>`).join("")}</ul>`;
+          },
+          alerts() {
+            return `<h1 class="x-h">Alerts</h1><p class="x-sub">Off-task visits and blocked attempts.</p>
+            ${alerts.length ? `<div class="x-row"><button class="x-btn x-btn--s" data-act="clearalerts">Dismiss all</button></div><div class="x-alerts">${alerts.map((a) => `<div class="x-alert x-glass">
+              <time>${a.t}</time><p><b>${esc(S[a.sid].name)}</b> · ${esc(a.msg)}</p>
+              <div class="x-row" style="margin:0"><button class="x-btn x-btn--s" data-dismiss="${a.id}">Dismiss</button><button class="x-btn x-btn--s x-btn--p" data-open="${a.sid}">Message</button></div></div>`).join("")}</div>`
+              : '<p class="x-empty x-glass">No alerts. Everyone is on track.</p>'}`;
+          },
+        };
+
+        function render() {
+          header();
+          const v = $("#view"), focus = document.activeElement && document.activeElement.id;
+          if (view === "block" && focus === "addd") return;
+          const sc = v.scrollTop; v.innerHTML = V[view](); v.scrollTop = sc;
+          if (openId !== null) modal();
+        }
+
+        function modal() {
+          const s = S[openId], k = status(s), d = $("#dlg"), msg = d.querySelector("#msg");
+          if (msg && document.activeElement === msg) { d.querySelector(".x-mock").outerHTML = mock(s, true); return; }
+          d.innerHTML = `<div class="x-row" style="justify-content:space-between;margin:0"><div class="x-who" style="margin:0;font-size:18px"><span class="x-dot ${k}"></span>${esc(s.name)} <span class="x-lab">${STLAB[k]}</span></div>
+            <button class="x-btn x-btn--s" data-act="close" aria-label="Close">Close</button></div>
+            <div class="x-dlg-g">${mock(s, true)}<div><p class="x-lab" style="margin-bottom:8px">Open tabs (${s.tabs.length})</p><ul class="x-tabs">
+              ${s.tabs.map((t, i) => `<li class="${SITES[t].edu ? "" : "bad"}"><span class="x-mono">${esc(t)}${t === s.site ? " · active" : ""}</span><button class="x-btn x-btn--s" data-closetab="${i}">Close</button></li>`).join("")}</ul></div></div>
+            <div class="x-row" style="margin:0"><button class="x-btn${s.locked ? "" : " x-btn--p"}" data-act="lock">${s.locked ? "Unlock screen" : "Lock screen"}</button>
+            <form id="msgf" class="x-row" style="margin:0;flex:1"><input class="x-in" style="font-family:Geist,sans-serif" id="msg" placeholder="Message ${esc(s.name.split(" ")[0])}…" aria-label="Message" /><button class="x-btn x-btn--p">Send message</button></form></div>`;
+          $("#modal").hidden = false;
+        }
+
+        const dlgHead = (t) => `<div class="x-row" style="justify-content:space-between;margin:0 0 12px"><h2 class="x-h" style="margin:0">${t}</h2><button class="x-btn x-btn--s" data-act="close">Close</button></div>`;
+        function modeDlg() {
+          $("#dlg").innerHTML = dlgHead("Add mode") + `<form class="x-gf" id="modef" style="max-width:420px">
+            <label>Mode name<input class="x-in" id="mname" placeholder="e.g. Reading block" /></label>
+            <label>Type<select class="x-sel" id="mtype"><option value="block">Block list</option><option value="allow">Allow-only</option></select></label>
+            <label>Starting sites<input class="x-in" id="msites" placeholder="khanacademy.org, desmos.com" /></label>
+            <p class="x-err" id="merr"></p><button class="x-btn x-btn--p">Add mode</button></form>`;
+          $("#modal").hidden = false; $("#mname").focus();
+        }
+        function stuDlg() {
+          $("#dlg").innerHTML = dlgHead("Add students") + `<p class="x-sub">New students wait for your approval before their screen appears.</p>
+            <div class="x-dlg-g x-dlg-g--eq">
+              <div class="x-card x-glass"><p class="x-lab">Class join code</p><p class="x-code">${code}</p>
+                <p class="x-lab">Students enter this code in the ClassView extension.</p><button class="x-btn" data-act="simjoin">Simulate student joining</button></div>
+              <form class="x-card x-glass x-gf" id="stuf"><label>Add by email<input class="x-in" id="stue" type="email" placeholder="student@${esc(dom())}" /></label>
+                <p class="x-err" id="stuerr"></p><button class="x-btn x-btn--p">Add student</button></form>
+            </div>
+            <h3 class="x-h2">Waiting for approval (${pending.length})</h3>
+            ${pending.length ? `<ul class="x-tabs">${pending.map((p) => `<li><span>${esc(p.name)}<small>${esc(p.email)} · ${p.via}</small></span>
+              <button class="x-btn x-btn--s x-btn--p" data-approve="${p.id}">Approve</button><button class="x-btn x-btn--s" data-deny="${p.id}">Deny</button></li>`).join("")}</ul>`
+              : '<p class="x-lab">No one is waiting.</p>'}`;
+          $("#modal").hidden = false;
+        }
+        function addPending(name, email, via) {
+          pending.push({ id: ++pid, name, email, via }); addLog(`${name} asked to join (${via})`); stuDlg();
+        }
+
+        function gate(step) {
+          $("#gate").hidden = false; document.body.style.overflow = "hidden";
+          document.querySelectorAll(".x-seg button").forEach((b) => b.classList.toggle("is-on", b.dataset.gtab === (step === "in" ? "in" : "up")));
+          const f = (id, lab, type, ph) => `<label>${lab}<input class="x-in" id="${id}" type="${type}" placeholder="${ph}" /></label>`;
+          const err = '<p class="x-err" id="gerr" role="alert"></p>';
+          $("#gbody").innerHTML = step === "up"
+            ? `<form class="x-gf" id="gup" novalidate>${f("gname", "Full name", "text", "Jordan Rivera")}${f("gmail", "School email", "email", "you@friscoisd.org")}
+              <label>School district<select class="x-sel" id="gdist"><option value="">Choose your district</option>${DIST.map((d) => `<option>${d}</option>`).join("")}</select></label>
+              ${f("gpw", "Password", "password", "At least 8 characters")}${err}<button class="x-btn x-btn--p">Create account</button></form>`
+            : step === "in"
+            ? `<form class="x-gf" id="gin" novalidate>${f("gmail", "School email", "email", "you@friscoisd.org")}${f("gpw", "Password", "password", "Your password")}${err}<button class="x-btn x-btn--p">Sign in</button></form>`
+            : `<form class="x-gf" id="gver" novalidate><p>We sent a 6-digit code to <b>${esc(draft.email)}</b></p>
+              <label>Verification code<input class="x-in x-codein" id="gcode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></label>
+              <p class="x-get__fine">(Demo code: 482913)</p>${err}<button class="x-btn x-btn--p">Verify and continue</button>
+              <button type="button" class="x-btn" data-gtab="up">Use a different email</button></form>`;
+        }
+        function enter(t) {
+          T = t; $("#gate").hidden = true; document.body.style.overflow = "";
+          $("#who").innerHTML = `<b>${esc(t.name)}</b><span>${esc(t.district)}</span>${t.demo ? '<span class="x-tag">Demo mode</span>' : ""}<button class="x-btn x-btn--s" data-act="signout">Sign out</button>`;
+          load($("#cls").selectedIndex); resetEnd(); addLog(`${t.name} signed in`);
+          toast(`Welcome, ${t.name.split(" ")[0]}`); render(); scrollTo(0, 0);
+        }
+        function resetEnd() { const eb = document.querySelector('[data-act="restart"]'); if (eb) { eb.textContent = "End Session"; eb.dataset.act = "end"; } }
+        function setMode(id) {
+          modeId = id; resync(); addLog(`Switched to ${M().name} mode`); toast(`Mode: ${M().name}`); render();
+        }
+
+        function closeTab(s, i) {
+          const t = s.tabs.splice(i, 1)[0];
+          if (!s.tabs.length) s.tabs.push("classroom.google.com");
+          if (t === s.site) { s.site = s.tabs[0]; s.blocked = isBlocked(s.site); }
+          addLog(`Closed ${t} on ${s.name}'s Chromebook`);
+          return t;
+        }
+        function setLock(s, v) { s.locked = v; addLog(`${v ? "Locked" : "Unlocked"} ${s.name}'s screen`); }
+
+        document.addEventListener("click", (e) => {
+          const b = e.target.closest("button, [data-open]");
+          if (e.target.id === "modal") { openId = null; $("#modal").hidden = true; return; }
+          if (!b) return;
+          const ds = b.dataset;
+          if (ds.gtab) { gate(ds.gtab); return; }
+          if (ds.mode) { if (ds.mode !== modeId) setMode(ds.mode); return; }
+          if (ds.rename) {
+            const m = modes.find((x) => x.id === ds.rename), n = (prompt("Rename mode:", m.name) || "").trim();
+            if (n) { addLog(`Renamed mode ${m.name} to ${n}`); m.name = n; toast(`Renamed to ${n}`); render(); }
+            return;
+          }
+          if (ds.delmode) {
+            const m = modes.find((x) => x.id === ds.delmode);
+            if (!confirm(`Delete the ${m.name} mode?`)) return;
+            modes.splice(modes.indexOf(m), 1); addLog(`Deleted mode ${m.name}`);
+            if (modeId === m.id) setMode("normal"); else { toast(`${m.name} mode deleted`); render(); }
+            return;
+          }
+          if (ds.approve || ds.deny) {
+            const p = pending.find((x) => x.id === +(ds.approve || ds.deny));
+            pending = pending.filter((x) => x !== p);
+            if (ds.approve) {
+              S.push({ id: S.length, name: p.name, site: "classroom.google.com", tabs: ["classroom.google.com"], idle: false, online: true, locked: false, blocked: false });
+              resync(); addLog(`Approved ${p.name} to join the class`); toast(`${p.name} approved`);
+            } else { addLog(`Denied join request from ${p.name}`); toast(`${p.name} denied`); }
+            render(); stuDlg(); return;
+          }
+          if (ds.view) { view = ds.view; document.querySelectorAll(".x-nav").forEach((n) => n.classList.toggle("is-on", n === b)); render();
+            b.scrollIntoView({ block: "nearest", inline: "nearest" });
+            if ($("#dash").getBoundingClientRect().top > innerHeight * 0.6 || $("#dash").getBoundingClientRect().top < 0) $("#dash").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+          else if (ds.filter) { filter = ds.filter; render(); }
+          else if (ds.open !== undefined) { openId = +ds.open; modal(); setTimeout(() => $("#dlg #msg") && $("#dlg button").focus(), 0); }
+          else if (ds.closetab !== undefined) { toast(`Closed ${closeTab(S[openId], +ds.closetab)}`); render(); }
+          else if (ds.closeoff !== undefined) {
+            const s = S[+ds.closeoff]; let n = 0;
+            for (let i = s.tabs.length - 1; i >= 0; i--) if (!SITES[s.tabs[i]].edu) { closeTab(s, i); n++; }
+            toast(`Closed ${n} off-task tab${n > 1 ? "s" : ""} for ${s.name}`); render();
+          }
+          else if (ds.unblock) {
+            const al = M().type === "allow"; M().sites.delete(ds.unblock); resync();
+            addLog(`${al ? "Removed allowed site" : "Unblocked"} ${ds.unblock} (${M().name} mode)`); toast(`${ds.unblock} removed from ${al ? "allowed sites" : "block list"}`); render();
+          }
+          else if (ds.dismiss) { alerts = alerts.filter((a) => a.id !== +ds.dismiss); render(); }
+          else if (ds.act) {
+            const a = ds.act;
+            if (a === "close") { openId = null; $("#modal").hidden = true; }
+            else if (a === "demo") enter({ name: "Demo Teacher", district: "Sample district", demo: 1 });
+            else if (a === "signout") { addLog(`${T.name} signed out`); T = null; openId = null; $("#modal").hidden = true; gate(acct ? "in" : "up"); }
+            else if (a === "addmode") { openId = null; modeDlg(); }
+            else if (a === "students") { openId = null; stuDlg(); }
+            else if (a === "simjoin") {
+              const taken = new Set([...S, ...pending].map((x) => x.name)), name = POOL.find((n) => !taken.has(n)) || "Student " + (S.length + pending.length + 1);
+              addPending(name, name.toLowerCase().replace(/[^a-z ]/g, "").replace(" ", ".") + "@" + dom(), "join code");
+            }
+            else if (a === "lock") { const s = S[openId]; setLock(s, !s.locked); toast(`${s.name}'s screen ${s.locked ? "locked" : "unlocked"}`); render(); }
+            else if (a === "lockall") { S.forEach((s) => (s.locked = true)); addLog("Locked all screens"); toast("All screens locked"); render(); }
+            else if (a === "unlockall") { S.forEach((s) => (s.locked = false)); addLog("Unlocked all screens"); toast("All screens unlocked"); render(); }
+            else if (a === "msgall") {
+              const m = prompt("Message to the whole class:", "Eyes on the board, please.");
+              if (m) { addLog(`Message to all: "${m}"`); toast(`Message sent to ${S.filter((s) => s.online).length} students`); render(); }
+            }
+            else if (a === "end") {
+              if (!confirm("End the session for this class?")) return;
+              live = false; S.forEach((s) => (s.locked = false)); addLog("Session ended"); toast("Session ended. Press Restart to begin again.");
+              b.textContent = "Restart"; b.dataset.act = "restart"; render();
+            }
+            else if (a === "restart") { load($("#cls").selectedIndex); b.textContent = "End Session"; b.dataset.act = "end"; toast("New session started"); render(); }
+            else if (a === "clearalerts") { alerts = []; render(); }
+            else if (a === "csv") {
+              const csv = "time,event\n" + log.map((e) => `${e.t},"${e.msg.replace(/"/g, '""')}"`).join("\n");
+              const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+              const l = document.createElement("a"); l.href = url; l.download = "classview-activity-log.csv"; l.click();
+              setTimeout(() => URL.revokeObjectURL(url), 1000); toast("Activity log exported");
+            }
+          }
+        });
+
+        document.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const id = e.target.id, fail = (m, el = "#gerr") => { $(el).textContent = m; };
+          if (id === "gup") {
+            const name = $("#gname").value.trim(), email = $("#gmail").value.trim().toLowerCase(), district = $("#gdist").value, pw = $("#gpw").value;
+            if (!name) return fail("Enter your full name");
+            if (!/^[^@\s]+@[^@\s]+\.(org|edu|net|us)$/.test(email)) return fail("Use your school email");
+            if (!district) return fail("Choose your school district");
+            if (pw.length < 8) return fail("Password must be at least 8 characters");
+            draft = { name, email, district, pw }; gate("verify"); $("#gcode").focus();
+          } else if (id === "gver") {
+            if ($("#gcode").value.trim() !== "482913") return fail("That code doesn't match. Try again.");
+            acct = draft; enter(acct);
+          } else if (id === "gin") {
+            const email = $("#gmail").value.trim().toLowerCase(), pw = $("#gpw").value;
+            if (!acct) return fail("No account yet this session. Sign up first.");
+            if (email !== acct.email || pw !== acct.pw) return fail("Email or password is incorrect");
+            enter(acct);
+          } else if (id === "modef") {
+            const name = $("#mname").value.trim(), type = $("#mtype").value;
+            if (!name) return fail("Give the mode a name", "#merr");
+            const sites = new Set($("#msites").value.split(/[\s,]+/).map(clean).filter((d) => d.includes(".")));
+            modes.push({ id: "m" + ++mid, name, type, sites }); addLog(`Added mode ${name} (${type === "allow" ? "Allow-only" : "Block list"})`);
+            $("#modal").hidden = true; toast(`${name} mode added`); render();
+          } else if (id === "stuf") {
+            const email = $("#stue").value.trim().toLowerCase(), local = email.split("@")[0];
+            if (!local || !email.endsWith("@" + dom())) return fail("Student email must be from your school domain", "#stuerr");
+            if ([...S, ...pending].some((x) => x.email === email)) return fail("That student is already added", "#stuerr");
+            addPending(local.split(/[._-]+/).map((w) => w[0].toUpperCase() + w.slice(1)).join(" "), email, "email");
+          } else if (id === "msgf") {
+            const i = $("#msg"), m = i.value.trim(), s = S[openId];
+            if (!m) return;
+            addLog(`Message to ${s.name}: "${m}"`); toast(`Message sent to ${s.name}`); i.value = ""; i.blur(); render();
+          } else if (e.target.id === "addf") {
+            const i = $("#addd"), d = i.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
+            i.blur();
+            if (!d || !d.includes(".")) { toast("Enter a domain like example.com"); return; }
+            const al = M().type === "allow"; M().sites.add(d); resync();
+            addLog(`${al ? "Allowed" : "Blocked"} ${d} (${M().name} mode)`); toast(`${d} added to ${al ? "allowed sites" : "block list"}`); render();
+          }
+        });
+        document.addEventListener("change", (e) => {
+          if (e.target.id === "cls") {
+            load(e.target.selectedIndex); openId = null; $("#modal").hidden = true; resetEnd();
+            toast(`Switched to ${e.target.value}`); render();
+          }
+        });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#modal").hidden) { openId = null; $("#modal").hidden = true; } });
+
+        setInterval(() => {
+          if (!live) return;
+          const t = Math.floor((Date.now() - start) / 1000);
+          $("#timer").textContent = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+        }, 1000);
+        setInterval(tick, 4000);
+        load(0); render(); gate("up");
+      })();
+    </script>
+  </body>
+</html>

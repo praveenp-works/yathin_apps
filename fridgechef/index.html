@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fridge Chef</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root { --x-grad: linear-gradient(90deg, #facc15, #f97316, #ef4444); --x-on-grad: #2a1205; --sans: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; --mono: "Geist Mono", ui-monospace, monospace; --x-card: light-dark(#fff, #1c1c1e); }
+      /* Shared restyle: charcoal pill nav, rounded hero, light glass card, white content cards. */
+      .nav.glass { background: rgba(29, 29, 31, 0.9); border-color: rgba(255, 255, 255, 0.08); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14); border-radius: var(--r-pill); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+      .nav .seg { background: transparent; }
+      .nav .seg a { color: #d1d1d6; }
+      .nav .seg a:hover { color: #fff; }
+      .nav .seg a[aria-current="true"] { background-color: #f97316; background-image: var(--x-grad); color: var(--x-on-grad); }
+      .nav .theme-btn { background: rgba(255, 255, 255, 0.12); color: #f5f5f7; }
+      .nav .theme-btn:hover { box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.08); }
+      .nav :focus-visible { outline-color: #f5f5f7; }
+      .hero { border-radius: 36px; }
+      .hero::after { background: linear-gradient(to top right, rgb(22 31 57 / 0.78) 0%, rgb(22 31 57 / 0.35) 45%, transparent 75%); }
+      .x-icon { position: absolute; top: clamp(16px, 2.4vw, 24px); left: clamp(16px, 2.4vw, 24px); width: 88px; height: 88px; border-radius: var(--r-l); background: var(--hero-glass); border: 1px solid var(--hero-glass-stroke); display: grid; place-items: center; }
+      .x-icon img { width: 68px; height: 68px; object-fit: contain; }
+      .hero h1.x-h1 { display: grid; gap: 2px; font-weight: var(--weight-bold); font-size: clamp(44px, 7.5vw, 84px); line-height: 1.02; letter-spacing: -0.02em; }
+      .x-h1__sub { color: #fff; font-size: 0.62em; font-weight: var(--weight-medium); }
+      .x-title { color: #f97316; background: var(--x-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 0.06em; }
+      .hero > .callout { background: rgba(255, 255, 255, 0.96); box-shadow: 0 4px 16px #1d1d1f1f; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 28px; color: #1d1d1f; color-scheme: light; padding: 18px 20px 20px; gap: 12px; }
+      .hero > .callout .callout__head, .hero > .callout .fineprint { color: #636366; }
+      .hero > .callout .x-go, .hero > .callout .x-ghost { background: transparent; color: #1d1d1f; border: 1px solid #1d1d1f33; }
+      .hero > .callout .x-go:hover, .hero > .callout .x-ghost:hover { box-shadow: inset 0 0 0 100px #1d1d1f0d; }
+      @media (max-width: 760px) { .hero__copy { padding-top: 140px; } }
+      .x-go, .x-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); padding: 8px 18px; border-radius: var(--r-pill); font: var(--type-label); font-weight: var(--weight-medium); cursor: pointer; text-decoration: none; border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); }
+      .x-go { background: var(--x-grad); color: var(--x-on-grad); border-color: transparent; }
+      .x-go:hover, .x-ghost:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-go:disabled { opacity: 0.55; cursor: not-allowed; }
+      .x-panel { display: grid; gap: 20px; padding: clamp(18px, 3vw, 28px); border-radius: var(--r-l); background: var(--fill-tertiary); }
+      .x-drop { position: relative; display: grid; place-items: center; gap: 8px; min-height: 220px; padding: 24px; border: 2px dashed var(--stroke-primary); border-radius: var(--r-l); background: var(--fill-primary-on); text-align: center; cursor: pointer; overflow: hidden; }
+      .x-drop.is-over { border-color: #f97316; }
+      .x-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+      .x-drop strong { font: var(--type-heading); }
+      .x-drop span { font-size: var(--size-small); color: var(--text-secondary); }
+      .x-drop img { max-height: 320px; max-width: 100%; border-radius: var(--r-m); }
+      .x-field { display: grid; gap: 8px; }
+      .x-field > label, .x-label { font: var(--type-label); font-weight: var(--weight-medium); }
+      .x-input { min-height: var(--tap); padding: 8px 14px; border-radius: var(--r-s); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body); width: 100%; max-width: 420px; }
+      .x-opts { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+      .x-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .x-opt { min-height: 36px; padding: 6px 14px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-tag); cursor: pointer; }
+      .x-time { margin-top: 4px; }
+      .x-time[hidden] { display: none; }
+      .x-tnum { display: inline-flex; align-items: center; gap: 8px; font: var(--type-small); color: var(--text-secondary); }
+      .x-tnum .x-input { width: 84px; }
+      .x-opt[aria-pressed="true"] { background: var(--x-grad); color: var(--x-on-grad); border-color: transparent; font-weight: var(--weight-medium); }
+      .x-step { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--stroke-primary); border-radius: var(--r-pill); background: var(--fill-primary-on); padding: 3px; }
+      .x-step button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--fill-tertiary); color: var(--text-primary); font: var(--type-heading); cursor: pointer; }
+      .x-step output { min-width: 28px; text-align: center; font: var(--type-label); font-weight: var(--weight-medium); }
+      .x-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font: var(--type-label); min-height: var(--tap); }
+      .x-switch input { appearance: none; width: 44px; height: 26px; border-radius: var(--r-pill); background: var(--stroke-primary); position: relative; cursor: pointer; transition: background var(--dur-quick) ease; margin: 0; }
+      .x-switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0003; transition: transform var(--dur-quick) var(--ease-out); }
+      .x-switch input:checked { background: var(--x-grad); }
+      .x-switch input:checked::after { transform: translateX(18px); }
+      .x-status { display: flex; align-items: center; gap: 12px; font: var(--type-body); }
+      .x-status[hidden] { display: none; }
+      .x-ring { width: 32px; height: 32px; border-radius: 50%; background: conic-gradient(#facc15, #f97316, #ef4444, transparent 80%); -webkit-mask: radial-gradient(circle, transparent 10px, #000 11px); mask: radial-gradient(circle, transparent 10px, #000 11px); animation: x-spin 0.9s linear infinite; flex: none; }
+      @keyframes x-spin { to { transform: rotate(1turn); } }
+      .x-error { padding: 12px 16px; border-radius: var(--r-m); border: 1px solid var(--fill-system-red); color: var(--fill-system-red); font: var(--type-label); }
+      .x-error[hidden] { display: none; }
+      .x-groups { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+      .x-group { display: grid; gap: 10px; align-content: start; padding: 16px; border-radius: var(--r-l); background: var(--fill-tertiary); }
+      .x-group h3 { font: var(--type-label); font-weight: var(--weight-medium); color: var(--text-secondary); }
+      .x-ing { display: inline-flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border-radius: var(--r-pill); background: var(--fill-primary-on); border: 1px solid var(--stroke-primary); font: var(--type-tag); }
+      .x-ing small { color: var(--text-secondary); }
+      .x-ing button { width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 16px; }
+      .x-ing button:hover { background: var(--hover-wash); color: var(--text-primary); }
+      .x-add { display: flex; flex-wrap: wrap; gap: 8px; }
+      .x-add .x-input { flex: 1 1 200px; }
+      .x-add select { max-width: 180px; }
+      .x-recipes { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+      .x-recipe { display: grid; gap: 14px; align-content: start; padding: 22px; border-radius: var(--r-l); background: var(--fill-tertiary); }
+      .x-emoji { font-size: 44px; line-height: 1; }
+      .x-recipe h3 { font: var(--type-heading); }
+      .x-recipe ul { padding-left: 18px; font-size: var(--size-small); display: grid; gap: 2px; }
+      .x-miss li, .x-miss { color: var(--fill-system-red); }
+      .x-recipe details summary { cursor: pointer; font: var(--type-label); font-weight: var(--weight-medium); min-height: var(--tap); display: flex; align-items: center; }
+      .x-recipe ol { padding-left: 20px; display: grid; gap: 6px; font-size: var(--size-small); }
+      .x-empty { padding: 28px; border-radius: var(--r-l); border: 1px dashed var(--stroke-primary); color: var(--text-secondary); text-align: center; font: var(--type-body); }
+      .x-cook { position: fixed; inset: 0; z-index: 50; display: grid; grid-template-rows: auto 1fr auto; gap: 24px; padding: clamp(20px, 5vw, 56px); background: var(--fill-primary-on); color: var(--text-primary); }
+      .x-cook[hidden] { display: none; }
+      .x-cook header { display: flex; justify-content: space-between; align-items: center; gap: 12px; font: var(--type-label); color: var(--text-secondary); }
+      .x-cook__step { align-self: center; max-width: 30ch; margin: 0 auto; font: var(--type-display); text-align: center; }
+      .x-cook__num { display: block; font: var(--type-label); margin-bottom: 16px; color: var(--text-secondary); }
+      .x-cook footer { display: flex; justify-content: space-between; gap: 12px; }
+      .x-cook footer button { min-width: 120px; font-size: var(--size-heading); min-height: 56px; }
+      .x-go, .x-opt[aria-pressed="true"] { background-color: #f97316; }
+      .x-opt { min-height: var(--tap); }
+      .x-step button { width: var(--tap); height: var(--tap); }
+      .x-ing { padding: 0 0 0 12px; }
+      .x-ing button { width: var(--tap); height: var(--tap); }
+      .x-error { color: var(--text-primary); }
+      .x-miss li, .x-miss { color: light-dark(#b4232a, #ff8a8f); }
+      .x-preview { width: 100%; height: 280px; border-radius: var(--r-m); background: center / contain no-repeat; }
+      .x-preview[hidden] { display: none; }
+      .x-note { font-size: var(--size-small); color: var(--text-secondary); flex-basis: 100%; }
+      .x-panel, .x-group, .x-recipe { background: var(--x-card); border: 1px solid var(--stroke-secondary); border-radius: 24px; }
+      .x-empty { background: var(--x-card); border-radius: 24px; }
+      .x-step button { background: var(--fill-primary-on); }
+      /* Fast scrolling: instant jumps, blur only on the nav pill, contained cards. */
+      html { scroll-behavior: auto; }
+      .callout, .hero__eyebrow, .hero__credit { -webkit-backdrop-filter: none; backdrop-filter: none; }
+      .hero__eyebrow { background: rgb(22 31 57 / 0.62); }
+      .x-panel, .x-group, .x-recipe, .x-empty, .step { contain: content; }
+      /* Download + account */
+      .x-navdl { flex: none; min-height: 36px; padding: 0 14px; border: 0; border-radius: var(--r-pill); background-color: #f97316; background-image: var(--x-grad); color: var(--x-on-grad); font: var(--type-label); font-weight: var(--weight-medium); cursor: pointer; }
+      .x-who { flex: none; max-width: 11ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 36px; padding: 0 8px; border: 0; background: none; color: #f5f5f7; font: var(--type-label); cursor: pointer; }
+      .x-who[hidden] { display: none; }
+      @media (pointer: coarse), (max-width: 760px) { .x-navdl, .x-who { min-height: var(--tap); } }
+      .x-modal { width: min(440px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: clamp(18px, 3vw, 28px); border: 1px solid var(--stroke-secondary); border-radius: 24px; background: var(--x-card); color: var(--text-primary); }
+      .x-modal::backdrop { background: rgb(0 0 0 / 0.5); }
+      .x-modal [hidden] { display: none !important; }
+      .x-modal header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      .x-modal h2 { font: var(--type-heading); }
+      .x-form { display: grid; gap: 16px; margin-top: 16px; }
+      .x-modal ul { padding-left: 18px; display: grid; gap: 6px; font: var(--type-body); }
+      /* Ask */
+      .x-ask { display: grid; gap: 12px; }
+      .x-ask .x-input { max-width: none; flex: 1 1 260px; }
+      .x-recipe.x-ok { border-color: var(--fill-system-green); }
+      .x-ok h3 { color: light-dark(#1a7f37, #4ade80); }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
+      <main class="main">
+        <section class="hero">
+          <img class="hero__img" src="fridgechef_hero.jpg" alt="An open fridge full of food, with a phone held up to it" />
+          <div class="x-icon"><img src="fridgechef_icon.png" alt="Fridge Chef app icon" /></div>
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Free · Powered by Gemini · Created by Yathin Pedamallu</p>
+            <h1 class="x-h1"><span class="x-title">Fridge Chef</span><span class="x-h1__sub">for your kitchen</span></h1>
+            <p class="hero__sub">Snap your fridge. Get dinner ideas.</p>
+          </div>
+          <aside class="callout" aria-label="Get cooking">
+            <p class="callout__head">Get cooking</p>
+            <p class="callout__lead"><strong>One photo, three recipes.</strong> Gemini lists what's inside and works out what to make.</p>
+            <div class="links">
+              <a class="x-go" href="#snap">Snap my fridge</a>
+              <button class="x-ghost" type="button" data-demo>Try a demo</button>
+              <button class="x-ghost" type="button" data-dl>Download Fridge Chef</button>
+            </div>
+            <p class="fineprint">Needs a free Gemini API key.</p>
+            <p class="fineprint">Your photo is never saved.</p>
+          </aside>
+        </section>
+
+        <section class="section" id="snap" data-nav="Snap">
+          <div class="head">
+            <h2>Show Fridge Chef what's in your fridge.</h2>
+            <p class="head__sub">A photo, your key and a few preferences.</p>
+          </div>
+          <form class="x-panel" id="form">
+            <label class="x-drop" id="drop">
+              <input type="file" id="photo" accept="image/*" capture="environment" />
+              <div class="x-preview" id="preview" role="img" aria-label="Your fridge photo" hidden></div>
+              <strong id="dropTitle">Take or upload a photo</strong>
+              <span id="dropHint">Tap to use your camera, or drop an image here</span>
+            </label>
+
+            <div class="x-field">
+              <label for="key">Gemini API key</label>
+              <input class="x-input" id="key" type="password" autocomplete="off" placeholder="Paste your key" />
+              <p class="fineprint">Get a free key at <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. It stays in memory only and is never stored.</p>
+            </div>
+
+            <div class="x-opts">
+              <div class="x-field">
+                <span class="x-label" id="timeL">Time</span>
+                <div class="x-row" role="group" aria-labelledby="timeL" data-opt="time">
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="15">15 min</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="30">30 min</button>
+                  <button type="button" class="x-opt" aria-pressed="true" data-v="Any">Any</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="Other" aria-controls="timeOther">Other</button>
+                </div>
+                <div class="x-row x-time" id="timeOther" hidden>
+                  <label class="x-tnum"><input class="x-input" id="timeH" type="number" min="0" max="12" step="1" value="0" inputmode="numeric" /> Hours</label>
+                  <label class="x-tnum"><input class="x-input" id="timeM" type="number" min="0" max="59" step="5" value="45" inputmode="numeric" /> Minutes</label>
+                  <output class="fineprint" id="timeOut" for="timeH timeM" aria-live="polite">Up to 45 min</output>
+                </div>
+              </div>
+              <div class="x-field">
+                <span class="x-label" id="dietL">Diet</span>
+                <div class="x-row" role="group" aria-labelledby="dietL" data-opt="diet">
+                  <button type="button" class="x-opt" aria-pressed="true" data-v="Any">Any</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="Vegetarian">Vegetarian</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="Vegan">Vegan</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="Gluten-free">Gluten-free</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="Dairy-free">Dairy-free</button>
+                  <button type="button" class="x-opt" aria-pressed="false" data-v="Lactose-free">Lactose-free</button>
+                </div>
+              </div>
+              <div class="x-field">
+                <span class="x-label" id="servL">Servings</span>
+                <div class="x-row">
+                  <div class="x-step" role="group" aria-labelledby="servL">
+                    <button type="button" id="servDown" aria-label="Fewer servings">−</button>
+                    <output id="serv" aria-live="polite">2</output>
+                    <button type="button" id="servUp" aria-label="More servings">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="x-field">
+                <span class="x-label">Pantry</span>
+                <label class="x-switch"><input type="checkbox" id="onlyHave" role="switch" /> Use only what I have</label>
+              </div>
+            </div>
+
+            <div class="x-row">
+              <button class="x-go" type="submit" id="find">Find recipes</button>
+              <button class="x-ghost" type="button" data-demo>Try a demo</button>
+            </div>
+            <div class="x-status" id="status" role="status" hidden><span class="x-ring" aria-hidden="true"></span><span id="statusText">Peeking in your fridge…</span></div>
+            <p class="x-error" id="error" role="alert" hidden></p>
+          </form>
+        </section>
+
+        <section class="section" id="ask" data-nav="Ask">
+          <div class="head">
+            <h2>Ask Fridge Chef if you can make it.</h2>
+            <p class="head__sub">Checked against your current ingredient list.</p>
+          </div>
+          <form class="x-panel x-ask" id="askForm">
+            <label class="x-label" for="dish">What do you want to make?</label>
+            <div class="x-row">
+              <input class="x-input" id="dish" placeholder="e.g. pancakes, fried rice" />
+              <button class="x-go" type="submit" id="askBtn">Check</button>
+            </div>
+            <p class="fineprint">With a Gemini key above, ask about any dish. Without one, try pancakes, fried rice, omelette, pasta, grilled cheese or salad.</p>
+            <div class="x-status" id="askStatus" role="status" hidden><span class="x-ring" aria-hidden="true"></span><span>Checking your fridge…</span></div>
+            <p class="x-error" id="askErr" role="alert" hidden></p>
+          </form>
+          <div id="askOut" aria-live="polite"></div>
+        </section>
+
+        <section class="section" id="ingredients" data-nav="Ingredients">
+          <div class="head">
+            <h2>What's in your fridge.</h2>
+            <p class="head__sub">Remove what's wrong, add what was missed, then re-run.</p>
+          </div>
+          <div id="ingWrap"><p class="x-empty">Snap a photo or try the demo to see your ingredients here.</p></div>
+          <div class="x-add">
+            <input class="x-input" id="addName" aria-label="Ingredient name" placeholder="Add an ingredient, e.g. lemons" />
+            <select class="x-input" id="addCat" aria-label="Category"></select>
+            <button class="x-ghost" type="button" id="addBtn">Add</button>
+            <button class="x-go" type="button" id="rerun">Re-run recipes</button>
+            <p class="x-note" id="addNote" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section class="section" id="recipes" data-nav="Recipes">
+          <div class="head">
+            <h2>Three things you can make tonight.</h2>
+            <p class="head__sub">Missing items are in red.</p>
+          </div>
+          <div id="recWrap"><p class="x-empty">Your recipes will appear here.</p></div>
+        </section>
+
+        <section class="section" id="how" data-nav="How it works">
+          <div class="head"><h2>From fridge to plate in three steps.</h2></div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__intro"><p class="step__num">01</p><p class="step__eyebrow">Snap</p></div>
+              <div><h3>Take a photo of your open fridge</h3><p>Add your free Gemini key and pick time, diet and servings.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">02</p><p class="step__eyebrow">Check</p></div>
+              <div><h3>Gemini lists what's inside</h3><p>Fix the list by removing or adding ingredients, then re-run.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">03</p><p class="step__eyebrow">Cook</p></div>
+              <div><h3>Pick a recipe and cook</h3><p>Copy the shopping list for anything missing, or open Cook mode for one step at a time.</p></div>
+            </article>
+          </div>
+          <div class="aside">
+            <h3>Privacy</h3>
+            <p class="fineprint">Your photo goes to Google Gemini only to read your fridge. Nothing is saved.</p>
+          </div>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>Fridge Chef by Yathin Pedamallu. Not affiliated with Google.</p>
+        <nav aria-label="Back to sections" data-auto></nav>
+        <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
+      </footer>
+    </div>
+
+    <div class="x-cook" id="cook" role="dialog" aria-modal="true" aria-labelledby="cookTitle" hidden>
+      <header><span id="cookTitle"></span><button class="x-ghost" type="button" id="cookClose">Close</button></header>
+      <p class="x-cook__step" aria-live="polite"><span class="x-cook__num" id="cookNum"></span><span id="cookText"></span></p>
+      <footer><button class="x-ghost" type="button" id="cookBack">Back</button><button class="x-go" type="button" id="cookNext">Next</button></footer>
+    </div>
+
+    <dialog class="x-modal" id="acct" aria-labelledby="acctTitle">
+      <header><h2 id="acctTitle">Download Fridge Chef</h2><button class="x-ghost" type="button" id="acctClose">Close</button></header>
+      <div class="x-row" role="group" aria-label="Account" id="tabs" style="margin-top:12px">
+        <button type="button" class="x-opt" aria-pressed="true" data-tab="signup">Sign up</button>
+        <button type="button" class="x-opt" aria-pressed="false" data-tab="signin">Sign in</button>
+      </div>
+      <form class="x-form" data-view="signup">
+        <p class="fineprint">Create a free account to download.</p>
+        <div class="x-field"><label for="suName">Name</label><input class="x-input" id="suName" required autocomplete="name" /></div>
+        <div class="x-field"><label for="suEmail">Email</label><input class="x-input" id="suEmail" type="email" required autocomplete="email" /></div>
+        <div class="x-field"><label for="suPass">Password <small class="fineprint">(min 8 characters)</small></label><input class="x-input" id="suPass" type="password" required minlength="8" autocomplete="new-password" /></div>
+        <button class="x-go" type="submit">Create account</button>
+      </form>
+      <form class="x-form" data-view="verify" hidden>
+        <p>We sent a 6-digit code to <strong id="vEmail"></strong>. <span class="fineprint">(Demo code: 482913)</span></p>
+        <div class="x-field"><label for="vCode">Verification code</label><input class="x-input" id="vCode" required inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></div>
+        <button class="x-go" type="submit">Verify email</button>
+      </form>
+      <form class="x-form" data-view="signin" hidden>
+        <div class="x-field"><label for="siEmail">Email</label><input class="x-input" id="siEmail" type="email" required autocomplete="email" /></div>
+        <div class="x-field"><label for="siPass">Password</label><input class="x-input" id="siPass" type="password" required autocomplete="current-password" /></div>
+        <button class="x-go" type="submit">Sign in</button>
+      </form>
+      <div class="x-form" data-view="download" hidden>
+        <p>Signed in as <strong id="dlName"></strong>.</p>
+        <button class="x-go" type="button" disabled>Download for Android (coming soon)</button>
+        <button class="x-ghost" type="button" id="a2hs" aria-expanded="false" aria-controls="a2hsHow">Add to Home Screen</button>
+        <ul id="a2hsHow" hidden>
+          <li><strong>iPhone:</strong> Share &gt; Add to Home Screen</li>
+          <li><strong>Android:</strong> menu &gt; Install app</li>
+        </ul>
+        <button class="x-ghost" type="button" id="signOut">Sign out</button>
+      </div>
+      <p class="x-error" id="acctErr" role="alert" hidden style="margin-top:16px"></p>
+    </dialog>
+
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        const $ = (id) => document.getElementById(id);
+        const CATS = ["Produce", "Dairy", "Protein", "Leftovers", "Condiments", "Other"];
+        const state = { image: null, mime: null, ingredients: [], recipes: [], servings: 2 };
+        const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+        $("addCat").innerHTML = CATS.map((c) => `<option>${c}</option>`).join("");
+
+        // Option chips
+        document.querySelectorAll("[data-opt]").forEach((g) =>
+          g.addEventListener("click", (e) => {
+            const b = e.target.closest(".x-opt");
+            if (!b) return;
+            if (g.dataset.opt === "diet") {
+              // Multi-select: Any clears the rest; any other diet clears Any; none left falls back to Any
+              const any = g.querySelector('[data-v="Any"]');
+              if (b === any) g.querySelectorAll(".x-opt").forEach((x) => x.setAttribute("aria-pressed", x === any));
+              else {
+                b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true");
+                any.setAttribute("aria-pressed", !g.querySelector('.x-opt:not([data-v="Any"])[aria-pressed="true"]'));
+              }
+              return;
+            }
+            g.querySelectorAll(".x-opt").forEach((x) => x.setAttribute("aria-pressed", x === b));
+            if (g.dataset.opt === "time") { $("timeOther").hidden = b.dataset.v !== "Other"; if (b.dataset.v === "Other") $("timeH").focus(); }
+          })
+        );
+        const opt = (k) => document.querySelector(`[data-opt="${k}"] [aria-pressed="true"]`).dataset.v;
+        // Time limit: null for Any, else total minutes (0 when a custom time is not set)
+        const clampNum = (el, max) => { const n = Math.floor(+el.value); return Number.isFinite(n) ? Math.min(max, Math.max(0, n)) : 0; };
+        const customMin = () => clampNum($("timeH"), 12) * 60 + clampNum($("timeM"), 59);
+        const fmtMin = (t) => { const h = Math.floor(t / 60), m = t % 60; return [h ? `${h} h` : "", m ? `${m} min` : ""].filter(Boolean).join(" "); };
+        const timeLimit = () => { const t = opt("time"); return t === "Any" ? null : t === "Other" ? customMin() : +t; };
+        const TIME_MSG = "Set a cooking time above 0, or pick 15 min, 30 min or Any.";
+        const timeBad = () => timeLimit() === 0;
+        function showTime() { const t = customMin(); $("timeOut").textContent = t > 0 ? `Up to ${fmtMin(t)}` : "Set a time above 0"; }
+        ["timeH", "timeM"].forEach((id) => {
+          $(id).addEventListener("input", showTime);
+          $(id).addEventListener("change", () => { $(id).value = clampNum($(id), id === "timeH" ? 12 : 59); showTime(); });
+        });
+        const setServ = (n) => { state.servings = Math.min(6, Math.max(1, n)); $("serv").textContent = state.servings; };
+        $("servDown").onclick = () => setServ(state.servings - 1);
+        $("servUp").onclick = () => setServ(state.servings + 1);
+
+        // Photo
+        function loadFile(file) {
+          if (!file || !file.type.startsWith("image/")) return;
+          const r = new FileReader();
+          r.onload = () => {
+            const url = r.result;
+            state.mime = file.type;
+            state.image = url.split(",")[1];
+            $("preview").style.backgroundImage = `url("${url}")`;
+            $("preview").hidden = false;
+            $("dropTitle").textContent = "Photo ready";
+            $("dropHint").textContent = "Tap to choose a different one";
+          };
+          r.readAsDataURL(file);
+        }
+        $("photo").addEventListener("change", (e) => loadFile(e.target.files[0]));
+        const drop = $("drop");
+        ["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("is-over"); }));
+        ["dragleave", "drop"].forEach((t) => drop.addEventListener(t, () => drop.classList.remove("is-over")));
+        drop.addEventListener("drop", (e) => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+
+        // Diets (any combination)
+        const diets = () => [...document.querySelectorAll('[data-opt="diet"] [aria-pressed="true"]')].map((b) => b.dataset.v).filter((v) => v !== "Any");
+        const LF_RULE = "Every recipe must be lactose-free: no lactose. Lactose-free milk, hard aged cheeses (such as cheddar or parmesan) and butter in small amounts are OK. Where a dish usually uses milk, cream, soft cheese or yogurt, suggest a lactose-free swap (e.g. lactose-free milk or yogurt) and name it in the steps.";
+        function dietRule(subject) {
+          const d = diets();
+          if (!d.length) return "";
+          const other = d.filter((x) => x !== "Lactose-free");
+          return [
+            other.length ? `${subject} must be ${other.join(" and ")}.` : "",
+            d.includes("Lactose-free") ? LF_RULE.replace("Every recipe", subject) : "",
+            d.length > 1 ? `${subject} must meet all of these diets at once (${d.join(", ")}). Where their rules conflict, follow the stricter one, and swap any ingredient that breaks one of them for one that fits all of them, naming the swap in the steps.` : "",
+          ].filter(Boolean).join(" ");
+        }
+        const lc = (s) => s.toLowerCase();
+        const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+        const keepCase = (m, out) => (/^[A-Z]/.test(m) ? cap(out) : out);
+        const MEAT = /\b(chicken|beef|pork|bacon|ham|sausages?|salami|pepperoni|chorizo|turkey|lamb|mince|steak|fish|tuna|salmon|cod|prawns?|shrimps?|anchov(y|ies)|gelatine?)\b/i;
+        const VEG_OK = /\b(plant[- ]based|vegan|veggie|vegetarian|meat[- ]free|meatless)\b/i;
+        const CHEESE = "cheese|cheddar|mozzarella|parmesan|ricotta|brie|camembert|feta|cottage|mascarpone|burrata|paneer";
+        const DAIRY = new RegExp(`\\b(milk|cream|yogh?urt|butter|ghee|whey|${CHEESE})\\b`, "i");
+        const PLANT = /\b(oat|soy|soya|almond|coconut|cashew|peanut|plant|plant[- ]based|vegan|dairy[- ]free)\b/i;
+        const LACTOSE = /\b(milk|cream|yogh?urt|mozzarella|ricotta|brie|camembert|feta|cottage|mascarpone|burrata|paneer)\b/i;
+        const GLUTEN = /\b(flour|bread|toast|pasta|spaghetti|penne|macaroni|noodles|couscous|bulgur|barley|rye|seitan|soy sauce|breadcrumbs|tortillas?|wraps?|pitta|pita|bagels?|buns?|crackers|cereal|semolina|beer)\b/i;
+        const GF_OK = /gluten[- ]free|tamari|\brice (noodles|flour)|\bcorn tortillas?/i;
+        const hasLactose = (s) => LACTOSE.test(s) && !/lactose[- ]?free/i.test(s) && !PLANT.test(s);
+        const lfName = (n) => (/cheese|mozzarella|ricotta|brie|feta/i.test(n) ? "Hard aged cheese" : "Lactose-free " + lc(n));
+        const dairyName = (n) => (/butter|ghee/i.test(n) ? "Plant butter" : new RegExp(CHEESE, "i").test(n) ? "Vegan cheese" : /milk/i.test(n) ? "Oat milk" : /cream/i.test(n) ? "Oat cream" : /yogh?urt/i.test(n) ? "Coconut yogurt" : "Dairy-free " + lc(n));
+        const dairyStep = (s) => s.replace(new RegExp(`\\b(butter|ghee|milk|cream|yogh?urt|${CHEESE})\\b`, "gi"), (m) => keepCase(m, lc(dairyName(m))));
+        const meatStep = (s) => s.replace(new RegExp(MEAT.source, "gi"), (m) => keepCase(m, "plant-based " + lc(m)));
+        const DIET_ORDER = ["Vegan", "Vegetarian", "Dairy-free", "Lactose-free", "Gluten-free"];
+        const DIETS = {
+          Vegan: {
+            bad: (s) => (MEAT.test(s) && !VEG_OK.test(s)) || (DAIRY.test(s) && !PLANT.test(s)) || (/\b(eggs?|honey|mayo(nnaise)?)\b/i.test(s) && !/\bvegan\b/i.test(s)),
+            name: (n) => (MEAT.test(n) ? "Plant-based " + lc(n) : DAIRY.test(n) ? dairyName(n) : /\beggs?\b/i.test(n) ? "Firm tofu" : /honey/i.test(n) ? "Maple syrup" : "Vegan " + lc(n)),
+            steps: (s) => meatStep(dairyStep(s.replace(/\b(\d+ )?eggs?\b/gi, (m) => keepCase(m, "crumbled tofu")).replace(/\bhoney\b/gi, (m) => keepCase(m, "maple syrup")))),
+          },
+          Vegetarian: { bad: (s) => MEAT.test(s) && !VEG_OK.test(s), name: (n) => "Plant-based " + lc(n), steps: meatStep },
+          "Dairy-free": { bad: (s) => DAIRY.test(s) && !PLANT.test(s), name: dairyName, steps: dairyStep },
+          "Lactose-free": { bad: hasLactose, name: lfName, steps: (s) => s.replace(/\b(milk|cream|yogh?urt)\b/gi, "lactose-free $1") },
+          "Gluten-free": {
+            bad: (s) => GLUTEN.test(s) && !GF_OK.test(s),
+            name: (n) => (/soy sauce/i.test(n) ? "Tamari" : "Gluten-free " + lc(n)),
+            steps: (s) => s.replace(/\b(soy sauce|bread|toast|pasta|spaghetti|penne|flour|noodles)\b/gi, (m) => keepCase(m, /soy/i.test(m) ? "tamari" : "gluten-free " + lc(m))),
+          },
+        };
+        // The diets to apply: Vegan already covers Vegetarian, Dairy-free and Lactose-free; Dairy-free covers Lactose-free
+        const active = () => {
+          const d = diets();
+          return DIET_ORDER.filter((x) => d.includes(x) && !(d.includes("Vegan") && /^(Vegetarian|Dairy-free|Lactose-free)$/.test(x)) && !(x === "Lactose-free" && d.includes("Dairy-free")));
+        };
+        const fits = (s, ds) => !ds.some((d) => DIETS[d].bad(s));
+        const swapName = (n, ds) => ds.reduce((x, d) => (DIETS[d].bad(x) ? DIETS[d].name(x) : x), n);
+        const swapSteps = (steps, ds) => steps.map((s) => ds.reduce((x, d) => DIETS[d].steps(x), s));
+        const swapNote = (items, ds) => (items.length ? `${ds.join(" + ")} swap: ${items.map((b) => `${b} → ${lc(swapName(b, ds))}`).join(", ")}.` : "");
+        // A demo recipe made to fit every selected diet, or null when a diet rules out its core ingredient
+        function dietRecipe(r) {
+          const ds = active();
+          if (!ds.length) return r;
+          if (list(r.core).some((c) => !fits(c, ds))) return null;
+          const bad = list(r.uses).filter((u) => !fits(u, ds)), badMiss = list(r.missing).filter((m) => !fits(m, ds));
+          const missing = [...new Set([...list(r.missing).map((m) => swapName(m, ds)), ...bad.map((b) => swapName(b, ds))])];
+          return { ...r, uses: r.uses.filter((u) => fits(u, ds)), missing, steps: swapSteps(list(r.steps), ds), note: swapNote([...bad, ...badMiss], ds) };
+        }
+
+        // Gemini
+        function prompt(fromList) {
+          const time = timeLimit();
+          return [
+            fromList
+              ? `These ingredients are available: ${state.ingredients.map((i) => i.name + (i.amount_guess ? ` (${i.amount_guess})` : "")).join(", ")}. Return them unchanged in "ingredients".`
+              : "Look at this photo of a fridge and list every food item you can identify.",
+            `Suggest exactly 3 recipes for ${state.servings} serving(s).`,
+            time === null ? "" : `Each recipe must take ${time} minutes or less in total.`,
+            dietRule("Every recipe"),
+            $("onlyHave").checked ? "Use only the listed ingredients plus basic pantry staples (salt, pepper, oil, water); keep \"missing\" empty." : "Recipes may need a few extra items; list them in \"missing\".",
+            `Category must be one of: ${CATS.join(", ")}. Difficulty is Easy, Medium or Hard.`,
+            'Respond with JSON only: {"ingredients":[{"name":"","amount_guess":"","category":""}],"recipes":[{"title":"","time_minutes":0,"difficulty":"","uses":[""],"missing":[""],"steps":[""],"emoji":""}]}',
+          ].filter(Boolean).join("\n");
+        }
+
+        async function ask(fromList) {
+          const key = $("key").value.trim();
+          $("error").hidden = true;
+          if (timeBad()) return fail(TIME_MSG);
+          if (!key) return fail("Add your Gemini API key first. It's free at aistudio.google.com/apikey.");
+          if (!fromList && !state.image) return fail("Take or upload a photo of your fridge first.");
+          if (fromList && !state.ingredients.length) return fail("Add at least one ingredient first.");
+          const parts = [{ text: prompt(fromList) }];
+          if (!fromList) parts.push({ inline_data: { mime_type: state.mime, data: state.image } });
+          busy(true, fromList ? "Rethinking recipes…" : "Peeking in your fridge…");
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json" } }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              const msg = (data.error && data.error.message) || "";
+              if (res.status === 400 && /key/i.test(msg) || res.status === 401 || res.status === 403) throw new Error("That API key didn't work. Check it at aistudio.google.com/apikey and try again.");
+              if (res.status === 429) throw new Error("Gemini is busy or your free quota ran out. Wait a minute and try again.");
+              throw new Error("Gemini couldn't read that. " + (msg || "Please try again."));
+            }
+            const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "";
+            let out;
+            try { out = JSON.parse(text.replace(/^```(json)?|```$/g, "").trim()); } catch { throw new Error("Gemini sent back something unexpected. Try again, or use a clearer photo."); }
+            if (!fromList || Array.isArray(out.ingredients) && out.ingredients.length) state.ingredients = (out.ingredients || []).map(normIng);
+            state.recipes = (out.recipes || []).slice(0, 3);
+            render();
+            $(fromList ? "recipes" : "ingredients").scrollIntoView();
+          } catch (err) {
+            fail(err instanceof TypeError ? "Couldn't reach Gemini. Check your connection and try again." : err.message);
+          } finally {
+            busy(false);
+          }
+        }
+        const normIng = (i) => ({ name: i.name || String(i), amount_guess: i.amount_guess || "", category: CATS.includes(i.category) ? i.category : "Other" });
+        function busy(on, msg) {
+          $("status").hidden = !on;
+          if (msg) $("statusText").textContent = msg;
+          $("find").disabled = $("rerun").disabled = on;
+        }
+        function fail(msg) { $("error").textContent = msg; $("error").hidden = false; }
+
+        $("form").addEventListener("submit", (e) => { e.preventDefault(); ask(false); });
+        $("rerun").onclick = async () => { await ask(true); if (!$("error").hidden) $("snap").scrollIntoView(); };
+
+        // Ingredients
+        function renderIng() {
+          if (!state.ingredients.length) { $("ingWrap").innerHTML = '<p class="x-empty">No ingredients yet. Add some below.</p>'; return; }
+          $("ingWrap").innerHTML = '<div class="x-groups">' + CATS.map((c) => {
+            const items = state.ingredients.map((i, n) => [i, n]).filter(([i]) => i.category === c);
+            if (!items.length) return "";
+            return `<div class="x-group"><h3>${c}</h3><div class="x-row">${items.map(([i, n]) =>
+              `<span class="x-ing">${esc(i.name)}${i.amount_guess ? ` <small>${esc(i.amount_guess)}</small>` : ""}<button type="button" data-rm="${n}" aria-label="Remove ${esc(i.name)}">×</button></span>`).join("")}</div></div>`;
+          }).join("") + "</div>";
+        }
+        $("ingWrap").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-rm]");
+          if (b) { state.ingredients.splice(+b.dataset.rm, 1); renderIng(); }
+        });
+        function addIng() {
+          const name = $("addName").value.trim();
+          if (!name) { $("addNote").textContent = "Type an ingredient name first."; $("addName").focus(); return; }
+          state.ingredients.push({ name, amount_guess: "", category: $("addCat").value });
+          $("addNote").textContent = `Added ${name} to ${$("addCat").value}.`;
+          $("addName").value = "";
+          renderIng();
+        }
+        $("addBtn").onclick = addIng;
+        $("addName").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addIng(); } });
+
+        // Recipes
+        const list = (a) => (a && a.length ? a : []);
+        function renderRec() {
+          if (!state.recipes.length) { $("recWrap").innerHTML = '<p class="x-empty">Your recipes will appear here.</p>'; return; }
+          $("recWrap").innerHTML = '<div class="x-recipes">' + state.recipes.map((r, n) => `
+            <article class="x-recipe">
+              <div class="x-emoji" aria-hidden="true">${esc(r.emoji || "🍳")}</div>
+              <div><h3>${esc(r.title)}</h3></div>
+              <p><span class="pill">${esc(r.time_minutes)} min</span> <span class="pill">${esc(r.difficulty || "Easy")}</span></p>
+              ${r.note ? `<p class="fineprint">${esc(r.note)}</p>` : ""}
+              <div><p class="x-label">Uses</p><ul>${list(r.uses).map((u) => `<li>${esc(u)}</li>`).join("") || "<li>—</li>"}</ul></div>
+              <div><p class="x-label">Missing</p>${list(r.missing).length ? `<ul class="x-miss">${r.missing.map((u) => `<li>${esc(u)}</li>`).join("")}</ul>` : '<p class="fineprint">Nothing, you have it all.</p>'}</div>
+              <details><summary>Steps (${list(r.steps).length})</summary><ol>${list(r.steps).map((s) => `<li>${esc(s)}</li>`).join("")}</ol></details>
+              <div class="x-row">
+                <button class="x-go" type="button" data-cook="${n}">Cook mode</button>
+                <button class="x-ghost" type="button" data-copy="${n}" ${list(r.missing).length ? "" : "disabled"}>Copy shopping list</button>
+              </div>
+            </article>`).join("") + "</div>";
+        }
+        $("recWrap").addEventListener("click", async (e) => {
+          const c = e.target.closest("[data-copy]"), k = e.target.closest("[data-cook]");
+          if (c) {
+            const r = state.recipes[+c.dataset.copy];
+            const txt = `Shopping list for ${r.title}:\n` + r.missing.map((m) => "- " + m).join("\n");
+            try { await navigator.clipboard.writeText(txt); c.textContent = "Copied!"; } catch { c.textContent = "Couldn't copy"; }
+            setTimeout(() => (c.textContent = "Copy shopping list"), 1800);
+          }
+          if (k) openCook(state.recipes[+k.dataset.cook], k);
+        });
+
+        // Cook mode
+        let cook = { r: null, i: 0, from: null };
+        function showStep() {
+          const s = list(cook.r.steps);
+          $("cookNum").textContent = `Step ${cook.i + 1} of ${s.length}`;
+          $("cookText").textContent = s[cook.i] || "";
+          $("cookBack").disabled = cook.i === 0;
+          $("cookNext").textContent = cook.i === s.length - 1 ? "Done" : "Next";
+        }
+        function openCook(r, from) {
+          cook = { r, i: 0, from };
+          $("cookTitle").textContent = `${cook.r.emoji || ""} ${cook.r.title}`;
+          $("cook").hidden = false;
+          document.body.style.overflow = "hidden";
+          showStep();
+          $("cookNext").focus();
+        }
+        function closeCook() { $("cook").hidden = true; document.body.style.overflow = ""; cook.from && cook.from.focus(); }
+        $("cookNext").onclick = () => { if (cook.i >= list(cook.r.steps).length - 1) return closeCook(); cook.i++; showStep(); };
+        $("cookBack").onclick = () => { if (cook.i > 0) { cook.i--; showStep(); } };
+        $("cookClose").onclick = closeCook;
+        document.addEventListener("keydown", (e) => {
+          if ($("cook").hidden) return;
+          if (e.key === "Escape") closeCook();
+          if (e.key === "ArrowRight") $("cookNext").click();
+          if (e.key === "ArrowLeft") $("cookBack").click();
+        });
+
+        function render() { renderIng(); renderRec(); }
+
+        // Demo
+        const DEMO = {
+          ingredients: [
+            ["Eggs", "6", "Protein"], ["Spinach", "1 bag", "Produce"], ["Tomatoes", "3", "Produce"], ["Carrots", "4", "Produce"],
+            ["Cheddar", "1 block", "Dairy"], ["Milk", "half a carton", "Dairy"], ["Butter", "1 stick", "Dairy"], ["Leftover rice", "2 cups", "Leftovers"],
+          ].map(([name, amount_guess, category]) => ({ name, amount_guess, category })),
+          recipes: [
+            { emoji: "🍳", title: "Spinach Cheddar Omelette", time_minutes: 15, difficulty: "Easy", core: ["Eggs"], uses: ["Eggs", "Spinach", "Cheddar", "Milk", "Butter"], missing: ["Chives"],
+              steps: ["Whisk 3 eggs with a splash of milk, salt and pepper.", "Melt butter in a non-stick pan over medium heat.", "Wilt a handful of spinach, then pour in the eggs.", "When almost set, scatter grated cheddar over one half.", "Fold, slide onto a plate and serve."] },
+            { emoji: "🍚", title: "Veggie Fried Rice", time_minutes: 20, difficulty: "Easy", uses: ["Leftover rice", "Carrots", "Eggs", "Spinach", "Butter"], missing: ["Soy sauce", "Spring onions"],
+              steps: ["Dice the carrots small.", "Fry carrots in butter for 4 minutes until tender.", "Push to one side, scramble 2 eggs in the space.", "Add the cold rice and stir-fry on high heat for 5 minutes.", "Stir in spinach and soy sauce, top with spring onions."] },
+            { emoji: "🍅", title: "Tomato Egg Scramble", time_minutes: 10, difficulty: "Easy", core: ["Eggs"], uses: ["Eggs", "Tomatoes", "Butter"], missing: [],
+              steps: ["Cut tomatoes into wedges.", "Beat 3 eggs with a pinch of salt.", "Softly scramble the eggs in butter, then set aside.", "Cook tomatoes until juicy, about 3 minutes.", "Fold the eggs back in and serve over rice or toast."] },
+          ],
+        };
+        document.querySelectorAll("[data-demo]").forEach((b) =>
+          b.addEventListener("click", () => {
+            $("error").hidden = true;
+            if (timeBad()) { fail(TIME_MSG); $("error").scrollIntoView({ block: "center" }); return; }
+            const lim = timeLimit();
+            state.ingredients = DEMO.ingredients.map((i) => ({ ...i }));
+            const timed = DEMO.recipes.filter((r) => lim === null || r.time_minutes <= lim);
+            state.recipes = timed.map(dietRecipe).filter(Boolean);
+            render();
+            if (!state.recipes.length) $("recWrap").innerHTML = timed.length
+              ? `<p class="x-empty">No demo recipe is ${esc(diets().join(" + "))}${lim === null ? "" : ` and fits in ${fmtMin(lim)}`}. Add a Gemini key to get recipes that fit.</p>`
+              : `<p class="x-empty">No demo recipe fits in ${fmtMin(lim)}. The quickest takes 10 min.</p>`;
+            $("ingredients").scrollIntoView();
+          })
+        );
+
+        // Ask: can I make this dish?
+        const BOOK = [
+          { a: ["pancake"], title: "Pancakes", emoji: "🥞", time_minutes: 20, core: ["Eggs"], need: ["Flour", "Eggs", "Milk", "Butter", "Sugar", "Baking powder"],
+            steps: ["Whisk 1 cup flour, 1 tbsp sugar, 2 tsp baking powder and a pinch of salt.", "Beat in 1 egg, 1 cup milk and 2 tbsp melted butter until just smooth.", "Heat a buttered pan over medium heat.", "Pour 1/4 cup batter per pancake; flip when bubbles form.", "Cook 1 more minute and serve warm."] },
+          { a: ["fried rice"], title: "Fried Rice", emoji: "🍚", time_minutes: 20, need: ["Rice", "Eggs", "Carrots", "Soy sauce", "Spring onions"],
+            steps: ["Dice the carrots and slice the spring onions.", "Stir-fry carrots in oil for 4 minutes.", "Push aside and scramble 2 eggs.", "Add cold rice and fry on high heat for 5 minutes.", "Season with soy sauce and top with spring onions."] },
+          { a: ["omelet"], title: "Omelette", emoji: "🍳", time_minutes: 10, core: ["Eggs"], need: ["Eggs", "Milk", "Butter", "Cheese|cheddar|mozzarella|parmesan"],
+            steps: ["Whisk 3 eggs with a splash of milk, salt and pepper.", "Melt butter in a pan over medium heat.", "Pour in the eggs and let them set gently.", "Scatter cheese over one half.", "Fold and slide onto a plate."] },
+          { a: ["pasta", "spaghetti", "penne"], title: "Tomato Pasta", emoji: "🍝", time_minutes: 25, need: ["Pasta|spaghetti|penne", "Tomatoes", "Garlic", "Cheese|parmesan|cheddar"],
+            steps: ["Boil pasta in salted water until al dente.", "Soften sliced garlic in olive oil.", "Add chopped tomatoes and simmer 10 minutes.", "Toss the pasta in the sauce with a splash of pasta water.", "Serve topped with grated cheese."] },
+          { a: ["grilled cheese", "cheese sandwich", "toastie"], title: "Grilled Cheese", emoji: "🧀", time_minutes: 10, need: ["Bread", "Cheese|cheddar|mozzarella", "Butter"],
+            steps: ["Butter one side of two bread slices.", "Put cheese between them, buttered sides out.", "Cook in a pan over medium-low heat for 3 minutes.", "Flip and cook until golden and melted.", "Slice and serve."] },
+          { a: ["salad"], title: "Green Salad", emoji: "🥗", time_minutes: 10, need: ["Greens|lettuce|spinach|rocket|arugula", "Tomatoes", "Cucumber", "Lemon|vinegar"],
+            steps: ["Wash and dry the greens.", "Chop tomatoes and cucumber.", "Whisk lemon juice or vinegar with oil, salt and pepper.", "Toss everything together just before serving."] },
+        ];
+        let askRes = null;
+        // Only ingredients that fit every selected diet count; a swapped item also counts when its swap is in the fridge
+        const pool = (ds) => state.ingredients.filter((i) => fits(i.name, ds));
+        const haveIt = (need, ds) => {
+          const base = need.split("|")[0], sw = swapName(base, ds), keys = lc(need).split("|");
+          if (sw !== base) keys.push(lc(sw).split(" ").pop());
+          return pool(ds).some((i) => keys.some((k) => lc(i.name).includes(k)));
+        };
+        function demoAsk(dish) {
+          const r = BOOK.find((b) => b.a.some((a) => dish.includes(a)));
+          if (!r) throw new Error(`No demo recipe for "${dish}". Add a Gemini key above to ask about any dish, or try pancakes, fried rice, omelette, pasta, grilled cheese or salad.`);
+          const ds = active(), label = diets().join(" + ");
+          const block = list(r.core).find((c) => !fits(c, ds));
+          if (block) throw new Error(`The built-in ${lc(r.title)} recipe is built on ${lc(block)}, so it isn't ${label}. Add a Gemini key above for a ${label} version, or try another dish.`);
+          const flagged = state.ingredients.filter((i) => !fits(i.name, ds)).map((i) => i.name);
+          const name = (n) => swapName(n.split("|")[0], ds);
+          const have = r.need.filter((n) => haveIt(n, ds)).map(name), missing = r.need.filter((n) => !haveIt(n, ds)).map(name);
+          const swaps = r.need.map((n) => n.split("|")[0]).filter((b) => !fits(b, ds));
+          const note = [swapNote(swaps, ds), flagged.length ? `Not ${label}, left out: ${flagged.join(", ")}.` : ""].filter(Boolean).join(" ");
+          return { title: r.title, emoji: r.emoji, can_make: !missing.length, have, missing, steps: ds.length ? swapSteps(r.steps, ds) : r.steps, time_minutes: r.time_minutes, limit: timeLimit(), note };
+        }
+        async function geminiAsk(dish, key) {
+          const text = `The user wants to make: ${dish}. Ingredients available: ${state.ingredients.map((i) => i.name).join(", ")}. Assume salt, pepper, oil and water are available.${diets().length ? ` ${dietRule("The recipe")} Ingredients that break ${diets().length > 1 ? "any of these diets" : "this diet"} do not count as available.` : ""}${timeLimit() === null ? "" : ` The user has at most ${timeLimit()} minutes in total; give a version that fits that time if one exists, and report its real time_minutes.`} Respond with JSON only: {"can_make":true,"have":[""],"missing":[""],"steps":[""],"time_minutes":0}`;
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text }] }], generationConfig: { responseMimeType: "application/json" } }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(res.status === 429 ? "Gemini is busy or your free quota ran out. Wait a minute and try again." : res.status < 500 ? "That API key didn't work. Check it at aistudio.google.com/apikey." : "Gemini couldn't answer. Please try again.");
+          const out = JSON.parse((data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "{}").replace(/^```(json)?|```$/g, "").trim());
+          const missing = list(out.missing);
+          return { title: dish.replace(/^./, (c) => c.toUpperCase()), emoji: "🍽️", can_make: !!out.can_make && !missing.length, have: list(out.have), missing, steps: list(out.steps), time_minutes: out.time_minutes, limit: timeLimit() };
+        }
+        function renderAsk(r) {
+          const steps = `<ol>${r.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>`;
+          const cookBtn = '<button class="x-go" type="button" data-askcook>Cook mode</button>';
+          $("askOut").innerHTML = `<article class="x-recipe${r.can_make ? " x-ok" : ""}">
+            <div class="x-emoji" aria-hidden="true">${esc(r.emoji)}</div>
+            <div><h3>${r.can_make ? "You can make it!" : "Almost! You're missing:"}</h3><p class="fineprint">${esc(r.title)}</p></div>
+            ${r.time_minutes ? `<p><span class="pill">${esc(r.time_minutes)} min</span></p>` : ""}
+            ${r.limit && +r.time_minutes > r.limit ? `<p class="fineprint">Takes longer than your ${esc(fmtMin(r.limit))} limit.</p>` : ""}
+            ${r.note ? `<p class="fineprint">${esc(r.note)}</p>` : ""}
+            ${r.can_make ? "" : `<ul class="x-miss">${r.missing.map((m) => `<li>${esc(m)}</li>`).join("")}</ul><div class="x-row"><button class="x-ghost" type="button" data-askcopy>Copy shopping list</button></div>`}
+            ${r.have.length ? `<div><p class="x-label">You have</p><ul>${r.have.map((h) => `<li>${esc(h)}</li>`).join("")}</ul></div>` : ""}
+            ${r.can_make ? `<div><p class="x-label">Steps</p>${steps}</div><div class="x-row">${cookBtn}</div>` : `<details><summary>Show steps anyway</summary>${steps}<div class="x-row">${cookBtn}</div></details>`}
+          </article>`;
+        }
+        $("askForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const dish = $("dish").value.trim().toLowerCase(), key = $("key").value.trim();
+          $("askErr").hidden = true;
+          if (timeBad()) { $("askErr").textContent = TIME_MSG; $("askErr").hidden = false; return; }
+          if (!dish) { $("askErr").textContent = "Type a dish first, e.g. pancakes or fried rice."; $("askErr").hidden = false; $("dish").focus(); return; }
+          if (!state.ingredients.length) { $("askErr").textContent = "No ingredients yet. Snap your fridge, try the demo, or add ingredients below."; $("askErr").hidden = false; return; }
+          $("askStatus").hidden = false; $("askBtn").disabled = true;
+          try { askRes = key ? await geminiAsk(dish, key) : demoAsk(dish); renderAsk(askRes); }
+          catch (err) { $("askErr").textContent = err instanceof TypeError ? "Couldn't reach Gemini. Check your connection and try again." : err instanceof SyntaxError ? "Gemini sent back something unexpected. Try again." : err.message; $("askErr").hidden = false; }
+          finally { $("askStatus").hidden = true; $("askBtn").disabled = false; }
+        });
+        $("askOut").addEventListener("click", async (e) => {
+          if (e.target.closest("[data-askcook]")) openCook(askRes, e.target);
+          const c = e.target.closest("[data-askcopy]");
+          if (c) {
+            try { await navigator.clipboard.writeText(`Shopping list for ${askRes.title}:\n` + askRes.missing.map((m) => "- " + m).join("\n")); c.textContent = "Copied!"; } catch { c.textContent = "Couldn't copy"; }
+            setTimeout(() => (c.textContent = "Copy shopping list"), 1800);
+          }
+        });
+
+        // Account + download (memory only)
+        const accounts = {};
+        let user = null, pending = null;
+        const dlg = $("acct"), err = (m) => { $("acctErr").textContent = m || ""; $("acctErr").hidden = !m; };
+        function view(v) {
+          dlg.querySelectorAll("[data-view]").forEach((el) => (el.hidden = el.dataset.view !== v));
+          $("tabs").hidden = v === "download" || v === "verify";
+          dlg.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tab === v));
+          $("acctTitle").textContent = v === "download" ? "Download Fridge Chef" : v === "verify" ? "Verify your email" : v === "signin" ? "Sign in to download" : "Sign up to download";
+          err();
+          dlg.querySelector(`[data-view="${v}"] input, [data-view="${v}"] button:not([disabled])`)?.focus();
+        }
+        function openAcct() { dlg.showModal(); view(user ? "download" : "signup"); }
+        function signIn(a) {
+          user = a;
+          $("dlName").textContent = $("who").textContent = a.name;
+          $("who").hidden = false;
+          view("download");
+        }
+        $("tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) view(b.dataset.tab); });
+        $("acctClose").onclick = () => dlg.close();
+        dlg.querySelector('[data-view="signup"]').addEventListener("submit", (e) => {
+          e.preventDefault();
+          const email = $("suEmail").value.trim().toLowerCase();
+          if (accounts[email]?.verified) return err("That email already has an account. Sign in instead.");
+          pending = accounts[email] = { name: $("suName").value.trim(), email, pass: $("suPass").value, verified: false };
+          $("vEmail").textContent = email; $("vCode").value = "";
+          view("verify");
+        });
+        dlg.querySelector('[data-view="verify"]').addEventListener("submit", (e) => {
+          e.preventDefault();
+          if ($("vCode").value.trim() !== "482913") return err("That code isn't right. Check it and try again.");
+          pending.verified = true; signIn(pending);
+        });
+        dlg.querySelector('[data-view="signin"]').addEventListener("submit", (e) => {
+          e.preventDefault();
+          const a = accounts[$("siEmail").value.trim().toLowerCase()];
+          if (!a || a.pass !== $("siPass").value) return err("Email or password is wrong. Accounts last for this visit only.");
+          if (!a.verified) { pending = a; $("vEmail").textContent = a.email; return view("verify"); }
+          signIn(a);
+        });
+        $("a2hs").onclick = () => { const h = $("a2hsHow"); h.hidden = !h.hidden; $("a2hs").setAttribute("aria-expanded", !h.hidden); };
+        $("signOut").onclick = () => { user = null; $("who").hidden = true; dlg.close(); };
+        document.addEventListener("DOMContentLoaded", () => {
+          document.getElementById("theme-btn")?.insertAdjacentHTML("beforebegin", '<button class="x-who" type="button" id="who" hidden></button><button class="x-navdl" type="button" data-dl>Download</button>');
+          $("who").onclick = openAcct;
+          document.querySelectorAll("[data-dl]").forEach((b) => (b.onclick = openAcct));
+        });
+      })();
+    </script>
+  </body>
+</html>
