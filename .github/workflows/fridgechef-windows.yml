@@ -5,15 +5,15 @@ on:
       msix_name:
         description: Store Package/Identity/Name (Partner Center > Product identity)
         required: false
-        default: "FridgeChef.Placeholder"
+        default: "Yathin-Apps.FridgeChef"
       msix_publisher:
         description: Store Package/Identity/Publisher (CN=...)
         required: false
-        default: "CN=00000000-0000-0000-0000-000000000000"
+        default: "CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A"
       msix_publisher_name:
         description: Store Publisher display name
         required: false
-        default: "Praveen Pedamallu"
+        default: "Yathin-Apps"
   push:
     branches: [main]
     paths: ["fridgechef/**", "fridgechef-windows/**", ".github/workflows/fridgechef-windows.yml"]
@@ -44,9 +44,9 @@ jobs:
       - name: Make Microsoft Store package (MSIX)
         shell: python
         env:
-          MSIX_NAME: ${{ inputs.msix_name || 'FridgeChef.Placeholder' }}
-          MSIX_PUB: ${{ inputs.msix_publisher || 'CN=00000000-0000-0000-0000-000000000000' }}
-          MSIX_PUBNAME: ${{ inputs.msix_publisher_name || 'Praveen Pedamallu' }}
+          MSIX_NAME: ${{ inputs.msix_name || 'Yathin-Apps.FridgeChef' }}
+          MSIX_PUB: ${{ inputs.msix_publisher || 'CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A' }}
+          MSIX_PUBNAME: ${{ inputs.msix_publisher_name || 'Yathin-Apps' }}
           RUN: ${{ github.run_number }}
         run: |
           import os, shutil, glob, subprocess
