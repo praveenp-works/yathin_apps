@@ -979,7 +979,7 @@ tr.is-highlight > :last-child { box-shadow: 12px 0 var(--fill-tertiary); }
     var sections = [].slice.call(doc.querySelectorAll("section[data-nav]"));
     var header = doc.querySelector("header.nav[data-auto]");
     if (header) {
-      header.innerHTML = '<nav class="seg" aria-label="Sections">' +
+      header.innerHTML = '<nav class="seg" aria-label="Sections"><a href="https://praveenp-works.github.io/yathin_apps/">&larr; Yathin Apps</a>' +
         each(sections, function (s) { return '<a href="#' + esc(s.id) + '">' + esc(s.getAttribute("data-nav")) + "</a>"; }) + '<span aria-hidden="true" style="display:inline-block;align-self:center;width:1px;height:22px;background:#8a8a8a;margin:0 6px;flex:none"></span><a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=praveenmarketing26@gmail.com&amp;su=Magic%20Cursor%20feedback" target="_blank" rel="noopener">Give feedback</a><a href="MagicCursor-Chrome.zip" download="MagicCursor-Chrome.zip">Chrome extension</a>' + "</nav>" +
         '<button class="theme-btn" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>';
     }
