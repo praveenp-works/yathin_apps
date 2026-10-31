@@ -1,0 +1,39 @@
+name: Fridge Chef Store screenshots
+on: workflow_dispatch
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - name: Shoot
+        shell: python
+        run: |
+          import os, http.server, threading, functools
+          from playwright.sync_api import sync_playwright
+          h = functools.partial(http.server.SimpleHTTPRequestHandler, directory="fridgechef")
+          s = http.server.ThreadingHTTPServer(("127.0.0.1", 8765), h)
+          threading.Thread(target=s.serve_forever, daemon=True).start()
+          os.makedirs("shots", exist_ok=True)
+          hide = "[data-dl],.x-navdl,#who{display:none!important}"
+          with sync_playwright() as p:
+              b = p.chromium.launch()
+              for scheme in ("light", "dark"):
+                  pg = b.new_page(viewport={"width": 1920, "height": 1080}, color_scheme=scheme)
+                  pg.goto("http://127.0.0.1:8765/index.html", wait_until="networkidle")
+                  pg.add_style_tag(content=hide)
+                  pg.wait_for_timeout(1500)
+                  pg.screenshot(path=f"shots/1-home-{scheme}.png")
+                  if scheme == "light":
+                      pg.locator("[data-demo]").first.click()
+                      pg.wait_for_timeout(2500)
+                      pg.locator("#ingWrap").scroll_into_view_if_needed()
+                      pg.wait_for_timeout(800)
+                      pg.screenshot(path="shots/2-ingredients.png")
+                      pg.mouse.wheel(0, 900); pg.wait_for_timeout(1200)
+                      pg.screenshot(path="shots/3-recipes.png")
+              b.close()
+      - uses: actions/upload-artifact@v4
+        with: { name: fridgechef-screenshots, path: shots/*.png }
