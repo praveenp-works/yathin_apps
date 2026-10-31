@@ -1,9 +1,22 @@
 name: Build FridgeChef.exe
 on:
   workflow_dispatch:
+    inputs:
+      msix_name:
+        description: Store Package/Identity/Name (Partner Center > Product identity)
+        required: false
+        default: "FridgeChef.Placeholder"
+      msix_publisher:
+        description: Store Package/Identity/Publisher (CN=...)
+        required: false
+        default: "CN=00000000-0000-0000-0000-000000000000"
+      msix_publisher_name:
+        description: Store Publisher display name
+        required: false
+        default: "Praveen Pedamallu"
   push:
     branches: [main]
-    paths: ["fridgechef/**", "fridgechef-windows/**"]
+    paths: ["fridgechef/**", "fridgechef-windows/**", ".github/workflows/fridgechef-windows.yml"]
 permissions:
   contents: write
 jobs:
@@ -15,7 +28,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install tools
-        run: python -m pip install -U pyinstaller pywebview
+        run: python -m pip install -U pyinstaller pywebview pillow
       - name: Stage web files
         shell: bash
         run: mkdir -p build_web/web && cp fridgechef/* build_web/web/
@@ -28,3 +41,66 @@ jobs:
         run: |
           gh release delete fridgechef-windows --yes --cleanup-tag || true
           gh release create fridgechef-windows dist/FridgeChef.exe --title "Fridge Chef for Windows" --notes "Fridge Chef for Windows 10 and 11. Snap or upload a fridge photo and get recipes. Created by Yathin Pedamallu." --latest=false
+      - name: Make Microsoft Store package (MSIX)
+        shell: python
+        env:
+          MSIX_NAME: ${{ inputs.msix_name || 'FridgeChef.Placeholder' }}
+          MSIX_PUB: ${{ inputs.msix_publisher || 'CN=00000000-0000-0000-0000-000000000000' }}
+          MSIX_PUBNAME: ${{ inputs.msix_publisher_name || 'Praveen Pedamallu' }}
+          RUN: ${{ github.run_number }}
+        run: |
+          import os, shutil, glob, subprocess
+          from xml.sax.saxutils import escape as e
+          from PIL import Image
+          v = os.environ["RUN"]
+          root = "msix"
+          os.makedirs(root + "/Assets", exist_ok=True)
+          shutil.copy("dist/FridgeChef.exe", root + "/FridgeChef.exe")
+          big = Image.open("fridgechef/fridgechef_icon.png").convert("RGBA")
+          def square(name, n):
+              big.resize((n, n), Image.LANCZOS).save(root + "/Assets/" + name)
+          square("StoreLogo.png", 50)
+          square("Square44x44Logo.png", 44)
+          square("Square44x44Logo.targetsize-256_altform-unplated.png", 256)
+          square("Square150x150Logo.png", 150)
+          wide = Image.new("RGBA", (310, 150), (0, 0, 0, 0))
+          wide.paste(big.resize((120, 120), Image.LANCZOS), (95, 15))
+          wide.save(root + "/Assets/Wide310x150Logo.png")
+          manifest = f"""<?xml version="1.0" encoding="utf-8"?>
+          <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+            xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+            xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+            IgnorableNamespaces="uap rescap">
+            <Identity Name="{e(os.environ['MSIX_NAME'])}" Publisher="{e(os.environ['MSIX_PUB'])}" Version="1.{v}.0.0" ProcessorArchitecture="x64"/>
+            <Properties>
+              <DisplayName>Fridge Chef</DisplayName>
+              <PublisherDisplayName>{e(os.environ['MSIX_PUBNAME'])}</PublisherDisplayName>
+              <Logo>Assets\\StoreLogo.png</Logo>
+            </Properties>
+            <Dependencies>
+              <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0"/>
+            </Dependencies>
+            <Resources><Resource Language="en-us"/></Resources>
+            <Applications>
+              <Application Id="FridgeChef" Executable="FridgeChef.exe" EntryPoint="Windows.FullTrustApplication">
+                <uap:VisualElements DisplayName="Fridge Chef" Description="Snap your fridge and get recipes you can cook now."
+                  BackgroundColor="transparent" Square150x150Logo="Assets\\Square150x150Logo.png" Square44x44Logo="Assets\\Square44x44Logo.png">
+                  <uap:DefaultTile Wide310x150Logo="Assets\\Wide310x150Logo.png"/>
+                </uap:VisualElements>
+              </Application>
+            </Applications>
+            <Capabilities>
+              <Capability Name="internetClient"/>
+              <rescap:Capability Name="runFullTrust"/>
+              <DeviceCapability Name="webcam"/>
+            </Capabilities>
+          </Package>
+          """
+          open(root + "/AppxManifest.xml", "w", encoding="utf-8").write(manifest)
+          tool = sorted(glob.glob(r"C:\Program Files (x86)\Windows Kits\10\bin\10.*\x64\makeappx.exe"))[-1]
+          subprocess.run([tool, "pack", "/d", root, "/p", "dist/FridgeChef-" + v + ".msix", "/o"], check=True)
+      - name: Keep Store package (private, for Partner Center upload)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FridgeChef-msix
+          path: dist/*.msix
