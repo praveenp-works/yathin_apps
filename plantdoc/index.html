@@ -374,7 +374,7 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
             if (t) { addCheck(t); state.target = null; showTarget(); }
             else { $("nick").value = ""; state.rename = null; $("nameTitle").textContent = "Name your plant"; $("nameDlg").showModal(); }
           };
-          $("result").scrollIntoView();
+          if (!state.quiet) $("result").scrollIntoView();
         }
         function addCheck(p) {
           const { thumb, ...c } = state.check;
@@ -467,7 +467,7 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
         $("cancelTarget").onclick = () => { state.target = null; showTarget(); };
         renderPlants();
         function showExample() {
-          show(SAMPLE.checks[SAMPLE.checks.length - 1], SAMPLE.thumb); state.check = null;
+          state.quiet = true; show(SAMPLE.checks[SAMPLE.checks.length - 1], SAMPLE.thumb); state.quiet = false; state.check = null;
           $("save").closest(".x-row").remove();
           $("result").dataset.example = "1";
           $("result").firstElementChild.insertAdjacentHTML("afterbegin", '<p style="margin:0 0 12px"><span class="pill">Example</span> This is how a check looks, using Sunny the Pothos. Add your own photo above to check your plant.</p>');
