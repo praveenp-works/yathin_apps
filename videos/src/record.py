@@ -41,8 +41,9 @@ def run(app):
     work = f"work_{app}"; os.makedirs(work, exist_ok=True)
     with sync_playwright() as p:
         b = p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
-        ctx = b.new_context(viewport={"width": 1920, "height": 1080}, record_video_dir=f"vid_{app}",
-                            record_video_size={"width": 1920, "height": 1080})
+        W, H = (1080, 1920) if "vertical" in app else (1920, 1080)
+        ctx = b.new_context(viewport={"width": W, "height": H}, record_video_dir=f"vid_{app}",
+                            record_video_size={"width": W, "height": H})
         pg = ctx.new_page(); t_page = time.time()
         pg.goto(f"http://127.0.0.1:8811/videos/src/director.html?app={app}", wait_until="networkidle")
         sc = pg.evaluate("S")
