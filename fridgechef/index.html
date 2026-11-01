@@ -162,7 +162,7 @@
 .is-app .x-apphead h1{margin:0;font-size:28px}
 .is-app .hero,.is-app #how,.is-app .foot nav,.is-app a[href="#how"]{display:none!important}
 </style>
-</head>
+<style>.is-app .x-video{display:none!important}</style></head>
   <body>
 <div class="x-splash" id="splash" aria-hidden="true"><div class="fs-wrap"><div class="fs-fridge"><div class="fs-in"><div class="fs-shelf" style="top:52px"></div><div class="fs-shelf" style="top:104px"></div><span class="fs-food" style="left:12px;top:26px;width:22px;height:22px;background:#ef4444"></span><span class="fs-food" style="left:40px;top:30px;width:18px;height:18px;background:#22c55e"></span><span class="fs-food" style="left:62px;top:22px;width:14px;height:26px;border-radius:6px;background:#60a5fa"></span><span class="fs-food" style="left:16px;top:76px;width:30px;height:24px;border-radius:8px;background:#fde68a"></span><span class="fs-food" style="left:54px;top:80px;width:20px;height:20px;background:#f97316"></span><span class="fs-food" style="left:20px;top:122px;width:52px;height:18px;border-radius:6px;background:#a3e635"></span></div><div class="fs-door"></div></div><div class="fs-cam"></div></div><b>Fridge Chef</b><div class="fs-flash"></div></div>
 <script>(function(){if(!document.documentElement.classList.contains("is-app"))return;var t0=Date.now();function hide(){var s=document.getElementById("splash");if(!s||s.classList.contains("done"))return;setTimeout(function(){s.classList.add("done");setTimeout(function(){s.remove()},600)},Math.max(0,2500-(Date.now()-t0)))}window.addEventListener("load",hide);setTimeout(hide,4500);})();</script>
@@ -190,6 +190,12 @@
             <p class="fineprint">Needs a free Gemini API key.</p>
             <p class="fineprint">Your photo is never saved.</p>
           </aside>
+        </section>
+
+        <section class="section x-video" id="video" data-nav="Video" style="max-width:980px;margin-left:auto;margin-right:auto">
+          <div class="head"><h2>See Fridge Chef in 30 seconds.</h2></div>
+          <video src="../videos/fridgechef-demo.mp4" poster="../videos/fridgechef-poster.jpg" controls playsinline preload="metadata" style="width:100%;border-radius:22px;display:block;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.18)"></video>
+          <p class="head__sub" style="margin-top:16px;line-height:1.6">Fridge Chef turns a photo of your fridge into dinner. Google Gemini spots every ingredient, then suggests three recipes you can make tonight, and cook mode walks you through each one step by step. Your Gemini key stays on your device, and photos go only to Gemini. Free on the web, Windows and phones, made by Yathin Pedamallu.</p>
         </section>
 
         <section class="section" id="snap" data-nav="Snap">
