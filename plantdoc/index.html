@@ -278,6 +278,7 @@
           $("preview").style.backgroundImage = `url("${state.image}")`;
           $("preview").hidden = false;
           $("dropTitle").textContent = "Photo ready";
+          if ($("result").dataset.example) { $("result").innerHTML = ""; delete $("result").dataset.example; }
           $("dropHint").textContent = "Tap to choose a different one";
           $("error").hidden = true;
         }
@@ -354,6 +355,7 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
         const care = (c) => `<div class="x-care">${[["Water", c.care.water], ["Light", c.care.light], ["Soil", c.care.soil], ["Next steps", c.care.next]].filter((x) => x[1]).map(([h, t]) => `<div><h4>${h}</h4><p>${esc(t)}</p></div>`).join("")}</div>`;
         function show(c, thumb) {
           state.check = { ...c, thumb };
+          delete $("result").dataset.example;
           const t = state.target && plants.find((p) => p.id === state.target);
           $("result").innerHTML = `<div class="x-panel" style="margin-top:16px">
             <div class="x-result">
@@ -464,6 +466,13 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
         }
         $("cancelTarget").onclick = () => { state.target = null; showTarget(); };
         renderPlants();
+        function showExample() {
+          show(SAMPLE.checks[SAMPLE.checks.length - 1], SAMPLE.thumb); state.check = null;
+          $("save").closest(".x-row").remove();
+          $("result").dataset.example = "1";
+          $("result").firstElementChild.insertAdjacentHTML("afterbegin", '<p style="margin:0 0 12px"><span class="pill">Example</span> This is how a check looks, using Sunny the Pothos. Add your own photo above to check your plant.</p>');
+        }
+        showExample();
 
         document.addEventListener("DOMContentLoaded", () => {
           document.querySelector(".nav .seg")?.insertAdjacentHTML("afterbegin", '<a href="https://praveenp-works.github.io/yathin_apps/">← Yathin Apps</a>');
