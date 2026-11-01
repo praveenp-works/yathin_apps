@@ -49,6 +49,18 @@ def arrow(bg,pts,w=16,col=(255,40,60)):
     d.polygon([(x2+14*math.cos(a),y2+14*math.sin(a)),(x2-L*math.cos(a-0.5),y2-L*math.sin(a-0.5)),(x2-L*math.cos(a+0.5),y2-L*math.sin(a+0.5))],fill=col,outline=INK,width=6)
 def curve(p0,p1,p2,n=30): return [((1-t)**2*p0[0]+2*(1-t)*t*p1[0]+t*t*p2[0],(1-t)**2*p0[1]+2*(1-t)*t*p1[1]+t*t*p2[1]) for t in [i/n for i in range(n+1)]]
 
+def brand(bg,center,size,rot=0):
+    f=ImageFont.truetype(F,size); t='YATHIN APPS'; tw=ImageDraw.Draw(bg).textlength(t,font=f)
+    g=int(size*1.25); cell=(g-6)//2
+    W=int(g+tw+size*1.6); H=int(size*1.95)
+    L=Image.new('RGBA',(W+10,H+12),(0,0,0,0)); d=ImageDraw.Draw(L)
+    d.rounded_rectangle([8,12,W+8,H+10],H//2,fill=(0,0,0,130))
+    d.rounded_rectangle([0,0,W,H],H//2,fill=(255,255,255),outline=INK,width=6)
+    x0=int(size*.55); y0=(H-g)//2
+    for k,p in enumerate(ICONS):
+        ic=rr(Image.open(p).convert('RGB').resize((cell,cell),Image.LANCZOS),int(cell*.25)); L.alpha_composite(ic,(x0+(k%2)*(cell+6),y0+(k//2)*(cell+6)))
+    d.text((x0+g+size*.35,(H-size*1.25)/2-2),t,font=f,fill=INK)
+    paste_rot(bg,L,center,rot)
 LABELS=['Cool cursors','Class screens','Plant checkup','Fridge recipes']
 def labels(bg,pts,size):
     for t,(x,y) in zip(LABELS,pts): sticker(bg,t,(x,y),size,0,fill=(255,255,255),fg=INK)
@@ -63,6 +75,7 @@ emoji(bg,'1f631',200,(560,600),-8)
 sticker(bg,'100% FREE',(240,585),62,-6)
 arrow(bg,curve((540,330),(620,250),(700,215)))
 labels(bg,[(820,300),(1100,345),(850,628),(1120,645)],32)
+brand(bg,(1085,52),34)
 bg.convert('RGB').save('thumbnails/yathin-thumbnail.jpg',quality=93)
 # ---- square 1080x1080
 bg=bgimg(1080,1080,540,700); d=ImageDraw.Draw(bg)
@@ -72,7 +85,7 @@ emoji(bg,'1f631',200,(555,770),-6); emoji(bg,'2728',80,(545,520),0); emoji(bg,'1
 f1=ImageFont.truetype(F,104); f2=ImageFont.truetype(F,170)
 for y,t,f,c in [(40,'THESE APPS ARE',f1,'white'),(165,'FREE?!',f2,(255,230,40))]:
     tw=d.textlength(t,font=f); text(d,((1080-tw)/2,y),t,f,c,12)
-sticker(bg,'100% FREE',(560,395),56,-5)
+sticker(bg,'100% FREE',(300,400),50,-5); brand(bg,(780,400),40,3)
 labels(bg,[(300,722),(790,707),(320,1030),(800,1020)],38)
 bg.convert('RGB').save('thumbnails/yathin-thumbnail-square.jpg',quality=93)
 # ---- vertical 1080x1920
@@ -80,7 +93,7 @@ bg=bgimg(1080,1920,540,1150); d=ImageDraw.Draw(bg)
 fa=ImageFont.truetype(F,130); fb=ImageFont.truetype(F,230)
 for y,t,f,c,sw in [(150,'THESE APPS',fa,'white',12),(300,'ARE',fb,'white',14),(530,'FREE?!',fb,(255,230,40),16)]:
     tw=d.textlength(t,font=f); text(d,((1080-tw)/2,y),t,f,c,sw)
-sticker(bg,'100% FREE',(540,860),70,-5)
+sticker(bg,'100% FREE',(540,860),70,-5); brand(bg,(540,82),62)
 for p,s,pos,r,g in zip(ICONS,[270,280,280,270],[(290,1130),(800,1110),(300,1480),(810,1470)],[-12,9,7,-10],GLOW): icon(bg,p,s,pos,r,g)
 ring(bg,(290,1130),205,14)
 emoji(bg,'2728',120,(560,960),0); emoji(bg,'1f525',120,(1010,1385),12); emoji(bg,'2728',80,(60,1410),0)
