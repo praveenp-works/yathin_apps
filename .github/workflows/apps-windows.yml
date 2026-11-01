@@ -1,0 +1,39 @@
+name: Build Plant Doc and ClassView for Windows
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["plantdoc/**", "classview/**", "plantdoc-windows/**", "classview-windows/**", ".github/workflows/apps-windows.yml"]
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: plantdoc
+            exe: PlantDoc
+            title: Plant Doc
+          - app: classview
+            exe: ClassView
+            title: ClassView
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -U pyinstaller pywebview
+      - name: Stage web files
+        shell: bash
+        run: mkdir -p build_web/web && cp ${{ matrix.app }}/* build_web/web/
+      - name: Build exe
+        run: python -m PyInstaller --onefile --noconsole --name ${{ matrix.exe }} --icon ${{ matrix.app }}-windows/${{ matrix.exe }}.ico --add-data "build_web/web;web" ${{ matrix.app }}-windows/${{ matrix.app }}.pyw
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete ${{ matrix.app }}-windows --yes --cleanup-tag || true
+          gh release create ${{ matrix.app }}-windows dist/${{ matrix.exe }}.exe --title "${{ matrix.title }} for Windows" --notes "${{ matrix.title }} for Windows 10 and 11. Created by Yathin Pedamallu." --latest=false

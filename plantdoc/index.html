@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plant Doc</title>
+    <link rel="icon" href="plantdoc_icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-charts.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root { --x-grad: linear-gradient(90deg, #22c55e, #facc15, #ef4444); --x-meter: linear-gradient(90deg, #ef4444, #facc15, #22c55e); --x-on-grad: #1d1d1f; --sans: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; --mono: "Geist Mono", ui-monospace, monospace; --x-card: light-dark(#fff, #1c1c1e); }
+      /* Shared Yathin Apps look: charcoal pill nav, rounded hero, light glass card, white content cards. */
+      .nav.glass { background: rgba(29, 29, 31, 0.9); border-color: rgba(255, 255, 255, 0.08); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14); border-radius: var(--r-pill); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+      .nav .seg { background: transparent; }
+      .nav .seg a { color: #d1d1d6; }
+      .nav .seg a:hover { color: #fff; }
+      .nav .seg a[aria-current="true"] { background-color: #facc15; background-image: var(--x-grad); color: var(--x-on-grad); }
+      .nav .theme-btn { background: rgba(255, 255, 255, 0.12); color: #f5f5f7; }
+      .nav .theme-btn:hover { box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.08); }
+      .nav :focus-visible { outline-color: #f5f5f7; }
+      .x-navicon { width: 28px; height: 28px; border-radius: 8px; flex: none; margin-left: 4px; }
+      .hero { border-radius: 36px; }
+      .hero::after { background: linear-gradient(to top right, rgb(14 32 20 / 0.8) 0%, rgb(14 32 20 / 0.38) 45%, transparent 75%); }
+      .x-icon { position: absolute; top: clamp(16px, 2.4vw, 24px); left: clamp(16px, 2.4vw, 24px); width: 88px; height: 88px; border-radius: var(--r-l); background: var(--hero-glass); border: 1px solid var(--hero-glass-stroke); display: grid; place-items: center; z-index: 2; }
+      .x-icon img { width: 68px; height: 68px; object-fit: contain; border-radius: 16px; }
+      .hero h1.x-h1 { display: grid; gap: 2px; font-weight: var(--weight-bold); font-size: clamp(44px, 7.5vw, 84px); line-height: 1.02; letter-spacing: -0.02em; }
+      .x-h1__sub { color: #fff; font-size: 0.62em; font-weight: var(--weight-medium); }
+      .x-title { color: #22c55e; background: var(--x-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 0.06em; }
+      .hero > .callout { background: rgba(255, 255, 255, 0.96); box-shadow: 0 4px 16px #1d1d1f1f; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 28px; color: #1d1d1f; color-scheme: light; padding: 18px 20px 20px; gap: 12px; }
+      .hero > .callout .callout__head, .hero > .callout .fineprint { color: #636366; }
+      .hero > .callout .x-ghost { background: transparent; color: #1d1d1f; border: 1px solid #1d1d1f33; }
+      @media (max-width: 760px) { .hero__copy { padding-top: 140px; } }
+      html { scroll-behavior: auto; }
+      .callout, .hero__eyebrow, .hero__credit { -webkit-backdrop-filter: none; backdrop-filter: none; }
+      .hero__eyebrow { background: rgb(14 32 20 / 0.62); }
+      /* Buttons */
+      .x-go, .x-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); padding: 8px 18px; border-radius: var(--r-pill); font: var(--type-label); font-weight: var(--weight-medium); cursor: pointer; text-decoration: none; border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); }
+      .x-go { background-color: #facc15; background-image: var(--x-grad); color: var(--x-on-grad); border-color: transparent; }
+      .x-go:hover, .x-ghost:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-go:disabled { opacity: 0.55; cursor: not-allowed; }
+      .x-ghost.x-danger { color: light-dark(#b4232a, #ff8a8f); }
+      /* Panels and inputs */
+      .x-panel { display: grid; gap: 20px; padding: clamp(18px, 3vw, 28px); background: var(--x-card); border: 1px solid var(--stroke-secondary); border-radius: 24px; contain: content; }
+      .x-drop { position: relative; display: grid; place-items: center; gap: 8px; min-height: 220px; padding: 24px; border: 2px dashed var(--stroke-primary); border-radius: var(--r-l); background: var(--fill-primary-on); text-align: center; cursor: pointer; overflow: hidden; }
+      .x-drop.is-over { border-color: #22c55e; }
+      .x-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+      .x-drop strong { font: var(--type-heading); }
+      .x-drop span { font-size: var(--size-small); color: var(--text-secondary); }
+      .x-preview { width: 100%; height: 280px; border-radius: var(--r-m); background: center / contain no-repeat; }
+      .x-preview[hidden] { display: none; }
+      .x-field { display: grid; gap: 8px; }
+      .x-field > label, .x-label { font: var(--type-label); font-weight: var(--weight-medium); }
+      .x-input { min-height: var(--tap); padding: 8px 14px; border-radius: var(--r-s); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body); width: 100%; max-width: 420px; }
+      .x-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .x-row .x-input { flex: 1 1 220px; }
+      .x-status { display: flex; align-items: center; gap: 12px; font: var(--type-body); }
+      .x-status[hidden], .x-error[hidden], [hidden] { display: none !important; }
+      .x-ring { width: 32px; height: 32px; border-radius: 50%; background: conic-gradient(#22c55e, #facc15, #ef4444, transparent 80%); -webkit-mask: radial-gradient(circle, transparent 10px, #000 11px); mask: radial-gradient(circle, transparent 10px, #000 11px); animation: x-spin 0.9s linear infinite; flex: none; }
+      @keyframes x-spin { to { transform: rotate(1turn); } }
+      .x-error { padding: 12px 16px; border-radius: var(--r-m); border: 1px solid var(--fill-system-red); color: var(--text-primary); font: var(--type-label); }
+      .x-target { padding: 10px 14px; border-radius: var(--r-m); background: var(--fill-tertiary); font: var(--type-label); }
+      .x-empty { padding: 28px; border-radius: 24px; border: 1px dashed var(--stroke-primary); background: var(--x-card); color: var(--text-secondary); text-align: center; font: var(--type-body); }
+      /* Result + health meter */
+      .x-result { display: grid; gap: 20px; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); align-items: start; }
+      @media (max-width: 680px) { .x-result { grid-template-columns: minmax(0, 1fr); } }
+      .x-result__img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-m); background: var(--fill-tertiary); }
+      .x-score { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+      .x-score b { font: var(--type-display); font-weight: var(--weight-bold); }
+      .x-score span { font: var(--type-heading); }
+      .x-meter { position: relative; height: 14px; border-radius: var(--r-pill); background: var(--x-meter); }
+      .x-meter i { position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #1d1d1f; transform: translate(-50%, -50%); box-shadow: 0 1px 4px #0004; }
+      .x-scale { display: flex; justify-content: space-between; font: var(--type-caption); color: var(--text-secondary); }
+      .x-species { font: var(--type-heading); }
+      .x-care { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+      .x-care div { padding: 14px 16px; border-radius: var(--r-m); background: var(--fill-tertiary); display: grid; gap: 4px; align-content: start; }
+      .x-care h4 { font: var(--type-label); font-weight: var(--weight-medium); color: var(--text-secondary); }
+      .x-care p { font: var(--type-small); }
+      /* My Plants grid */
+      .x-plants { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+      .x-plant { display: grid; gap: 6px; padding: 10px 10px 14px; border-radius: 24px; background: var(--x-card); border: 1px solid var(--stroke-secondary); text-align: left; color: var(--text-primary); font: var(--type-body); cursor: pointer; contain: content; }
+      .x-plant:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-plant img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-m); margin-bottom: 6px; background: var(--fill-tertiary); }
+      .x-plant h3 { font: var(--type-heading); padding-inline: 4px; }
+      .x-plant p { font: var(--type-small); color: var(--text-secondary); padding-inline: 4px; }
+      .x-plant .x-pscore { font: var(--type-label); font-weight: var(--weight-bold); color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+      .x-sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+      /* Dialogs */
+      .x-modal { width: min(640px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: clamp(18px, 3vw, 28px); border: 1px solid var(--stroke-secondary); border-radius: 24px; background: var(--x-card); color: var(--text-primary); }
+      .x-modal--s { width: min(440px, calc(100% - 32px)); }
+      .x-modal::backdrop { background: rgb(0 0 0 / 0.5); }
+      .x-modal header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+      .x-modal h2 { font: var(--type-heading); }
+      .x-form { display: grid; gap: 16px; }
+      .x-hist { display: grid; gap: 16px; }
+      .x-hist__top { display: flex; gap: 16px; align-items: center; }
+      .x-hist__top img { width: 96px; height: 96px; border-radius: var(--r-m); object-fit: cover; flex: none; }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
+      <main class="main">
+        <section class="hero">
+          <img class="hero__img" src="plantdoc_hero.jpg" alt="A healthy houseplant with a phone held up to photograph it" />
+          <div class="x-icon"><img src="plantdoc_icon.png" alt="Plant Doc app icon" /></div>
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Free · Gemini AI · Created by Yathin Pedamallu</p>
+            <h1 class="x-h1"><span class="x-title">Plant Doc</span><span class="x-h1__sub">for your houseplants</span></h1>
+            <p class="hero__sub">Snap a plant. Find out how it's doing, and how to help.</p>
+          </div>
+          <aside class="callout" aria-label="Get started">
+            <p class="callout__head">Get started</p>
+            <p class="callout__lead"><strong>One photo, a full check-up.</strong> Gemini names the plant, scores its health and lists what to fix.</p>
+            <div class="links">
+              <a class="x-go" href="#check">Check a plant</a>
+              <button class="x-ghost" type="button" data-demo>Try demo mode</button>
+            </div>
+            <p class="fineprint">Needs a free Gemini API key. Demo mode works without one.</p>
+          </aside>
+        </section>
+
+        <section class="section" id="check" data-nav="Check">
+          <div class="head">
+            <h2>Show Plant Doc your plant.</h2>
+            <p class="head__sub">A clear photo of the leaves and pot works best.</p>
+          </div>
+          <form class="x-panel" id="form">
+            <p class="x-target" id="target" hidden></p>
+            <label class="x-drop" id="drop">
+              <input type="file" id="photo" accept="image/*" capture="environment" />
+              <div class="x-preview" id="preview" role="img" aria-label="Your plant photo" hidden></div>
+              <strong id="dropTitle">Take or upload a photo</strong>
+              <span id="dropHint">Tap to use your camera, or drop an image here</span>
+            </label>
+            <div class="x-field">
+              <label for="key">Gemini API key</label>
+              <div class="x-row">
+                <input class="x-input" id="key" type="password" autocomplete="off" placeholder="Paste your key" />
+                <button class="x-ghost" type="button" id="forget">Forget key</button>
+              </div>
+              <p class="fineprint">Get a free key at <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. It's saved on this device only.</p>
+              <p class="fineprint" id="keyNote" role="status"></p>
+            </div>
+            <div class="x-row">
+              <button class="x-go" type="submit" id="go">Check my plant</button>
+              <button class="x-ghost" type="button" data-demo>Try demo mode</button>
+              <button class="x-ghost" type="button" id="cancelTarget" hidden>Cancel re-check</button>
+            </div>
+            <div class="x-status" id="status" role="status" hidden><span class="x-ring" aria-hidden="true"></span><span>Examining your plant…</span></div>
+            <p class="x-error" id="error" role="alert" hidden></p>
+          </form>
+          <div id="result" aria-live="polite"></div>
+        </section>
+
+        <section class="section" id="plants" data-nav="My Plants">
+          <div class="head">
+            <h2>Your plants, and how they're doing.</h2>
+            <p class="head__sub">Tap a plant to see its history or check it again.</p>
+          </div>
+          <div id="plantGrid"></div>
+        </section>
+
+        <section class="section" id="how" data-nav="How it works">
+          <div class="head"><h2>From photo to care plan in three steps.</h2></div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__intro"><p class="step__num">01</p><p class="step__eyebrow">Snap</p></div>
+              <div><h3>Take a photo of your plant</h3><p>Use your camera or upload one, and add your free Gemini key.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">02</p><p class="step__eyebrow">Gemini checks</p></div>
+              <div><h3>Get a health score and care tips</h3><p>The species, a 0 to 100 score, any issues, and what to do about water, light and soil.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">03</p><p class="step__eyebrow">Name &amp; track</p></div>
+              <div><h3>Save it with a nickname</h3><p>Check again later to see its score over time.</p></div>
+            </article>
+          </div>
+          <div class="aside">
+            <h3>Privacy</h3>
+            <p class="fineprint">Photos go only to Google Gemini, using your own key. Your plants are saved only on this device.</p>
+          </div>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>Plant Doc · Part of Yathin Apps · Created by Yathin Pedamallu</p>
+        <nav aria-label="Back to sections" data-auto></nav>
+        <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
+      </footer>
+    </div>
+
+    <img class="x-navicon" id="navIcon" src="plantdoc_icon.png" alt="Plant Doc" hidden />
+
+    <dialog class="x-modal x-modal--s" id="nameDlg" aria-labelledby="nameTitle">
+      <header><h2 id="nameTitle">Name your plant</h2><button class="x-ghost" type="button" data-close>Close</button></header>
+      <form class="x-form" id="nameForm">
+        <div class="x-field"><label for="nick">Nickname</label><input class="x-input" id="nick" required maxlength="40" placeholder="e.g. Fernando" /></div>
+        <button class="x-go" type="submit">Save</button>
+      </form>
+    </dialog>
+
+    <dialog class="x-modal" id="plantDlg" aria-labelledby="plantTitle">
+      <header><h2 id="plantTitle"></h2><button class="x-ghost" type="button" data-close>Close</button></header>
+      <div class="x-hist" id="plantBody"></div>
+      <figure class="chart" id="histChart">
+        <figcaption class="chart__cap" id="histCap">Health score over time<small>Each check, score 0 to 100</small></figcaption>
+        <div class="chart__canvas"><canvas id="hist" role="img" aria-label="Health score at each check"></canvas></div>
+      </figure>
+      <div class="x-row" style="margin-top:16px">
+        <button class="x-go" type="button" id="again">Check again</button>
+        <button class="x-ghost" type="button" id="rename">Edit name</button>
+        <button class="x-ghost x-danger" type="button" id="del">Delete</button>
+      </div>
+    </dialog>
+
+    <script src="hark.js"></script>
+    <script src="chart.js"></script>
+    <script src="datalabels.js"></script>
+    <script src="hark-charts.js"></script>
+    <script>
+      (function () {
+        const $ = (id) => document.getElementById(id);
+        const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        // Storage with in-memory fallback for sandboxed pages
+        const mem = {};
+        const store = {
+          get(k) { try { return localStorage.getItem(k); } catch { return mem[k] ?? null; } },
+          set(k, v) { try { localStorage.setItem(k, v); } catch { mem[k] = v; } },
+          del(k) { try { localStorage.removeItem(k); } catch { delete mem[k]; } },
+        };
+        let plants = [];
+        try { plants = JSON.parse(store.get("plantdoc-plants") || "[]"); } catch { plants = []; }
+        const savePlants = () => {
+          try { localStorage.setItem("plantdoc-plants", JSON.stringify(plants)); } catch { mem["plantdoc-plants"] = JSON.stringify(plants); }
+        };
+        $("key").value = store.get("plantdoc-key") || "";
+        $("key").addEventListener("change", () => { const k = $("key").value.trim(); k ? store.set("plantdoc-key", k) : store.del("plantdoc-key"); });
+        const syncForget = () => { $("forget").hidden = !$("key").value.trim(); };
+        $("key").addEventListener("input", () => { syncForget(); $("keyNote").textContent = ""; });
+        $("forget").onclick = () => { $("key").value = ""; store.del("plantdoc-key"); syncForget(); $("keyNote").textContent = "Key removed from this device."; $("key").focus(); };
+        syncForget();
+
+        const state = { image: null, thumb: null, check: null, target: null, open: null, demoIdx: 0 };
+        const STATUSES = ["Thriving", "Good", "Needs care", "Struggling", "Critical"];
+        const hue = (s) => Math.round(Math.max(0, Math.min(100, s)) * 1.2);
+        const scoreColor = (s) => `hsl(${hue(s)} 80% 45%)`;
+        const scoreText = (s) => `light-dark(hsl(${hue(s)} 85% 30%), hsl(${hue(s)} 80% 62%))`;
+        const fmtDate = (t) => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+        // Resize an image (data URL) to a jpeg data URL
+        function resize(src, max, q) {
+          return new Promise((res, rej) => {
+            const im = new Image();
+            im.onload = () => {
+              const r = Math.min(1, max / Math.max(im.width, im.height));
+              const c = document.createElement("canvas");
+              c.width = Math.round(im.width * r); c.height = Math.round(im.height * r);
+              c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+              res(c.toDataURL("image/jpeg", q));
+            };
+            im.onerror = rej;
+            im.src = src;
+          });
+        }
+        async function loadFile(file) {
+          if (!file || !file.type.startsWith("image/")) return;
+          const url = await new Promise((r) => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(file); });
+          try {
+            state.image = await resize(url, 1024, 0.85);
+            state.thumb = await resize(url, 300, 0.75);
+          } catch { return fail("Couldn't read that image. Try a JPEG or PNG."); }
+          $("preview").style.backgroundImage = `url("${state.image}")`;
+          $("preview").hidden = false;
+          $("dropTitle").textContent = "Photo ready";
+          $("dropHint").textContent = "Tap to choose a different one";
+          $("error").hidden = true;
+        }
+        $("photo").addEventListener("change", (e) => loadFile(e.target.files[0]));
+        const drop = $("drop");
+        ["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("is-over"); }));
+        ["dragleave", "drop"].forEach((t) => drop.addEventListener(t, () => drop.classList.remove("is-over")));
+        drop.addEventListener("drop", (e) => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+
+        const PROMPT = `You are a houseplant doctor. Look at this photo of a houseplant and return ONLY JSON with this shape:
+{"species":"best guess common name (scientific name)","score":0-100 integer health score,"status":"one of Thriving, Good, Needs care, Struggling, Critical","summary":"one sentence on how the plant is doing","issues":["short issue names, e.g. Yellow leaves, Overwatering, Pests, Sunburn, Root rot, Underwatering; empty if none"],"care":{"water":"one or two sentences","light":"one or two sentences","soil":"one or two sentences","next":"the most important next steps"},"recheck_days":integer days until the next check}
+Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Critical. If there is no plant in the photo, set species to "No plant found", score 0 and explain in summary.`;
+
+        function normalize(o) {
+          const score = Math.round(Math.max(0, Math.min(100, +o.score || 0)));
+          const status = STATUSES.includes(o.status) ? o.status : score >= 85 ? "Thriving" : score >= 70 ? "Good" : score >= 50 ? "Needs care" : score >= 25 ? "Struggling" : "Critical";
+          const c = o.care || {};
+          return { species: String(o.species || "Unknown plant"), score, status, summary: String(o.summary || ""), issues: (Array.isArray(o.issues) ? o.issues : []).map(String).slice(0, 8), care: { water: c.water || "", light: c.light || "", soil: c.soil || "", next: c.next || "" }, recheck: Math.max(1, Math.round(+o.recheck_days || 7)), date: Date.now() };
+        }
+
+        async function check() {
+          $("error").hidden = true;
+          const key = $("key").value.trim();
+          if (!state.image) return fail("Take or upload a photo of your plant first.");
+          if (!key) return fail("Add your Gemini API key first. It's free at aistudio.google.com/apikey. Or try demo mode.");
+          store.set("plantdoc-key", key);
+          busy(true);
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: PROMPT }, { inline_data: { mime_type: "image/jpeg", data: state.image.split(",")[1] } }] }], generationConfig: { responseMimeType: "application/json" } }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              const msg = (data.error && data.error.message) || "";
+              if ((res.status === 400 && /key/i.test(msg)) || res.status === 401 || res.status === 403) throw new Error("That API key didn't work. Check it at aistudio.google.com/apikey and try again.");
+              if (res.status === 429) throw new Error("Gemini is busy or your free quota ran out. Wait a minute and try again.");
+              throw new Error("Gemini couldn't check that. " + (msg || "Please try again."));
+            }
+            const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "";
+            let out;
+            try { out = JSON.parse(text.replace(/^```(json)?|```$/g, "").trim()); } catch { throw new Error("Gemini sent back something unexpected. Try again with a clearer photo."); }
+            show(normalize(out), state.thumb);
+          } catch (err) {
+            fail(err instanceof TypeError ? "Couldn't reach Gemini. Check your connection and try again." : err.message);
+          } finally { busy(false); }
+        }
+        function busy(on) { $("status").hidden = !on; $("go").disabled = on; }
+        function fail(msg) { $("error").textContent = msg; $("error").hidden = false; }
+        $("form").addEventListener("submit", (e) => { e.preventDefault(); check(); });
+
+        // Demo mode: sample results, no key needed
+        const leaf = (c) => "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><rect width="300" height="300" fill="#eef5ec"/><path d="M150 260V120" stroke="#3f6b3a" stroke-width="8"/><path d="M150 170c-60 0-90-40-90-90 50 0 90 30 90 90zM150 140c50-10 85-50 80-100-50 5-85 45-80 100z" fill="${c}"/><rect x="100" y="230" width="100" height="50" rx="8" fill="#b7744a"/></svg>`);
+        const DEMOS = [
+          { thumb: leaf("#4caf50"), r: { species: "Monstera (Monstera deliciosa)", score: 88, status: "Thriving", summary: "Big, glossy leaves with healthy splits. This plant is happy.", issues: [], care: { water: "Water when the top 5 cm of soil is dry, about every 7 to 10 days.", light: "Bright, indirect light. Keep it out of hot afternoon sun.", soil: "Chunky aroid mix with bark and perlite drains well.", next: "Add a moss pole to support new growth and wipe the leaves monthly." }, recheck_days: 14 } },
+          { thumb: leaf("#c9c43a"), r: { species: "Pothos (Epipremnum aureum)", score: 58, status: "Needs care", summary: "Several lower leaves are yellowing, and the soil looks soggy.", issues: ["Yellow leaves", "Overwatering"], care: { water: "Let the top half of the soil dry out before watering again.", light: "Medium to bright indirect light is ideal.", soil: "Make sure the pot has a drainage hole; add perlite if the soil stays wet.", next: "Remove yellow leaves, skip watering this week and check the roots for rot." }, recheck_days: 5 } },
+          { thumb: leaf("#c46a3a"), r: { species: "Fiddle-leaf fig (Ficus lyrata)", score: 31, status: "Struggling", summary: "Brown, crispy patches and tiny webbing under the leaves.", issues: ["Sunburn", "Spider mites", "Brown spots"], care: { water: "Water deeply when the top 3 cm is dry; never leave it standing in water.", light: "Move it back from the window so direct sun can't scorch the leaves.", soil: "Well-draining potting mix; repot in spring if roots circle the pot.", next: "Shower the leaves, treat with insecticidal soap weekly and isolate it from other plants." }, recheck_days: 3 } },
+        ];
+        function demo() {
+          const d = DEMOS[state.demoIdx++ % DEMOS.length];
+          $("error").hidden = true;
+          show(normalize(d.r), state.thumb || (state.target ? null : d.thumb));
+        }
+        document.querySelectorAll("[data-demo]").forEach((b) => (b.onclick = demo));
+
+        // Result
+        const meter = (c) => `
+          <div class="x-score"><b style="color:${scoreText(c.score)}">${c.score}</b><span>${esc(c.status)}</span></div>
+          <div class="x-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${c.score}" aria-label="Health score"><i style="left:${c.score}%"></i></div>
+          <div class="x-scale"><span>0 Critical</span><span>100 Thriving</span></div>`;
+        const issues = (c) => (c.issues.length ? `<p class="x-row">${c.issues.map((i) => `<span class="chip">${esc(i)}</span>`).join("")}</p>` : `<p><span class="chip chip--solid">No issues found</span></p>`);
+        const care = (c) => `<div class="x-care">${[["Water", c.care.water], ["Light", c.care.light], ["Soil", c.care.soil], ["Next steps", c.care.next]].filter((x) => x[1]).map(([h, t]) => `<div><h4>${h}</h4><p>${esc(t)}</p></div>`).join("")}</div>`;
+        function show(c, thumb) {
+          state.check = { ...c, thumb };
+          const t = state.target && plants.find((p) => p.id === state.target);
+          $("result").innerHTML = `<div class="x-panel" style="margin-top:16px">
+            <div class="x-result">
+              <img class="x-result__img" src="${thumb || (t && t.thumb) || ""}" alt="The checked plant" />
+              <div class="x-hist">
+                <p class="x-species">${esc(c.species)}</p>
+                ${meter(c)}
+                ${c.summary ? `<p>${esc(c.summary)}</p>` : ""}
+                ${issues(c)}
+                <p><span class="pill">Check again in ${c.recheck} day${c.recheck === 1 ? "" : "s"}</span></p>
+              </div>
+            </div>
+            ${care(c)}
+            <div class="x-row"><button class="x-go" type="button" id="save">${t ? `Add check to ${esc(t.name)}` : "Save to My Plants"}</button></div>
+          </div>`;
+          $("save").onclick = () => {
+            if (t) { addCheck(t); state.target = null; showTarget(); }
+            else { $("nick").value = ""; state.rename = null; $("nameTitle").textContent = "Name your plant"; $("nameDlg").showModal(); }
+          };
+          $("result").scrollIntoView();
+        }
+        function addCheck(p) {
+          const { thumb, ...c } = state.check;
+          p.checks.push(c);
+          if (thumb) p.thumb = thumb;
+          savePlants(); renderPlants();
+          $("result").innerHTML = `<p class="x-empty" style="margin-top:16px">Saved to ${esc(p.name)}.</p>`;
+          openPlant(p.id);
+        }
+        $("nameForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = $("nick").value.trim();
+          if (!name) return;
+          $("nameDlg").close();
+          if (state.rename) { const p = plants.find((x) => x.id === state.rename); p.name = name; savePlants(); renderPlants(); openPlant(p.id); return; }
+          const p = { id: Date.now().toString(36), name, thumb: state.check.thumb, checks: [] };
+          plants.unshift(p);
+          addCheck(p);
+        });
+        document.querySelectorAll("[data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
+
+        // My Plants grid
+        function renderPlants() {
+          if (!plants.length) { $("plantGrid").innerHTML = '<p class="x-empty">No plants yet. Check a plant, then tap "Save to My Plants".</p>'; return; }
+          $("plantGrid").innerHTML = `<div class="x-plants">${plants.map((p) => {
+            const l = p.checks[p.checks.length - 1];
+            return `<button class="x-plant" type="button" data-id="${p.id}">
+              <img src="${p.thumb}" alt="" />
+              <h3>${esc(p.name)}</h3>
+              <p>${esc(l.species)}</p>
+              <p class="x-pscore"><span class="x-sw" style="background:${scoreColor(l.score)}"></span><span style="color:${scoreText(l.score)}">${l.score}</span> ${esc(l.status)}</p>
+              <p>Checked ${fmtDate(l.date)}</p>
+            </button>`;
+          }).join("")}</div>`;
+          $("plantGrid").querySelectorAll(".x-plant").forEach((b) => (b.onclick = () => openPlant(b.dataset.id)));
+        }
+
+        // Plant detail with history
+        let chart;
+        function openPlant(id) {
+          const p = plants.find((x) => x.id === id);
+          if (!p) return;
+          state.open = id;
+          delete $("del").dataset.sure; $("del").textContent = "Delete";
+          const l = p.checks[p.checks.length - 1];
+          const due = l.date + l.recheck * 864e5;
+          $("plantTitle").textContent = p.name;
+          $("plantBody").innerHTML = `
+            <div class="x-hist__top"><img src="${p.thumb}" alt="${esc(p.name)}" /><div><p class="x-species">${esc(l.species)}</p><p class="fineprint">${p.checks.length} check${p.checks.length === 1 ? "" : "s"} · next check ${due < Date.now() ? "due now" : "by " + fmtDate(due)}</p></div></div>
+            ${meter(l)}${issues(l)}${care(l)}`;
+          const dlg = $("plantDlg");
+          if (!dlg.open) dlg.showModal();
+          $("histChart").hidden = p.checks.length < 2;
+          if (chart) { chart.destroy(); chart = null; }
+          if (p.checks.length >= 2) {
+            const labels = p.checks.map((c) => new Date(c.date).toLocaleDateString(undefined, { month: "short", day: "numeric" }));
+            const first = p.checks[0].score;
+            $("histCap").firstChild.textContent = l.score > first ? `Up ${l.score - first} points since the first check` : l.score < first ? `Down ${first - l.score} points since the first check` : "Same score as the first check";
+            $("hist").setAttribute("aria-label", `Health score went from ${first} to ${l.score} over ${p.checks.length} checks`);
+            chart = new Chart($("hist"), {
+              type: "line",
+              data: { labels, datasets: [{ label: "Health", data: p.checks.map((c) => c.score), fill: true, pointRadius: 3 }] },
+              options: { scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false }, datalabels: Hark.labels.points, tooltip: { callbacks: { label: (ctx) => `Score ${ctx.raw}` } } } },
+            });
+          }
+        }
+        $("again").onclick = () => {
+          state.target = state.open; $("plantDlg").close(); showTarget();
+          state.image = state.thumb = null; $("preview").hidden = true; $("dropTitle").textContent = "Take or upload a photo"; $("dropHint").textContent = "Tap to use your camera, or drop an image here"; $("photo").value = ""; $("result").innerHTML = "";
+          $("check").scrollIntoView();
+        };
+        $("rename").onclick = () => { const p = plants.find((x) => x.id === state.open); state.rename = p.id; $("nick").value = p.name; $("nameTitle").textContent = "Edit name"; $("plantDlg").close(); $("nameDlg").showModal(); };
+        $("del").onclick = () => {
+          const p = plants.find((x) => x.id === state.open);
+          const b = $("del");
+          if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = `Tap again to delete ${p.name}`; return; }
+          plants = plants.filter((x) => x.id !== p.id); savePlants(); renderPlants(); $("plantDlg").close();
+        };
+        function showTarget() {
+          const t = state.target && plants.find((p) => p.id === state.target);
+          $("target").hidden = $("cancelTarget").hidden = !t;
+          if (t) $("target").textContent = `Checking ${t.name} again. Take a new photo, and the result is added to its history.`;
+        }
+        $("cancelTarget").onclick = () => { state.target = null; showTarget(); };
+        renderPlants();
+
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelector(".nav .seg")?.insertAdjacentHTML("afterbegin", '<a href="https://praveenp-works.github.io/yathin_apps/">← Yathin Apps</a>');
+          const ic = $("navIcon"); ic.hidden = false; document.querySelector(".nav")?.prepend(ic);
+        });
+      })();
+    </script>
+    <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-plantdoc/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("pd_seen")){localStorage.setItem("pd_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
+  <script src="../signin-download.js" data-app="Plant Doc" data-icon="plantdoc_icon.png" data-url="https://github.com/praveenp-works/yathin_apps/releases/download/plantdoc-windows/PlantDoc.exe"></script>
+</body>
+</html>
