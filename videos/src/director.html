@@ -104,6 +104,47 @@ const privacy = (what) => `<div style="text-align:center;padding-top:30px"><div 
 async function privacyAnim(){ await sleep(200); q(".k1").classList.add("popin"); await sleep(400); q(".k2").classList.add("popin"); await sleep(500); const d = q(".dot"); d.classList.remove("hide"); await sleep(50); d.style.left = "180px"; await sleep(1500); q(".k3").classList.add("upin"); }
 
 const SCRIPTS = {
+
+ yathin: { bg:"linear-gradient(135deg,#0f766e 0%,#15803d 30%,#ca8a04 65%,#e07a1f 100%)", btn:"linear-gradient(90deg,#14b8a6,#22c55e,#f59e0b)",
+  voice:"en-US-JennyNeural", rate:"-4%",
+  icon:"/yathinapps_hero.jpg", icons:["/magiccursor/logo.png","/classview/classview_icon.png","/plantdoc/plantdoc_icon.png","/fridgechef/fridgechef_icon.png"],
+  title:"Yathin Apps", tag:"Four free apps. One place.",
+  chips:["100% free","Windows & web","Made by Yathin"], foot:"praveenp-works.github.io/yathin_apps",
+  scenes:[
+   {hook:["Four simple apps.","One place."], strike:false, say:"Four simple apps. All in one place."},
+   {tb:["/magiccursor/logo.png","Magic Cursor"], say:"Magic Cursor. Draw a box around anything, and Gemini explains it, right beside your window.", pill:"Magic Cursor: ask AI about anything on screen", html:`
+     <div style="display:flex;gap:34px"><div style="flex:1.1;position:relative">
+      <div class="muted" style="font-size:20px">Math homework · Page 42</div>
+      <div class="h" style="margin-top:8px">Linear equations</div>
+      ${[90,70,82,60].map(w=>`<div style="height:12px;width:${w}%;background:#2c2c3a;border-radius:6px;margin:14px 0"></div>`).join("")}
+      <div id="qq" style="font-size:38px;font-weight:700;margin:34px 0 0;padding:16px 20px;display:inline-block">Q3. Solve 2x + 6 = 14</div>
+      <div id="box" style="position:absolute;left:0;top:0;width:0;height:0;border:4px dashed #a78bfa;border-radius:14px;background:rgba(167,139,250,.12);opacity:0;transition:width .9s ease,height .9s ease,opacity .2s"></div>
+     </div>
+     <div class="card hide" id="ans" style="width:420px;align-self:center;box-shadow:inset 0 0 0 2px #a78bfa"><div style="font-size:20px;color:#c4b5fd;font-weight:700">✨ Gemini</div>
+      <div style="font-size:40px;font-weight:800;margin:10px 0">x = 4</div><div class="muted" style="font-size:22px">Subtract 6 from both sides to get 2x = 8, then divide by 2.</div></div></div>`,
+    run: async () => { const qq=q("#qq"), b=q("#box"); await cursorTo(qq,900); const r=qq.getBoundingClientRect(), pr=b.parentElement.getBoundingClientRect();
+      b.style.left=(r.left-pr.left)+"px"; b.style.top=(r.top-pr.top)+"px"; b.style.opacity=1; await sleep(50); b.style.width=r.width+"px"; b.style.height=r.height+"px"; $("cur").style.left=(r.right-6)+"px"; $("cur").style.top=(r.bottom-4)+"px"; await sleep(1100); hideCursor(); q("#ans").classList.add("popin"); await sleep(1200); }},
+   {tb:["/classview/classview_icon.png","ClassView"], say:"ClassView helps teachers see every Chromebook in class.", pill:"ClassView: every screen in class", html:`
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px"><div class="h" style="margin:0">Period 3 · Math</div><span class="btn" id="la">🔒 Lock all</span></div>
+     <div class="grid">${[["Ava","#3b82f6"],["Liam","#8b5cf6"],["Sofia","#3b82f6"],["Noah","#06b6d4"],["Mia","#a855f7"],["Ethan","#3b82f6"],["Zoe","#22c55e"],["Lucas","#8b5cf6"]].map(s=>`<div class="tile hide" style="--c:${s[1]}"><div class="scr"></div><div class="nm"><span>${s[0]}</span><span class="url">on task ✓</span></div><div class="lock">🔒 Locked</div></div>`).join("")}</div>`,
+    run: async () => { await sleep(150); await popAll(".tile", 110); await sleep(500); await cursorTo("#la",800); await click("#la"); hideCursor(); for (const t of wb().querySelectorAll(".tile")){ t.classList.add("locked"); await sleep(60);} }},
+   {tb:["/plantdoc/plantdoc_icon.png","Plant Doc"], say:"Plant Doc looks at your plant, and tells you how it's doing.", pill:"Plant Doc: a health score for your plant", html:`
+     <div style="display:flex;gap:34px"><div class="photo" style="width:440px;height:330px"><img src="/plantdoc/plantdoc_hero.jpg"></div>
+     <div style="flex:1"><div class="muted" style="font-size:22px">Pothos · Health score</div><div style="font-size:120px;font-weight:800;line-height:1" id="sc2">0</div>
+     <div class="gauge"><div class="knob" id="kn"></div></div><div style="display:flex;justify-content:space-between" class="muted"><span>Needs help</span><span>Thriving</span></div>
+     <div style="margin-top:26px"><span class="chip hide">💧 Water once a week</span><span class="chip hide">🌤️ Indirect light</span></div></div></div>`,
+    run: async () => { await sleep(300); q("#kn").style.left="80%"; count(q("#sc2"),86,1600); await sleep(1500); await popAll(".chip",350); }},
+   {tb:["/fridgechef/fridgechef_icon.png","Fridge Chef"], say:"And Fridge Chef turns what's in your fridge into dinner ideas.", pill:"Fridge Chef: dinner from your fridge", html:`
+     <div class="h">Three things you can make tonight</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+     ${[["🍳","Spinach Omelette","15 min"],["🍚","Veggie Fried Rice","20 min"],["🍅","Tomato Egg Scramble","10 min"]].map(r=>`<div class="card hide t" style="height:300px"><div style="font-size:70px">${r[0]}</div><div style="font-size:30px;font-weight:700;margin:12px 0">${r[1]}</div><div class="muted" style="font-size:22px">${r[2]} · Easy</div></div>`).join("")}</div>`,
+    run: async () => { await sleep(200); await popAll(".t",380); }},
+   {tb:["/yathinapps_hero.jpg","Yathin Apps"], say:"Now, one place, one day. In class, the teacher keeps everyone on track. At home, Magic Cursor helps with homework. The plant by the window gets a check up. And dinner comes from what's already in the fridge.", pill:"One home, one day, four apps", html:`
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;height:100%">
+     ${[["/classview/classview_icon.png","9:00 AM · Class","ClassView","All 24 students on task ✓","#2dd4bf"],["/magiccursor/logo.png","4:00 PM · Homework","Magic Cursor","Q3 solved: x = 4 ✨","#a78bfa"],["/plantdoc/plantdoc_icon.png","6:00 PM · Windowsill","Plant Doc","Sunny the pothos: 86 / 100 🌿","#4ade80"],["/fridgechef/fridgechef_icon.png","7:00 PM · Kitchen","Fridge Chef","Tonight: Veggie Fried Rice 🍚","#fb923c"]].map(c=>`<div class="card hide m" style="display:flex;gap:20px;align-items:center;box-shadow:inset 0 0 0 2px ${c[4]}55">
+       <img src="${c[0]}" style="width:96px;height:96px;border-radius:22px;object-fit:cover"><div><div class="muted" style="font-size:19px">${c[1]}</div><div style="font-size:30px;font-weight:700">${c[2]}</div><div style="font-size:22px;color:${c[4]};font-weight:600;margin-top:6px">${c[3]}</div></div></div>`).join("")}</div>`,
+    run: async () => { await sleep(1400); const g=Math.max(1500,(window.__need-2500)/4); for (const e of wb().querySelectorAll(".m")){ e.classList.add("popin"); await sleep(g);} }},
+   {end:true, say:"Yathin Apps. Four free apps, in one place."}
+  ]},
  plantdoc: { bg:"linear-gradient(135deg,#15803d 0%,#65a30d 35%,#ca8a04 65%,#dc2626 100%)", btn:"linear-gradient(90deg,#16a34a,#ca8a04,#dc2626)",
   icon:"/plantdoc/plantdoc_icon.png", title:"Plant Doc", tag:"Snap your plant. See how it's doing.",
   chips:["100% free","Powered by Gemini","Windows & phones"], foot:"Snap  ·  Health score  ·  Care tips  ·  Track your plants",
@@ -194,7 +235,7 @@ window.__marks = [];
 window.start = async function(durs){
   const t0 = performance.now(); let gridHTML = "";
   $("tbIcon").src = S.icon; $("tbTitle").textContent = S.title;
-  $("endIcon").src = S.icon; $("endTitle").textContent = S.title; $("endTag").textContent = S.tag;
+  $("endIcon").src = S.icon; if (S.icons) $("endIcon").outerHTML = `<div style="display:flex;gap:30px">${S.icons.map(i=>`<img class="icon" style="width:170px;height:170px;border-radius:40px;object-fit:cover;box-shadow:0 30px 80px rgba(0,0,0,.45)" src="${i}">`).join("")}</div>`; $("endTitle").textContent = S.title; $("endTag").textContent = S.tag;
   $("endChips").innerHTML = S.chips.map(c => `<span>${c}</span>`).join(""); $("endFoot").textContent = S.foot;
   for (let i = 0; i < S.scenes.length; i++){
     const sc = S.scenes[i], need = (durs[i] || 0) * 1000 + 500;
@@ -210,7 +251,8 @@ window.start = async function(durs){
       $("pill").classList.remove("on"); $("stage").classList.remove("on"); await sleep(400);
       $("end").classList.add("on"); await sleep(Math.max(need, 4200) + 1300);
     } else {
-      const st = performance.now();
+      const st = performance.now(); window.__need = need;
+      if (sc.tb){ $("tbIcon").src = sc.tb[0]; $("tbTitle").textContent = sc.tb[1]; }
       $("pill").classList.remove("on");
       if (!sc.keep){
         if (sc.html === "__grid") wb().innerHTML = gridHTML; else wb().innerHTML = sc.html;
