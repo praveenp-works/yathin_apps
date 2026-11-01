@@ -9,6 +9,7 @@ os.makedirs(DATA, exist_ok=True)
 
 DESKTOP_JS = r"""
 (function(){
+  document.documentElement.classList.add('is-app','is-desktop');
   var s=document.createElement('style');
   s.textContent='[data-dl],.x-navdl,#who{display:none!important}';
   document.head.appendChild(s);
