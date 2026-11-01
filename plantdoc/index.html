@@ -363,7 +363,6 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
                 ${meter(c)}
                 ${c.summary ? `<p>${esc(c.summary)}</p>` : ""}
                 ${issues(c)}
-                <p><span class="pill">Check again in ${c.recheck} day${c.recheck === 1 ? "" : "s"}</span></p>
               </div>
             </div>
             ${care(c)}
@@ -428,7 +427,7 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
           const due = l.date + l.recheck * 864e5;
           $("plantTitle").textContent = p.name;
           $("plantBody").innerHTML = `
-            <div class="x-hist__top"><img src="${p.thumb}" alt="${esc(p.name)}" /><div><p class="x-species">${esc(l.species)}</p><p class="fineprint">${p.checks.length} check${p.checks.length === 1 ? "" : "s"} · next check ${due < Date.now() ? "due now" : "by " + fmtDate(due)}</p></div></div>
+            <div class="x-hist__top"><img src="${p.thumb}" alt="${esc(p.name)}" /><div><p class="x-species">${esc(l.species)}</p><p class="fineprint">${p.checks.length} check${p.checks.length === 1 ? "" : "s"}</p></div></div>
             ${meter(l)}${issues(l)}${care(l)}`;
           const dlg = $("plantDlg");
           if (!dlg.open) dlg.showModal();
