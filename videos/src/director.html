@@ -1,0 +1,127 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#07071a;font-family:Poppins,"DejaVu Sans",sans-serif;color:#fff}
+  #bg{position:fixed;inset:0;background:radial-gradient(1200px 800px at 85% 15%,rgba(59,7,140,.55),transparent 60%),radial-gradient(900px 700px at 10% 95%,rgba(147,51,234,.35),transparent 60%),linear-gradient(160deg,#05050f,#12103a 55%,#1b1350)}
+  #glow{position:fixed;inset:0;opacity:.35;background:radial-gradient(700px 500px at 50% 60%,var(--acc),transparent 70%);animation:breathe 6s ease-in-out infinite alternate}
+  @keyframes breathe{from{transform:scale(1)}to{transform:scale(1.12)}}
+  .card{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;transition:opacity .6s ease}
+  .card.on{opacity:1}
+  .hook{font-size:92px;font-weight:800;line-height:1.1;max-width:1500px;letter-spacing:-.02em}
+  .hook span{display:inline-block;opacity:0;transform:translateY(30px);animation:up .6s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes up{to{opacity:1;transform:none}}
+  #stage{position:fixed;inset:0;opacity:0;transition:opacity .6s ease}
+  #stage.on{opacity:1}
+  #cap{position:absolute;top:56px;left:0;right:0;text-align:center;font-size:56px;font-weight:700;letter-spacing:-.01em;text-shadow:0 4px 30px rgba(0,0,0,.5);transition:opacity .35s ease,transform .35s ease}
+  #cap.out{opacity:0;transform:translateY(-14px)}
+  #frame{position:absolute;left:50%;top:190px;width:1280px;height:800px;margin-left:-672px;transform:scale(1.05);transform-origin:top left;border-radius:26px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.12);background:#f5f5f7}
+  #app{width:1280px;height:800px;border:0;display:block}
+  #end .icon{width:230px;height:230px;border-radius:52px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  #end h1{font-size:150px;margin:28px 0 0;font-weight:800;letter-spacing:-.03em;background:linear-gradient(180deg,#fff,#c9c9d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #end .tag{font-size:50px;color:#d4d4e4;margin:8px 0 50px;font-weight:600}
+  #end .chips{display:flex;gap:28px}
+  #end .chip{font-size:40px;font-weight:600;padding:20px 40px;border-radius:999px;background:rgba(20,22,48,.7);box-shadow:inset 0 0 0 2px rgba(148,163,255,.35)}
+  #end .foot{margin-top:70px;font-size:36px;color:#9a9ab5}
+  #end>*{opacity:0;transform:translateY(24px)}
+  #end.on>*{animation:up .7s cubic-bezier(.2,.8,.2,1) forwards}
+  #end.on>*:nth-child(2){animation-delay:.12s}#end.on>*:nth-child(3){animation-delay:.24s}#end.on>*:nth-child(4){animation-delay:.36s}#end.on>*:nth-child(5){animation-delay:.48s}
+</style></head>
+<body>
+<div id="bg"></div><div id="glow"></div>
+<div class="card" id="hook"><div class="hook" id="hookText"></div></div>
+<div id="stage"><div id="cap"></div><div id="frame"><iframe id="app"></iframe></div></div>
+<div class="card" id="end"><img class="icon" id="endIcon"><h1 id="endTitle"></h1><div class="tag" id="endTag"></div><div class="chips" id="endChips"></div><div class="foot" id="endFoot"></div></div>
+<script>
+const SCRIPTS = {
+  plantdoc: { acc:"rgba(34,197,94,.55)", src:"/plantdoc/index.html", icon:"/plantdoc/plantdoc_icon.png",
+    title:"Plant Doc", tag:"Snap your plant. See how it's doing.", chips:["100% free","Powered by Gemini","Windows & phones"],
+    foot:"Snap  ·  Health score  ·  Care tips  ·  Track your plants",
+    scenes:[
+      {hook:"Is your plant happy, or just hanging in there?"},
+      {cap:"Meet Plant Doc.", load:true, acts:[["wait",3200]]},
+      {cap:"Snap a photo. Gemini checks it in seconds.", acts:[["scroll","#check",1600],["wait",1400]]},
+      {cap:"A health score, from red to green.", acts:[["scroll","#result",1800],["wait",1200]]},
+      {cap:"Plus easy care tips for water, light and soil.", acts:[["scrollBy",420,1800],["wait",1000]]},
+      {cap:"Name your plants and watch them grow.", acts:[["scroll","#plants",1800],["wait",700],["click",".x-plant"],["wait",2600]]},
+      {end:true}
+    ]},
+  fridgechef: { acc:"rgba(249,115,22,.55)", src:"/fridgechef/index.html", icon:"/fridgechef/fridgechef_icon.png",
+    title:"Fridge Chef", tag:"Snap your fridge. Get dinner ideas.", chips:["100% free","Powered by Gemini","Windows & phones"],
+    foot:"Snap  ·  Ingredients  ·  3 recipes  ·  Cook mode",
+    scenes:[
+      {hook:"A full fridge, and no idea what to cook?"},
+      {cap:"Meet Fridge Chef.", load:true, acts:[["wait",3400]]},
+      {cap:"Snap your fridge. Gemini spots every ingredient.", acts:[["scroll","#snap",1400],["clickVisible","[data-demo]"],["wait",1800],["scroll","#ingredients",1800],["wait",900]]},
+      {cap:"Then get three recipes you can make tonight.", acts:[["scroll","#recipes",1800],["scrollBy",260,1400],["wait",1200]]},
+      {cap:"Cook mode walks you through, step by step.", acts:[["clickVisible","[data-cook]"],["wait",1700],["click","#cookNext"],["wait",1700],["click","#cookNext"],["wait",1500]]},
+      {end:true}
+    ]},
+  classview: { acc:"rgba(45,212,191,.5)", src:"/classview/index.html", icon:"/classview/classview_icon.png",
+    title:"ClassView", tag:"See your whole class at a glance.", chips:["100% free","For Chromebooks","Demo version"],
+    foot:"Live screens  ·  Tabs  ·  Block sites  ·  Lock all",
+    scenes:[
+      {hook:"Teaching a room full of Chromebooks?"},
+      {cap:"Meet ClassView.", load:true, acts:[["wait",2000],["clickText","Try demo mode"],["wait",900],["click",'a[href="#dash"]'],["wait",1200]]},
+      {cap:"See every student's screen, live.", acts:[["wait",2600]]},
+      {cap:"Check open tabs and close what doesn't belong.", acts:[["click",'[data-view="tabs"]'],["wait",2600]]},
+      {cap:"Switch to Test mode and block distracting sites.", acts:[["click",'[data-view="block"]'],["wait",2600]]},
+      {cap:"Get alerts, and lock every screen in one tap.", acts:[["click",'[data-view="alerts"]'],["wait",1800],["click",'[data-view="screens"]'],["wait",600],["click",'[data-act="lockall"]'],["wait",1600]]},
+      {end:true}
+    ]}
+};
+const app = new URLSearchParams(location.search).get("app");
+const S = SCRIPTS[app];
+document.documentElement.style.setProperty("--acc", S.acc);
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const ease = (t) => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+function win(){ return $("app").contentWindow; }
+function doc(){ return $("app").contentDocument; }
+function smooth(to, ms){
+  const w = win(), from = w.scrollY, t0 = performance.now();
+  return new Promise(res => { (function step(now){ const k = Math.min(1,(now - t0)/ms); w.scrollTo(0, from + (to - from) * ease(k)); k < 1 ? requestAnimationFrame(step) : res(); })(t0); });
+}
+function visible(sel){ return [...doc().querySelectorAll(sel)].find(e => e.offsetParent !== null); }
+async function act(a){
+  const [k, v, ms] = a; const d = doc();
+  try {
+    if (k === "wait") await sleep(v);
+    else if (k === "scroll"){ const el = visible(v) || d.querySelector(v); if (el){ const y = el.getBoundingClientRect().top + win().scrollY - 70; await smooth(Math.max(0,y), ms); } }
+    else if (k === "scrollBy") await smooth(win().scrollY + v, ms);
+    else if (k === "click"){ const el = visible(v) || d.querySelector(v); el && el.click(); await sleep(250); }
+    else if (k === "clickVisible"){ const el = visible(v); el && el.click(); await sleep(250); }
+    else if (k === "clickText"){ const el = [...d.querySelectorAll("button,a")].find(e => e.textContent.includes(v)); el && el.click(); await sleep(250); }
+  } catch(e){ console.log("act failed", a, e); }
+}
+function loadApp(){
+  return new Promise(res => {
+    $("app").onload = () => { const s = doc().createElement("style"); s.textContent = "[data-dl],.x-navdl,.ya-dl,#who{display:none!important}html{scroll-behavior:auto!important}"; doc().head.appendChild(s); res(); };
+    $("app").src = S.src;
+  });
+}
+window.__marks = [];
+window.start = async function(durs){
+  const t0 = performance.now();
+  $("endIcon").src = S.icon; $("endTitle").textContent = S.title; $("endTag").textContent = S.tag;
+  $("endChips").innerHTML = S.chips.map(c => `<span class="chip">${c}</span>`).join(""); $("endFoot").textContent = S.foot;
+  for (let i = 0; i < S.scenes.length; i++){
+    const sc = S.scenes[i], need = (durs[i] || 0) * 1000 + 450, st = performance.now();
+    window.__marks.push(st - t0);
+    if (sc.hook){
+      $("hookText").innerHTML = sc.hook.split(" ").map((w, j) => `<span style="animation-delay:${j*90}ms">${w}&nbsp;</span>`).join("");
+      $("hook").classList.add("on"); await sleep(Math.max(need, 2600)); $("hook").classList.remove("on"); await sleep(400);
+    } else if (sc.end){
+      $("stage").classList.remove("on"); await sleep(300); $("end").classList.add("on"); await sleep(Math.max(need, 4200) + 1200);
+    } else {
+      $("cap").classList.add("out"); await sleep(250); $("cap").textContent = sc.cap; $("cap").classList.remove("out");
+      if (sc.load){ await loadApp(); $("stage").classList.add("on"); }
+      const actsDone = (async () => { for (const a of sc.acts || []) await act(a); })();
+      await Promise.all([actsDone, sleep(need)]);
+    }
+  }
+  window.__total = performance.now() - t0;
+  window.__done = true;
+};
+</script>
+</body></html>

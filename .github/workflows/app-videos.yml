@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/app-videos.yml"]
+    paths: [".github/workflows/app-videos.yml", "videos/src/**"]
 permissions:
   contents: write
 jobs:
@@ -15,109 +15,15 @@ jobs:
         with: { python-version: "3.12" }
       - run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
-          pip install playwright && python -m playwright install --with-deps chromium
-      - name: Record
-        shell: python
-        run: |
-          import os, glob, shutil, http.server, threading, functools
-          from playwright.sync_api import sync_playwright
-          W, H = 1280, 720
-          os.makedirs("raw", exist_ok=True)
-
-          def serve(folder, port):
-              h = functools.partial(http.server.SimpleHTTPRequestHandler, directory=folder)
-              s = http.server.ThreadingHTTPServer(("127.0.0.1", port), h)
-              threading.Thread(target=s.serve_forever, daemon=True).start()
-
-          def scroll(pg, px, steps=12, wait=90):
-              for _ in range(steps):
-                  pg.mouse.wheel(0, px / steps); pg.wait_for_timeout(wait)
-
-          def safe(fn):
-              try: fn()
-              except Exception as e: print("step skipped:", e)
-
-          def plantdoc(pg):
-              pg.wait_for_timeout(3000)                      # leaf splash
-              pg.mouse.move(640, 400)
-              scroll(pg, 650); pg.wait_for_timeout(1500)
-              scroll(pg, 700); pg.wait_for_timeout(2500)     # example result + care tips
-              safe(lambda: pg.locator("#plants").scroll_into_view_if_needed())
-              pg.wait_for_timeout(1500)
-              safe(lambda: pg.locator(".x-plant").first.click())
-              pg.wait_for_timeout(3500)                      # Sunny history
-              safe(lambda: pg.locator("#plantDlg [data-close]").first.click())
-              pg.wait_for_timeout(800)
-              scroll(pg, -2500, steps=16); pg.wait_for_timeout(1200)
-
-          def fridgechef(pg):
-              pg.wait_for_timeout(3200)                      # fridge splash
-              pg.mouse.move(640, 400)
-              scroll(pg, 500); pg.wait_for_timeout(1200)
-              safe(lambda: pg.locator("[data-demo]:visible").first.click())
-              pg.wait_for_timeout(3000)
-              safe(lambda: pg.locator("#ingredients").scroll_into_view_if_needed())
-              pg.wait_for_timeout(2500)
-              safe(lambda: pg.locator("#recipes").scroll_into_view_if_needed())
-              pg.wait_for_timeout(1500)
-              scroll(pg, 500); pg.wait_for_timeout(2000)
-              def cook():
-                  pg.locator("[data-cook]:visible").first.click(); pg.wait_for_timeout(2200)
-                  pg.locator("#cookNext").click(); pg.wait_for_timeout(2000)
-                  pg.locator("#cookNext").click(); pg.wait_for_timeout(2000)
-                  pg.locator("#cookClose").click(); pg.wait_for_timeout(800)
-              safe(cook)
-
-          def classview(pg):
-              pg.wait_for_timeout(2500)
-              safe(lambda: pg.get_by_text("Try demo mode").first.click())
-              pg.wait_for_timeout(1500)
-              safe(lambda: pg.locator('a[href="#dash"]').first.click())
-              pg.wait_for_timeout(3500)                      # live screens
-              for v in ("tabs", "block", "log", "alerts", "screens"):
-                  safe(lambda v=v: pg.locator(f'[data-view="{v}"]').first.click())
-                  pg.wait_for_timeout(2600)
-              safe(lambda: pg.locator('[data-act="lockall"]').first.click())
-              pg.wait_for_timeout(2500)
-
-          hide = "[data-dl],.x-navdl,.ya-dl,#who{display:none!important}"
-          apps = [("plantdoc", 8801, plantdoc), ("fridgechef", 8802, fridgechef), ("classview", 8803, classview)]
-          with sync_playwright() as p:
-              b = p.chromium.launch()
-              for name, port, script in apps:
-                  serve(name, port)
-                  ctx = b.new_context(viewport={"width": W, "height": H}, record_video_dir=f"vid_{name}",
-                                      record_video_size={"width": W, "height": H}, color_scheme="light")
-                  pg = ctx.new_page()
-                  pg.set_default_timeout(4000)
-                  pg.goto(f"http://127.0.0.1:{port}/index.html", wait_until="domcontentloaded")
-                  pg.add_style_tag(content=hide)
-                  script(pg)
-                  ctx.close()
-                  shutil.move(glob.glob(f"vid_{name}/*.webm")[0], f"raw/{name}.webm")
-              b.close()
-      - name: Edit (title card + mp4)
-        run: |
-          mkdir -p videos
-          FONT=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
-          FONT2=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
-          make() {
-            app=$1; title="$2"; tag="$3"; icon="$4"
-            ffmpeg -y -loglevel error -f lavfi -i "color=c=#f5f5f7:s=1280x720:d=2.5:r=30" -i "$icon" -filter_complex \
-              "[1]scale=180:180[i];[0][i]overlay=(W-w)/2:150,drawtext=fontfile=$FONT:text='$title':fontsize=64:fontcolor=#1d1d1f:x=(w-text_w)/2:y=370,drawtext=fontfile=$FONT2:text='$tag':fontsize=30:fontcolor=#6e6e73:x=(w-text_w)/2:y=460,drawtext=fontfile=$FONT2:text='Created by Yathin Pedamallu':fontsize=24:fontcolor=#6e6e73:x=(w-text_w)/2:y=620,fade=t=in:st=0:d=0.4,fade=t=out:st=2.1:d=0.4,format=yuv420p" \
-              -c:v libx264 -crf 26 -pix_fmt yuv420p card_$app.mp4
-            ffmpeg -y -loglevel error -i raw/$app.webm -vf "fps=30,format=yuv420p,fade=t=in:st=0:d=0.4" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p body_$app.mp4
-            ffmpeg -y -loglevel error -i card_$app.mp4 -i body_$app.mp4 -filter_complex "[0:v][1:v]concat=n=2:v=1:a=0,format=yuv420p" -c:v libx264 -crf 26 -preset slow -movflags +faststart videos/$app-demo.mp4
-            ls -la videos/$app-demo.mp4
-          }
-          make plantdoc "Plant Doc" "Snap your plant. See how it is doing." plantdoc/plantdoc_icon.png
-          make fridgechef "Fridge Chef" "Snap your fridge. Get dinner ideas." fridgechef/fridgechef_icon.png
-          make classview "ClassView" "See your whole class at a glance." classview/classview_icon.png
+          pip install playwright edge-tts && python -m playwright install --with-deps chromium
+      - name: Record narrated videos
+        run: python videos/src/record.py
       - name: Save videos to the repo
         run: |
+          cp out/*.mp4 videos/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add videos/*.mp4
-          git commit -m "Add app demo videos" || exit 0
+          git commit -m "Update narrated app demo videos" || exit 0
           git pull --rebase -q origin main
           git push origin HEAD:main
