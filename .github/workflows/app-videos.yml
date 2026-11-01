@@ -48,21 +48,21 @@ jobs:
               pg.wait_for_timeout(3500)                      # Sunny history
               safe(lambda: pg.locator("#plantDlg [data-close]").first.click())
               pg.wait_for_timeout(800)
-              safe(lambda: pg.locator("#how").scroll_into_view_if_needed())
-              pg.wait_for_timeout(1500)
+              scroll(pg, -2500, steps=16); pg.wait_for_timeout(1200)
 
           def fridgechef(pg):
               pg.wait_for_timeout(3200)                      # fridge splash
               pg.mouse.move(640, 400)
               scroll(pg, 500); pg.wait_for_timeout(1200)
-              safe(lambda: pg.locator("[data-demo]").first.click())
+              safe(lambda: pg.locator("[data-demo]:visible").first.click())
               pg.wait_for_timeout(3000)
-              safe(lambda: pg.locator("#ingWrap").scroll_into_view_if_needed())
-              pg.wait_for_timeout(2200)
-              scroll(pg, 700); pg.wait_for_timeout(1500)
-              scroll(pg, 600); pg.wait_for_timeout(1800)
+              safe(lambda: pg.locator("#ingredients").scroll_into_view_if_needed())
+              pg.wait_for_timeout(2500)
+              safe(lambda: pg.locator("#recipes").scroll_into_view_if_needed())
+              pg.wait_for_timeout(1500)
+              scroll(pg, 500); pg.wait_for_timeout(2000)
               def cook():
-                  pg.locator("[data-cook]").first.click(); pg.wait_for_timeout(2200)
+                  pg.locator("[data-cook]:visible").first.click(); pg.wait_for_timeout(2200)
                   pg.locator("#cookNext").click(); pg.wait_for_timeout(2000)
                   pg.locator("#cookNext").click(); pg.wait_for_timeout(2000)
                   pg.locator("#cookClose").click(); pg.wait_for_timeout(800)
@@ -89,6 +89,7 @@ jobs:
                   ctx = b.new_context(viewport={"width": W, "height": H}, record_video_dir=f"vid_{name}",
                                       record_video_size={"width": W, "height": H}, color_scheme="light")
                   pg = ctx.new_page()
+                  pg.set_default_timeout(4000)
                   pg.goto(f"http://127.0.0.1:{port}/index.html", wait_until="domcontentloaded")
                   pg.add_style_tag(content=hide)
                   script(pg)
