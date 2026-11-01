@@ -20,6 +20,14 @@ async def tts(text, path):
     await edge_tts.Communicate(text, VOICE, rate="+4%").save(path)
 
 
+def say(t, path):
+    for k in range(8):
+        r = subprocess.run(["edge-tts", "--voice", VOICE, "--rate=+4%", "--text", t, "--write-media", path])
+        if r.returncode == 0 and os.path.exists(path) and os.path.getsize(path) > 1000: return
+        time.sleep(3 + 2 * k)
+    raise SystemExit("TTS failed: " + t)
+
+
 def lines_for(sc):
     out = []
     for s in sc["scenes"]:
@@ -41,7 +49,7 @@ def run(app):
         lines = lines_for(sc)
         clips = []
         for i, t in enumerate(lines):
-            path = f"{work}/n{i}.mp3"; subprocess.run(["edge-tts", "--voice", VOICE, "--rate=+4%", "--text", t, "--write-media", path], check=True); clips.append(path)
+            path = f"{work}/n{i}.mp3"; say(t, path); clips.append(path)
         durs = [dur(c) for c in clips]
         pg.wait_for_timeout(500)
         t_go = time.time()
