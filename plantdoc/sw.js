@@ -1,4 +1,4 @@
-const C="plantdoc-v10";const F=['./','index.html','hark.js','hark.css','hark-hero.css','plantdoc_icon.png','icon-192.png'];
+const C="plantdoc-v11";const F=['./','index.html','hark.js','hark.css','hark-hero.css','plantdoc_icon.png','icon-192.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(F)).catch(()=>{}));});
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin)return;
