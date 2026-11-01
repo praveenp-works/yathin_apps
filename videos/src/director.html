@@ -3,12 +3,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#07071a;font-family:Poppins,"DejaVu Sans",sans-serif;color:#fff}
-  #bg{position:fixed;inset:0;background:radial-gradient(1200px 800px at 85% 15%,rgba(59,7,140,.55),transparent 60%),radial-gradient(900px 700px at 10% 95%,rgba(147,51,234,.35),transparent 60%),linear-gradient(160deg,#05050f,#12103a 55%,#1b1350)}
-  #glow{position:fixed;inset:0;opacity:.35;background:radial-gradient(700px 500px at 50% 60%,var(--acc),transparent 70%);animation:breathe 6s ease-in-out infinite alternate}
+  #bg{position:fixed;inset:0;background:var(--bg)}#bg:after{content:"";position:absolute;inset:0;background:radial-gradient(1400px 900px at 50% 45%,transparent 40%,rgba(0,0,0,.35))}
+  #glow{position:fixed;inset:0;opacity:.3;background:radial-gradient(700px 500px at 50% 60%,rgba(255,255,255,.35),transparent 70%);animation:breathe 6s ease-in-out infinite alternate}
   @keyframes breathe{from{transform:scale(1)}to{transform:scale(1.12)}}
   .card{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;transition:opacity .6s ease}
   .card.on{opacity:1}
-  .hook{font-size:92px;font-weight:800;line-height:1.1;max-width:1500px;letter-spacing:-.02em}
+  .hook{text-shadow:0 6px 40px rgba(0,0,0,.35);font-size:92px;font-weight:800;line-height:1.1;max-width:1500px;letter-spacing:-.02em}
   .hook span{display:inline-block;opacity:0;transform:translateY(30px);animation:up .6s cubic-bezier(.2,.8,.2,1) forwards}
   @keyframes up{to{opacity:1;transform:none}}
   #stage{position:fixed;inset:0;opacity:0;transition:opacity .6s ease}
@@ -18,11 +18,11 @@
   #frame{position:absolute;left:50%;top:190px;width:1280px;height:800px;margin-left:-672px;transform:scale(1.05);transform-origin:top left;border-radius:26px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.12);background:#f5f5f7}
   #app{width:1280px;height:800px;border:0;display:block}
   #end .icon{width:230px;height:230px;border-radius:52px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
-  #end h1{font-size:150px;margin:28px 0 0;font-weight:800;letter-spacing:-.03em;background:linear-gradient(180deg,#fff,#c9c9d6);-webkit-background-clip:text;background-clip:text;color:transparent}
-  #end .tag{font-size:50px;color:#d4d4e4;margin:8px 0 50px;font-weight:600}
+  #end h1{font-size:150px;margin:28px 0 0;font-weight:800;letter-spacing:-.03em;color:#fff;text-shadow:0 6px 40px rgba(0,0,0,.35)}
+  #end .tag{font-size:50px;color:#fff;margin:8px 0 50px;font-weight:600}
   #end .chips{display:flex;gap:28px}
-  #end .chip{font-size:40px;font-weight:600;padding:20px 40px;border-radius:999px;background:rgba(20,22,48,.7);box-shadow:inset 0 0 0 2px rgba(148,163,255,.35)}
-  #end .foot{margin-top:70px;font-size:36px;color:#9a9ab5}
+  #end .chip{font-size:40px;font-weight:600;padding:20px 40px;border-radius:999px;background:rgba(0,0,0,.25);box-shadow:inset 0 0 0 2px rgba(255,255,255,.4);backdrop-filter:blur(8px)}
+  #end .foot{margin-top:70px;font-size:36px;color:rgba(255,255,255,.85)}
   #end>*{opacity:0;transform:translateY(24px)}
   #end.on>*{animation:up .7s cubic-bezier(.2,.8,.2,1) forwards}
   #end.on>*:nth-child(2){animation-delay:.12s}#end.on>*:nth-child(3){animation-delay:.24s}#end.on>*:nth-child(4){animation-delay:.36s}#end.on>*:nth-child(5){animation-delay:.48s}
@@ -34,7 +34,7 @@
 <div class="card" id="end"><img class="icon" id="endIcon"><h1 id="endTitle"></h1><div class="tag" id="endTag"></div><div class="chips" id="endChips"></div><div class="foot" id="endFoot"></div></div>
 <script>
 const SCRIPTS = {
-  plantdoc: { acc:"rgba(34,197,94,.55)", src:"/plantdoc/index.html", icon:"/plantdoc/plantdoc_icon.png",
+  plantdoc: { acc:"linear-gradient(135deg,#15803d 0%,#65a30d 35%,#ca8a04 65%,#dc2626 100%)", src:"/plantdoc/index.html", icon:"/plantdoc/plantdoc_icon.png",
     title:"Plant Doc", tag:"Snap your plant. See how it's doing.", chips:["100% free","Powered by Gemini","Windows & phones"],
     foot:"Snap  ·  Health score  ·  Care tips  ·  Track your plants",
     scenes:[
@@ -46,7 +46,7 @@ const SCRIPTS = {
       {cap:"Name your plants and watch them grow.", acts:[["scroll","#plants",1800],["wait",700],["click",".x-plant"],["wait",2600]]},
       {end:true}
     ]},
-  fridgechef: { acc:"rgba(249,115,22,.55)", src:"/fridgechef/index.html", icon:"/fridgechef/fridgechef_icon.png",
+  fridgechef: { acc:"linear-gradient(135deg,#d4b106 0%,#e07a1f 50%,#ce2f33 100%)", src:"/fridgechef/index.html", icon:"/fridgechef/fridgechef_icon.png",
     title:"Fridge Chef", tag:"Snap your fridge. Get dinner ideas.", chips:["100% free","Powered by Gemini","Windows & phones"],
     foot:"Snap  ·  Ingredients  ·  3 recipes  ·  Cook mode",
     scenes:[
@@ -57,7 +57,7 @@ const SCRIPTS = {
       {cap:"Cook mode walks you through, step by step.", acts:[["clickVisible","[data-cook]"],["wait",1700],["click","#cookNext"],["wait",1700],["click","#cookNext"],["wait",1500]]},
       {end:true}
     ]},
-  classview: { acc:"rgba(45,212,191,.5)", src:"/classview/index.html", icon:"/classview/classview_icon.png",
+  classview: { acc:"linear-gradient(135deg,#1aa58f 0%,#1a9aa6 50%,#1590ba 100%)", src:"/classview/index.html", icon:"/classview/classview_icon.png",
     title:"ClassView", tag:"See your whole class at a glance.", chips:["100% free","For Chromebooks","Demo version"],
     foot:"Live screens  ·  Tabs  ·  Block sites  ·  Lock all",
     scenes:[
@@ -72,7 +72,7 @@ const SCRIPTS = {
 };
 const app = new URLSearchParams(location.search).get("app");
 const S = SCRIPTS[app];
-document.documentElement.style.setProperty("--acc", S.acc);
+document.documentElement.style.setProperty("--bg", S.acc);
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const ease = (t) => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
