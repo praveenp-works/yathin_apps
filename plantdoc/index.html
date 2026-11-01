@@ -103,6 +103,7 @@
       .x-hist__top img { width: 96px; height: 96px; border-radius: var(--r-m); object-fit: cover; flex: none; }
     </style>
   <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#22c55e"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Plant Doc">
+<style>html:not(.is-desktop) #form{display:none!important}.is-desktop .x-webonly{display:none!important}</style>
 </head>
   <body>
     <div class="page" id="top">
@@ -130,6 +131,10 @@
           <div class="head">
             <h2>Show Plant Doc your plant.</h2>
             <p class="head__sub">A clear photo of the leaves and pot works best.</p>
+          </div>
+          <div class="x-panel x-webonly" style="text-align:center">
+            <p style="margin:0 0 14px"><strong>Check your own plants in the Plant Doc app for Windows.</strong> Here's an example check below.</p>
+            <a class="x-go" href="#download" onclick="var d=document.querySelector('.ya-dl');if(d){d.click();return false;}">Download Plant Doc</a>
           </div>
           <form class="x-panel" id="form">
             <p class="x-target" id="target" hidden></p>
