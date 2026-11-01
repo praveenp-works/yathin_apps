@@ -501,7 +501,7 @@
           if (!fromList) parts.push({ inline_data: { mime_type: state.mime, data: state.image } });
           busy(true, fromList ? "Rethinking recipes…" : "Peeking in your fridge…");
           try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json" } }),
@@ -691,7 +691,7 @@
         }
         async function geminiAsk(dish, key) {
           const text = `The user wants to make: ${dish}. Ingredients available: ${state.ingredients.map((i) => i.name).join(", ")}. Assume salt, pepper, oil and water are available.${diets().length ? ` ${dietRule("The recipe")} Ingredients that break ${diets().length > 1 ? "any of these diets" : "this diet"} do not count as available.` : ""}${timeLimit() === null ? "" : ` The user has at most ${timeLimit()} minutes in total; give a version that fits that time if one exists, and report its real time_minutes.`} Respond with JSON only: {"can_make":true,"have":[""],"missing":[""],"steps":[""],"time_minutes":0}`;
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ contents: [{ parts: [{ text }] }], generationConfig: { responseMimeType: "application/json" } }),
           });
