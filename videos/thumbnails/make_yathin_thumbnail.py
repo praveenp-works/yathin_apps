@@ -9,7 +9,7 @@ def rr(im,r):
     m=Image.new('L',im.size,0); ImageDraw.Draw(m).rounded_rectangle([0,0,im.size[0]-1,im.size[1]-1],r,fill=255); im=im.convert('RGBA'); im.putalpha(m); return im
 def bgimg(W,H,cx,cy):
     y,x=np.mgrid[0:H,0:W]; dx=(x-cx)/W; dy=(y-cy)/W; r=np.sqrt(dx*dx+dy*dy)
-    stops=[(0,(255,210,60)),(.25,(255,110,60)),(.55,(200,30,120)),(1,(60,10,90))]
+    stops=[(0,(255,240,40)),(.22,(255,205,0)),(.5,(245,90,20)),(.8,(215,20,30)),(1,(170,0,20))]
     out=np.zeros((H,W,3))
     for c in range(3): out[...,c]=np.interp(r,[s[0] for s in stops],[s[1][c] for s in stops])
     ang=np.arctan2(dy,dx); rays=(np.sin(ang*16)>0.55)*np.clip(1-r*1.1,0,1)*40
