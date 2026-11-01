@@ -3,7 +3,7 @@ import asyncio, functools, glob, http.server, json, os, shutil, subprocess, thre
 import edge_tts
 from playwright.sync_api import sync_playwright
 
-VOICE = "en-US-AndrewNeural"
+VOICE = "en-US-AvaNeural"
 ROOT = os.path.abspath(".")
 os.makedirs("out", exist_ok=True)
 
@@ -22,7 +22,7 @@ async def tts(text, path):
 
 def say(t, path):
     for k in range(8):
-        r = subprocess.run(["edge-tts", "--voice", VOICE, "--rate=+4%", "--text", t, "--write-media", path])
+        r = subprocess.run(["edge-tts", "--voice", VOICE, "--rate=+10%", "--text", t, "--write-media", path])
         if r.returncode == 0 and os.path.exists(path) and os.path.getsize(path) > 1000: return
         time.sleep(3 + 2 * k)
     raise SystemExit("TTS failed: " + t)
