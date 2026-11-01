@@ -2,7 +2,8 @@
 (function () {
   var me = document.currentScript;
   var APP = me.getAttribute("data-app"), URL = me.getAttribute("data-url"), ICON = me.getAttribute("data-icon") || "";
-  var KEY = "ya_user";
+  var KEY = "ya_user", NEED = me.getAttribute("data-needs-key"), gotKey = false;
+  var TOP = NEED ? '<p class="ya-need">Gemini API key needed</p>' : "";
   function get() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return window.__yaUser || null; } }
   function set(u) { try { localStorage.setItem(KEY, JSON.stringify(u)); } catch (e) { window.__yaUser = u; } }
   var css = document.createElement("style");
@@ -16,6 +17,7 @@
     ".ya-box input{width:100%;box-sizing:border-box;margin:0 0 10px;padding:12px 14px;border:1px solid #d2d2d7;border-radius:12px;font:inherit;font-size:15px}" +
     ".ya-btn{display:block;width:100%;box-sizing:border-box;padding:13px;border:0;border-radius:999px;background:#1d1d1f;color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer;text-decoration:none;margin-top:4px}" +
     ".ya-x{background:none;border:0;color:#6e6e73;font:inherit;font-size:13px;margin-top:12px;cursor:pointer;text-decoration:underline}" +
+    ".ya-need{display:inline-block;margin:0 0 12px!important;padding:6px 12px;border-radius:999px;background:#fff4d6;color:#8a5a00!important;font-weight:600;font-size:13px!important}.ya-box a.ya-l{color:inherit;text-decoration:underline}" +
     ".ya-err{color:#d70015!important;font-size:13px!important;min-height:1em;margin:0 0 8px!important}" +
     "[data-theme=dark] .ya-box{background:#1c1c1e;color:#f5f5f7}[data-theme=dark] .ya-box input{background:#2c2c2e;color:#f5f5f7;border-color:#3a3a3c}[data-theme=dark] .ya-btn{background:#f5f5f7;color:#1d1d1f}";
   document.head.appendChild(css);
@@ -23,7 +25,7 @@
   ov.className = "ya-ov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
   document.body.appendChild(ov);
   function signin() {
-    ov.innerHTML = '<div class="ya-box">' + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
+    ov.innerHTML = '<div class="ya-box">' + TOP + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
       "<h2>Sign in to download</h2><p>Sign in with your name and email to download " + APP + " for Windows.</p>" +
       '<form id="ya-f"><input id="ya-n" placeholder="Your name" autocomplete="name" required>' +
       '<input id="ya-e" type="email" placeholder="you@example.com" autocomplete="email" required>' +
@@ -36,7 +38,24 @@
       if (!n || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) { ov.querySelector("#ya-err").textContent = "Enter your name and a valid email."; return; }
       set({ name: n, email: m });
       try { fetch("https://abacus.jasoncameron.dev/hit/praveenp-yathin-apps/signins", { mode: "cors" }).catch(function () {}); } catch (e2) {}
-      ready();
+      NEED ? keyStep() : ready();
+    };
+  }
+  function keyStep() {
+    var saved = ""; try { saved = localStorage.getItem(NEED) || ""; } catch (e) {}
+    ov.innerHTML = '<div class="ya-box">' + TOP + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
+      "<h2>Add your Gemini API key</h2><p>" + APP + " needs a free Gemini API key to work. Get one at <a class=\"ya-l\" href=\"https://aistudio.google.com/apikey\" target=\"_blank\" rel=\"noopener\">aistudio.google.com/apikey</a>, then paste it here.</p>" +
+      '<form id="ya-k"><input id="ya-kv" type="password" placeholder="Paste your Gemini API key" autocomplete="off" required>' +
+      '<p class="ya-err" id="ya-err"></p><button class="ya-btn" type="submit">Continue to download</button></form>' +
+      '<button class="ya-x" type="button" id="ya-c">Cancel</button></div>';
+    ov.querySelector("#ya-kv").value = saved;
+    ov.querySelector("#ya-c").onclick = close;
+    ov.querySelector("#ya-k").onsubmit = function (e) {
+      e.preventDefault();
+      var k = ov.querySelector("#ya-kv").value.trim();
+      if (!/^AIza[0-9A-Za-z_\-]{30,}$/.test(k)) { ov.querySelector("#ya-err").textContent = "That doesn't look like a Gemini API key. It starts with AIza."; return; }
+      try { localStorage.setItem(NEED, k); } catch (e2) {}
+      gotKey = true; ready();
     };
   }
   function ready() {
@@ -48,7 +67,7 @@
     ov.querySelector("#ya-c").onclick = close;
     ov.querySelector("#ya-out").onclick = function () { try { localStorage.removeItem(KEY); } catch (e) {} window.__yaUser = null; signin(); };
   }
-  function open() { get() ? ready() : signin(); ov.classList.add("on"); }
+  function open() { !get() ? signin() : (NEED && !gotKey ? keyStep() : ready()); ov.classList.add("on"); }
   function close() { ov.classList.remove("on"); }
   ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
