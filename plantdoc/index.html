@@ -121,9 +121,8 @@
             <p class="callout__lead"><strong>One photo, a full check-up.</strong> Gemini names the plant, scores its health and lists what to fix.</p>
             <div class="links">
               <a class="x-go" href="#check">Check a plant</a>
-              <button class="x-ghost" type="button" data-demo>Try demo mode</button>
             </div>
-            <p class="fineprint">Needs a free Gemini API key. Demo mode works without one.</p>
+            <p class="fineprint">Needs a free Gemini API key. See the sample plant in My Plants.</p>
           </aside>
         </section>
 
@@ -151,7 +150,6 @@
             </div>
             <div class="x-row">
               <button class="x-go" type="submit" id="go">Check my plant</button>
-              <button class="x-ghost" type="button" data-demo>Try demo mode</button>
               <button class="x-ghost" type="button" id="cancelTarget" hidden>Cancel re-check</button>
             </div>
             <div class="x-status" id="status" role="status" hidden><span class="x-ring" aria-hidden="true"></span><span>Examining your plant…</span></div>
@@ -397,10 +395,15 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
         });
         document.querySelectorAll("[data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
 
+        // Built-in sample plant (always shown, never saved)
+        const SAMPLE = (() => { const d = normalize(DEMOS[1].r), now = Date.now();
+          return { id: "sample", name: "Sunny (sample)", sample: true, thumb: DEMOS[1].thumb,
+            checks: [{ ...d, score: 46, status: "Struggling", date: now - 13 * 864e5 }, { ...d, date: now }] }; })();
+        if (plants.some((p) => String(p.thumb).startsWith("data:image/svg"))) { plants = plants.filter((p) => !String(p.thumb).startsWith("data:image/svg")); savePlants(); }
+        const all = () => [SAMPLE, ...plants];
         // My Plants grid
         function renderPlants() {
-          if (!plants.length) { $("plantGrid").innerHTML = '<p class="x-empty">No plants yet. Check a plant, then tap "Save to My Plants".</p>'; return; }
-          $("plantGrid").innerHTML = `<div class="x-plants">${plants.map((p) => {
+          $("plantGrid").innerHTML = `<div class="x-plants">${all().map((p) => {
             const l = p.checks[p.checks.length - 1];
             return `<button class="x-plant" type="button" data-id="${p.id}">
               <img src="${p.thumb}" alt="" />
@@ -416,8 +419,9 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
         // Plant detail with history
         let chart;
         function openPlant(id) {
-          const p = plants.find((x) => x.id === id);
+          const p = all().find((x) => x.id === id);
           if (!p) return;
+          $("again").hidden = $("rename").hidden = $("del").hidden = !!p.sample;
           state.open = id;
           delete $("del").dataset.sure; $("del").textContent = "Delete";
           const l = p.checks[p.checks.length - 1];
