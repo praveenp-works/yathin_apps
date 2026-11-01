@@ -46,7 +46,7 @@ def run(app):
         pg = ctx.new_page(); t_page = time.time()
         pg.goto(f"http://127.0.0.1:8811/videos/src/director.html?app={app}", wait_until="networkidle")
         sc = pg.evaluate("S")
-        lines = lines_for(sc)
+        lines = sc["lines"]
         clips = []
         for i, t in enumerate(lines):
             path = f"{work}/n{i}.mp3"; say(t, path); clips.append(path)
