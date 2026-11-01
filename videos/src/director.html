@@ -88,9 +88,13 @@ html.v #pill{bottom:150px;font-size:42px;white-space:normal;width:max-content;ma
 html.v #end h1{font-size:130px}html.v #end .tag{font-size:54px}
 html.v #end .chips{flex-wrap:wrap;justify-content:center;max-width:960px;gap:22px}
 html.v #end .foot{font-size:32px}
-html.v #pill{background:#fff;color:#111;box-shadow:inset 0 -6px 0 #ffd60a,0 10px 30px rgba(0,0,0,.45)}
-html.v #end .chips span{background:#fff;color:#111;box-shadow:none}html.v #end .chips span:first-child{background:#ffd60a}
-html.v #end .foot{color:#ffd60a}
+html.v #bg:after{display:none}
+html.v #pill{background:#111;color:#fff;box-shadow:inset 0 -7px 0 #ffd60a,0 10px 30px rgba(0,0,0,.25)}
+html.v #hook{justify-content:flex-start;padding-top:330px}
+html.v #end{justify-content:flex-end;padding-bottom:300px}
+html.v #end h1{color:#111;text-shadow:none}html.v #end .tag{color:#333}
+html.v #end .chips span{background:#111;color:#fff;box-shadow:none}html.v #end .chips span:first-child{background:#ffd60a;color:#111}
+html.v #end .foot{color:#d90429;font-weight:700}
 html.v #cur{left:900px;top:1700px}
 </style></head>
 <body>
@@ -121,7 +125,7 @@ const privacy = (what) => `<div style="text-align:center;padding-top:30px"><div 
 async function privacyAnim(){ await sleep(200); q(".k1").classList.add("popin"); await sleep(400); q(".k2").classList.add("popin"); await sleep(500); const d = q(".dot"); d.classList.remove("hide"); await sleep(50); d.style.left = "180px"; await sleep(1500); q(".k3").classList.add("upin"); }
 
 const SCRIPTS = {
- "yathin-vertical": { vertical:true, bg:"linear-gradient(180deg,#ffd60a 0%,#ff9f1c 18%,#f9572b 32%,#d90429 44%,#2a0a0e 54%,#111 62%,#0b0b0b 100%)", btn:"linear-gradient(90deg,#facc15,#ef4444)",
+ "yathin-vertical": { vertical:true, bg:"linear-gradient(180deg,#ffd60a 0%,#ff9f1c 18%,#f9572b 32%,#d90429 44%,#f4f4f4 56%,#ffffff 100%)", btn:"linear-gradient(90deg,#facc15,#ef4444)",
   voice:"en-US-JennyNeural", rate:"+0%",
   icon:"/yathinapps_hero.jpg", icons:["/magiccursor/logo.png","/classview/classview_icon.png","/plantdoc/plantdoc_icon.png","/fridgechef/fridgechef_icon.png"],
   title:"Yathin Apps", tag:"Free apps. One place.",
