@@ -70,3 +70,14 @@ for y,t,f,c in [(40,'THESE APPS ARE',f1,'white'),(165,'FREE?!',f2,(255,230,40))]
     tw=d.textlength(t,font=f); text(d,((1080-tw)/2,y),t,f,c,12)
 sticker(bg,'100% FREE',(560,395),56,-5)
 bg.convert('RGB').save('thumbnails/yathin-thumbnail-square.jpg',quality=93)
+# ---- vertical 1080x1920
+bg=bgimg(1080,1920,540,1150); d=ImageDraw.Draw(bg)
+fa=ImageFont.truetype(F,130); fb=ImageFont.truetype(F,230)
+for y,t,f,c,sw in [(150,'THESE APPS',fa,'white',12),(300,'ARE',fb,'white',14),(530,'FREE?!',fb,(255,230,40),16)]:
+    tw=d.textlength(t,font=f); text(d,((1080-tw)/2,y),t,f,c,sw)
+sticker(bg,'100% FREE',(540,860),70,-5)
+for p,s,pos,r,g in zip(ICONS,[270,280,280,270],[(290,1130),(800,1110),(300,1480),(810,1470)],[-12,9,7,-10],GLOW): icon(bg,p,s,pos,r,g)
+ring(bg,(290,1130),205,14)
+emoji(bg,'2728',120,(560,960),0); emoji(bg,'1f525',130,(1000,1300),12); emoji(bg,'2728',90,(80,1320),0)
+emoji(bg,'1f631',330,(540,1750),-6)
+bg.convert('RGB').save('thumbnails/yathin-thumbnail-vertical.jpg',quality=93)
