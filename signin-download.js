@@ -53,7 +53,7 @@
     ov.querySelector("#ya-k").onsubmit = function (e) {
       e.preventDefault();
       var k = ov.querySelector("#ya-kv").value.trim();
-      if (!/^AIza[0-9A-Za-z_\-]{30,}$/.test(k)) { ov.querySelector("#ya-err").textContent = "That doesn't look like a Gemini API key. It starts with AIza."; return; }
+      if (k.length < 20 || /\s/.test(k)) { ov.querySelector("#ya-err").textContent = "That key looks too short. Copy the whole key from aistudio.google.com/apikey."; return; }
       try { localStorage.setItem(NEED, k); } catch (e2) {}
       gotKey = true; ready();
     };
@@ -61,7 +61,7 @@
   function ready() {
     var u = get();
     ov.innerHTML = '<div class="ya-box">' + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
-      "<h2>Hi " + String(u.name).replace(/[<>&"]/g, "") + "!</h2><p>" + APP + " for Windows 10 and 11. Windows may say it's from an unknown publisher: click More info, then Run anyway.</p>" +
+      "<h2>Hi " + String(u.name).replace(/[<>&"]/g, "") + "!</h2><p>" + APP + " for Windows 10 and 11." + (NEED ? " The first time you open it, paste the same key into its Gemini API key box." : "") + " Windows may say it's from an unknown publisher: click More info, then Run anyway.</p>" +
       '<a class="ya-btn" id="ya-go" href="' + URL + '">Download for Windows</a>' +
       '<button class="ya-x" type="button" id="ya-out">Not you? Sign out</button><br><button class="ya-x" type="button" id="ya-c">Close</button></div>';
     ov.querySelector("#ya-c").onclick = close;
