@@ -539,6 +539,7 @@
 
         async function ask(fromList) {
           const key = $("key").value.trim();
+          if (key && window.yaKey) yaKey.set(key);
           $("error").hidden = true;
           if (timeBad()) return fail(TIME_MSG);
           if (!key) return fail("Add your Gemini API key first. It's free at aistudio.google.com/apikey.");
@@ -835,5 +836,5 @@
       })();
     </script>
   <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-fridgechef/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("fc_seen")){localStorage.setItem("fc_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});</script>
-</body>
+<script src="../ya-key.js"></script><script>(function(){var i=document.getElementById("key");if(i&&!i.value&&window.yaKey)i.value=yaKey.get();if(i)i.addEventListener("change",function(){var k=i.value.trim();if(k&&window.yaKey)yaKey.set(k);});})();</script></body>
 </html>

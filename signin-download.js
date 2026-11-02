@@ -42,7 +42,7 @@
     };
   }
   function keyStep() {
-    var saved = ""; try { saved = localStorage.getItem(NEED) || ""; } catch (e) {}
+    var saved = ""; try { saved = localStorage.getItem(NEED) || localStorage.getItem("ya-gemini-key") || ""; } catch (e) {}
     ov.innerHTML = '<div class="ya-box">' + TOP + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
       "<h2>Add your Gemini API key</h2><p>" + APP + " needs a free Gemini API key to work. Get one at <a class=\"ya-l\" href=\"https://aistudio.google.com/apikey\" target=\"_blank\" rel=\"noopener\">aistudio.google.com/apikey</a>, then paste it here.</p>" +
       '<form id="ya-k"><input id="ya-kv" type="password" placeholder="Paste your Gemini API key" autocomplete="off" required>' +
@@ -54,7 +54,7 @@
       e.preventDefault();
       var k = ov.querySelector("#ya-kv").value.trim();
       if (k.length < 20 || /\s/.test(k)) { ov.querySelector("#ya-err").textContent = "That key looks too short. Copy the whole key from aistudio.google.com/apikey."; return; }
-      try { localStorage.setItem(NEED, k); } catch (e2) {}
+      try { localStorage.setItem(NEED, k); localStorage.setItem("ya-gemini-key", k); } catch (e2) {}
       gotKey = true; ready();
     };
   }

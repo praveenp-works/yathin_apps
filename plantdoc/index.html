@@ -273,11 +273,11 @@
         const savePlants = () => {
           try { localStorage.setItem("plantdoc-plants", JSON.stringify(plants)); } catch { mem["plantdoc-plants"] = JSON.stringify(plants); }
         };
-        $("key").value = store.get("plantdoc-key") || "";
-        $("key").addEventListener("change", () => { const k = $("key").value.trim(); k ? store.set("plantdoc-key", k) : store.del("plantdoc-key"); });
+        $("key").value = store.get("plantdoc-key") || store.get("ya-gemini-key") || "";
+        $("key").addEventListener("change", () => { const k = $("key").value.trim(); k ? (store.set("plantdoc-key", k), store.set("ya-gemini-key", k)) : (store.del("plantdoc-key"), store.del("ya-gemini-key")); });
         const syncForget = () => { $("forget").hidden = !$("key").value.trim(); };
         $("key").addEventListener("input", () => { syncForget(); $("keyNote").textContent = ""; });
-        $("forget").onclick = () => { $("key").value = ""; store.del("plantdoc-key"); syncForget(); $("keyNote").textContent = "Key removed from this device."; $("key").focus(); };
+        $("forget").onclick = () => { $("key").value = ""; store.del("plantdoc-key"); store.del("ya-gemini-key"); syncForget(); $("keyNote").textContent = "Key removed from this device."; $("key").focus(); };
         syncForget();
 
         const state = { image: null, thumb: null, check: null, target: null, open: null, demoIdx: 0 };
@@ -338,7 +338,7 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
           const key = $("key").value.trim();
           if (!state.image) return fail("Take or upload a photo of your plant first.");
           if (!key) return fail("Add your Gemini API key first. It's free at aistudio.google.com/apikey. Or try demo mode.");
-          store.set("plantdoc-key", key);
+          store.set("plantdoc-key", key); store.set("ya-gemini-key", key);
           busy(true);
           try {
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`, {
