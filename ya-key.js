@@ -30,5 +30,6 @@
   }
   if (get()) btn.textContent = "API key ✓";
   btn.addEventListener("click", open);
+  document.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key || "").toLowerCase() === "p" && !document.querySelector(".yk-ov")) { e.preventDefault(); open(); } });
   if (location.hash === "#api-key") open();
 })();
