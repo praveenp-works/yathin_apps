@@ -431,9 +431,18 @@
         function loadFile(file) {
           if (!file || !file.type.startsWith("image/")) return;
           const r = new FileReader();
-          r.onload = () => {
-            const url = r.result;
-            state.mime = file.type;
+          r.onload = async () => {
+            let url = r.result;
+            // Shrink big phone photos (keeps enough detail for crowded fridges, uploads far faster)
+            try {
+              const img = new Image(); img.src = url; await img.decode();
+              const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+              const c = document.createElement("canvas");
+              c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+              c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+              url = c.toDataURL("image/jpeg", 0.85);
+            } catch {}
+            state.mime = url.slice(5, url.indexOf(";"));
             state.image = url.split(",")[1];
             $("preview").style.backgroundImage = `url("${url}")`;
             $("preview").hidden = false;
@@ -518,8 +527,8 @@
           return [
             fromList
               ? `These ingredients are available: ${state.ingredients.map((i) => i.name + (i.amount_guess ? ` (${i.amount_guess})` : "")).join(", ")}. Return them unchanged in "ingredients".`
-              : "Look at this photo of a fridge and list every food item you can identify.",
-            `Suggest exactly 3 recipes for ${state.servings} serving(s).`,
+              : "Look at this photo of a fridge. It may be crowded and messy. Scan every shelf, door bin, drawer and container, including items in bags, behind others or only partly visible. Read labels and packaging (sauces, milk, boxes) to name items. List every food item you can identify; for an unclear item, give your best guess and add \"?\" to amount_guess. Ignore pots, empty containers and non-food items unless the contents are visible.",
+            `Suggest exactly 3 recipes for ${state.servings} serving(s). Keep each recipe to at most 7 short steps.`,
             time === null ? "" : `Each recipe must take ${time} minutes or less in total.`,
             dietRule("Every recipe"),
             $("onlyHave").checked ? "Use only the listed ingredients plus basic pantry staples (salt, pepper, oil, water); keep \"missing\" empty." : "Recipes may need a few extra items; list them in \"missing\".",
@@ -542,7 +551,7 @@
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "low" } } }),
+              body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "minimal" } } }),
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
