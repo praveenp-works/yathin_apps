@@ -129,8 +129,9 @@
   </head>
   <body>
     <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
       <main class="main">
-        <section class="x-stage" aria-label="Magic Cursor for phone and iPad">
+        <section class="x-stage" id="try" data-nav="Try it" aria-label="Magic Cursor for phone and iPad">
           <p style="margin:0"><a href="../" style="color:var(--text-secondary);text-decoration:none">← Magic Cursor</a> · <a href="../../" style="color:var(--text-secondary);text-decoration:none">Yathin Apps</a></p>
           <div class="x-title">
             <img src="logo.png" alt="Magic Cursor app icon" />
@@ -163,7 +164,7 @@
           </div>
           <p class="x-status" id="status" aria-live="polite"></p>
 
-          <div class="cards x-cards">
+          <div class="cards x-cards" id="how">
             <div>
               <h3>Shake</h3>
               <p>Shake your phone or iPad 3 times quickly. A big glowing cursor pops where you last touched.</p>
@@ -187,6 +188,7 @@
       </footer>
     </div>
     <script src="hark.js"></script>
+    <script>document.addEventListener("DOMContentLoaded",function(){var s=document.querySelector(".nav .seg");if(s){s.insertAdjacentHTML("afterbegin",'<a href="https://praveenp-works.github.io/yathin_apps/">← Yathin Apps</a><a href="../">Magic Cursor</a>');}});</script>
     <script>
       (function () {
         var phone = document.getElementById("phone");
