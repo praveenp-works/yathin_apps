@@ -1,0 +1,6 @@
+{
+  "finko": {"name": "Yathin-Apps.VirtualFinko", "display": "Virtual Finko", "store_id": "9PMWM0F11KS8", "publisher": "CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A", "publisher_display": "Yathin-Apps"},
+  "plantdoc": {"name": "Yathin-Apps.PlantDoc", "display": "Plant Doc", "store_id": "9N7ZQ6BP1B10", "publisher": "CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A", "publisher_display": "Yathin-Apps"},
+  "classview": {"name": "Yathin-Apps.ClassView", "display": "ClassView", "store_id": "9P1TJMMJPS9V", "publisher": "CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A", "publisher_display": "Yathin-Apps"},
+  "magiccursor": {"name": "Yathin-Apps.MagicCursorbyYathin", "display": "Magic Cursor by Yathin", "store_id": "9N6PTQT52Q88", "publisher": "CN=39746F25-C0BF-4F4F-A811-1A0A0722FE7A", "publisher_display": "Yathin-Apps"}
+}

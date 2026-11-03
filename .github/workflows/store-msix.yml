@@ -1,0 +1,45 @@
+name: Store packages (Finko, Plant Doc, ClassView)
+on:
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: comma list of apps (finko,plantdoc,classview)
+        required: false
+        default: "finko,plantdoc,classview"
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [finko, plantdoc, classview]
+        arch: [x64, arm64]
+        include:
+          - {app: finko, exe: VirtualFinko, script: finko-windows/finko.pyw, ico: finko-windows/Finko.ico, icon: finko/finko_icon.png, title: "Virtual Finko", desc: "A robot pet you can play with.", cam: "no"}
+          - {app: plantdoc, exe: PlantDoc, script: plantdoc-windows/plantdoc.pyw, ico: plantdoc-windows/PlantDoc.ico, icon: plantdoc/plantdoc_icon.png, title: "Plant Doc", desc: "Check how your plant is doing from a photo.", cam: "yes"}
+          - {app: classview, exe: ClassView, script: classview-windows/classview.pyw, ico: classview-windows/ClassView.ico, icon: classview/classview_icon.png, title: "ClassView", desc: "See every Chromebook in class.", cam: "no"}
+          - {arch: x64, os: windows-latest}
+          - {arch: arm64, os: windows-11-arm}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        if: contains(inputs.apps || 'finko,plantdoc,classview', matrix.app)
+      - uses: actions/setup-python@v5
+        if: contains(inputs.apps || 'finko,plantdoc,classview', matrix.app)
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.arch }}
+      - name: Build and pack
+        if: contains(inputs.apps || 'finko,plantdoc,classview', matrix.app)
+        shell: bash
+        run: |
+          python -m pip install -U pyinstaller pywebview pillow
+          mkdir -p build_web/web && cp ${{ matrix.app }}/* build_web/web/ 2>/dev/null || true
+          python -m PyInstaller --onefile --noconsole --name ${{ matrix.exe }} --icon ${{ matrix.ico }} --add-data "build_web/web;web" ${{ matrix.script }}
+          python store/make_msix.py "${{ matrix.app }}" "${{ matrix.exe }}" "${{ matrix.icon }}" "${{ matrix.title }}" "${{ matrix.desc }}" "${{ matrix.cam }}" "${{ matrix.arch }}" "${{ github.run_number }}"
+      - uses: actions/upload-artifact@v4
+        if: contains(inputs.apps || 'finko,plantdoc,classview', matrix.app)
+        with:
+          name: ${{ matrix.exe }}-msix-${{ matrix.arch }}
+          path: dist/*.msix
