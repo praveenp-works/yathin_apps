@@ -7,7 +7,7 @@ on:
         required: false
         default: "finko,plantdoc,classview"
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     strategy:
@@ -43,3 +43,18 @@ jobs:
         with:
           name: ${{ matrix.exe }}-msix-${{ matrix.arch }}
           path: dist/*.msix
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: pk
+          merge-multiple: true
+      - name: Publish packages for Partner Center upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la pk
+          gh release delete store-packages --repo ${{ github.repository }} --yes --cleanup-tag || true
+          gh release create store-packages pk/*.msix --repo ${{ github.repository }} --title "Store packages (for Partner Center)" --notes "MSIX packages for Microsoft Store submission. Created by Yathin Pedamallu." --latest=false
