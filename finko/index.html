@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Virtual Finko Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      .x-stage { aspect-ratio: 16 / 9; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--stroke-secondary); background: var(--fill-tertiary); }
+      .x-stage svg { display: block; width: 100%; height: 100%; }
+      .x-controls { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; margin-top: 20px; }
+      .x-pad { display: grid; grid-template-columns: repeat(3, var(--tap)); gap: 6px; }
+      .x-key, .x-mood { min-width: var(--tap); min-height: var(--tap); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-label); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; transition: background var(--dur-quick) var(--ease-out); }
+      .x-key { border-radius: var(--r-s); }
+      .x-mood { border-radius: var(--r-pill); padding: 0 16px; text-transform: capitalize; }
+      .x-key.is-on, .x-mood[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); border-color: var(--fill-primary); }
+      .x-moods { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 320px; }
+      .x-status { font: var(--type-small); color: var(--text-secondary); margin-top: 12px; }
+      #head { cursor: pointer; outline: none; }
+      .x-pulse { animation: x-pulse .8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      .x-zzz { font: 600 34px var(--sans); fill: #4f5bd5; animation: x-rise 2.4s ease-in-out infinite; }
+      .x-zzz tspan:nth-child(2) { font-size: 28px; } .x-zzz tspan:nth-child(3) { font-size: 22px; }
+      .x-tear { animation: x-drop 1.6s ease-in infinite; }
+      .x-heart { animation: x-float 1.4s var(--ease-out) forwards; }
+      @keyframes x-pulse { 50% { transform: scale(1.18); } }
+      @keyframes x-rise { 0% { transform: translateY(10px); opacity: 0; } 30%, 70% { opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+      @keyframes x-drop { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(26px); opacity: 0; } }
+      @keyframes x-float { to { transform: translateY(-150px) scale(1.3); opacity: 0; } }
+      .x-stage { position: relative; }
+      #scene:has(#ctiles) .x-room .x-deco { display: none; }
+      .x-bubble { position: absolute; transform: translate(-50%, -100%); max-width: min(280px, 60%); padding: 10px 14px; text-align: center; background: var(--fill-primary-on); color: var(--text-primary); border: 1px solid var(--stroke-primary); border-radius: var(--r-m); font: var(--type-small); box-shadow: var(--hark-shadow); pointer-events: none; }
+      .x-meta { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 16px; font: var(--type-label); color: var(--text-secondary); }
+      .x-bat { width: 120px; height: 12px; border: 1px solid var(--stroke-primary); border-radius: var(--r-pill); overflow: hidden; }
+      .x-bat span { display: block; height: 100%; background: var(--fill-system-green); }
+      .x-bat.is-low span { background: var(--fill-system-red); }
+      .x-bat.is-chg { box-shadow: 0 0 12px var(--fill-system-green); }
+      .x-chat { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+      .x-field { flex: 1 1 220px; min-height: var(--tap); padding: 0 16px; border: 1px solid var(--stroke-primary); border-radius: var(--r-pill); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body); }
+      #finko.x-dim { filter: brightness(.55); }
+      #finko.x-glow { filter: drop-shadow(0 0 24px rgb(120,230,170)); }
+      @media (prefers-reduced-motion: reduce) { .x-pulse, .x-zzz, .x-tear { animation: none; } }
+      .x-pill { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); z-index: 20; justify-self: center; max-width: 100%; display: flex; align-items: center; gap: 2px; margin-bottom: 12px; padding: 4px 4px 4px 10px; border-radius: var(--r-pill); color: var(--text-primary-on); box-shadow: var(--hark-shadow); font: var(--type-label); white-space: nowrap; }
+      .x-pill svg { width: 24px; height: 24px; flex: none; margin-right: 4px; }
+      .x-pill a { display: flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: var(--r-pill); color: inherit; text-decoration: none; }
+      .x-pill a:hover { background: var(--hover-wash-primary-on); }
+      .x-pill .theme-btn { margin-left: 6px; }
+      body.x-fs .x-pill { display: none; }
+      .x-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; padding: 8px 8px 8px 16px; border: 1px solid var(--stroke-secondary); border-radius: var(--r-l); background: var(--fill-tertiary); font: var(--type-label); color: var(--text-secondary); }
+      .x-bar b { color: var(--text-primary); font-weight: var(--weight-medium); }
+      .x-bar .x-mood { margin-left: auto; }
+      .x-app:fullscreen, .x-app.x-full { position: fixed; inset: 0; z-index: 50; overflow: auto; padding: 16px var(--gutter); background: var(--fill-primary-on); }
+      .x-app:fullscreen .x-stage, .x-app.x-full .x-stage { max-width: calc((100vh - 230px) * 16 / 9); margin-inline: auto; }
+      @media (max-width: 599px) { .x-pill a { min-height: var(--tap); padding: 0 8px; } }
+      .x-up { animation: x-up 1.5s ease-out infinite; transform-box: fill-box; transform-origin: center; opacity: 0; }
+      .x-spin { animation: x-spin .9s linear infinite; transform-box: fill-box; transform-origin: center; }
+      .x-wig { animation: x-wig .16s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 0 100%; }
+      @keyframes x-up { 0% { transform: translateY(0) scale(.6); opacity: 0; } 25% { opacity: .9; } 100% { transform: translateY(-90px) scale(1.6); opacity: 0; } }
+      @keyframes x-spin { to { transform: rotate(360deg); } }
+      @keyframes x-wig { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+      @media (prefers-reduced-motion: reduce) { .x-up, .x-spin, .x-wig { animation: none; opacity: 1; } }
+      .x-prog { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); width: 160px; background: var(--fill-primary-on); }
+      #taskBtn { margin-left: auto; } body:not(.x-fs) #taskBtn { display: none; } body.x-fs #fsBtn { margin-left: 0; }
+      .x-phone { position: absolute; left: 50%; top: 50%; z-index: 5; width: 260px; height: 520px; padding: 10px; border-radius: 40px; background: #1c1c1e; box-shadow: var(--hark-shadow); transform-origin: 0 50%; transform: translate(0, -50%) scale(0); opacity: 0; transition: transform .4s var(--ease-out), opacity .3s var(--ease-out); }
+      .x-phone.is-up { transform: translate(0, -50%) scale(var(--s, 1)) rotate(-4deg); opacity: 1; }
+      #scene { transform-origin: 0 0; transition: transform .5s var(--ease-out); }
+      .x-tap { position: absolute; left: 52%; top: 56%; z-index: 2; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: rgba(28,28,30,.35); border: 3px solid #fff; opacity: 0; pointer-events: none; animation: x-tap .9s ease-out 1.4s 2 both; }
+      @keyframes x-tap { 0% { transform: scale(.4); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.7); opacity: 0; } }
+      .x-chop { animation: x-chop .28s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 100% 100%; }
+      @keyframes x-chop { from { transform: rotate(-28deg); } to { transform: rotate(0); } }
+      .x-in { animation: x-in 1.4s var(--ease-out) both; transform-box: fill-box; transform-origin: center; }
+      @keyframes x-in { 0% { transform: translate(0, 0); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(var(--dx, -90px), var(--dy, 0)) scale(.4); opacity: 0; } }
+      .x-show { animation: x-show .5s var(--ease-out) both; transform-box: fill-box; transform-origin: center; }
+      @keyframes x-show { from { transform: scale(.3); opacity: 0; } }
+      #mcur { transition: transform .8s var(--ease-out); }
+      .x-spark { animation: x-spark .9s ease-out both; transform-box: fill-box; transform-origin: center; }
+      @keyframes x-spark { from { opacity: .95; } to { transform: scale(.2) translateY(6px); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { #mcur { transition: none; } .x-spark { animation: none; opacity: 0; } }
+      .x-drive { animation: x-drive 3s ease-in both; }
+      @keyframes x-drive { to { transform: translateX(-900px); } }
+      .x-fall { animation: x-drop 1s ease-in infinite; }
+      @media (prefers-reduced-motion: reduce) { #scene { transition: none; } .x-chop, .x-in, .x-show, .x-drive, .x-fall, .x-tap { animation: none; } .x-in { opacity: 0; } }
+      .x-phone__notch { position: absolute; top: 10px; left: 50%; width: 92px; height: 20px; transform: translateX(-50%); border-radius: 0 0 14px 14px; background: #1c1c1e; }
+      .x-phone__scr { display: flex; flex-direction: column; height: 100%; border-radius: 30px; overflow: hidden; background: #f2f2f7; }
+      .x-phone__bar { display: flex; align-items: center; justify-content: center; gap: 4px; flex: none; height: 50px; padding: 22px 14px 4px; background: #e5e5ea; color: #1c1c1e; font: var(--type-caption); }
+      .x-phone__url { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-phone__view { position: relative; flex: 1; overflow: hidden; }
+      .x-phone__fb { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin: 0; color: #1c1c1e; font: var(--type-label); }
+      .x-phone__fb span { font-size: 56px; line-height: 1; }
+      .x-phone__shot { position: absolute; top: 0; left: 0; width: 100%; height: 118%; object-fit: cover; object-position: top; animation: x-shot 5s ease-in-out .9s forwards; }
+      @keyframes x-shot { to { transform: translateY(-15%); } }
+      .x-tbub { transform: translate(-30%, -100%); max-width: min(240px, 40%); }
+      .x-voice { display: flex; align-items: center; gap: 8px; flex: 0 1 auto; font: var(--type-label); color: var(--text-primary); }
+      .x-voice select { flex: none; padding-right: 8px; }
+      @media (prefers-reduced-motion: reduce) { .x-phone__shot { animation: none; } }
+      .x-phone__tag { position: absolute; left: 8px; right: 8px; bottom: 8px; margin: 0; padding: 6px 10px; border-radius: var(--r-pill); background: rgba(28,28,30,.85); color: #fff; font: var(--type-caption); text-align: center; }
+      @media (prefers-reduced-motion: reduce) { .x-phone { transition: none; } }
+      .x-cv { position: absolute; inset: 6% 20% 8%; z-index: 5; display: flex; flex-direction: column; transform: scale(0); opacity: 0; transition: transform .45s var(--ease-out), opacity .3s var(--ease-out); }
+      .x-cv.is-up { transform: scale(1); opacity: 1; }
+      .x-cv__scr { position: relative; flex: 1; overflow: hidden; border: 10px solid #1c1c1e; border-radius: var(--r-s) var(--r-s) 0 0; background: #f2f2f7; box-shadow: var(--hark-shadow); }
+      .x-cv__scr img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; animation: none; }
+      .x-cv__base { flex: none; height: 14px; margin: 0 -6%; border-radius: 0 0 var(--r-s) var(--r-s); background: #c7cad1; }
+      @media (prefers-reduced-motion: reduce) { .x-cv { transition: none; } }
+      .x-tvoff-anim { animation: x-tvoff 1.1s ease-in .2s forwards; transform-box: fill-box; transform-origin: center; }
+      @keyframes x-tvoff { 40% { transform: scale(1, .012); } 75% { transform: scale(.025, .04); opacity: 1; } 100% { transform: scale(.025, .04); opacity: 0; } }
+      #tvWhite.x-tvw { animation: x-tvw .25s ease-in forwards; }
+      @keyframes x-tvw { to { opacity: 1; } }
+      .x-money { padding: 2px 10px; border-radius: var(--r-pill); color: var(--text-primary); font-weight: var(--weight-medium); }
+      .x-money.is-dn { animation: x-fr 1s var(--ease-out); } .x-money.is-up { animation: x-fg 1s var(--ease-out); }
+      @keyframes x-fr { 0%, 45% { background: var(--fill-system-red); color: #fff; } }
+      @keyframes x-fg { 0%, 45% { background: var(--fill-system-green); color: #fff; } }
+      .x-cashf { font: 600 56px var(--sans); paint-order: stroke; stroke: #fff; stroke-width: 8px; animation: x-cashf 1.6s var(--ease-out) forwards; }
+      @keyframes x-cashf { 0% { transform: translateY(20px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-90px); opacity: 0; } }
+      .x-pzmove { transition: transform .9s var(--ease-out), opacity .4s; }
+      @media (prefers-reduced-motion: reduce) { .x-money.is-dn, .x-money.is-up { animation: none; } .x-cashf { animation-duration: .01s; } .x-pzmove { transition: none; } }
+      body.x-fs #tasks.x-pop { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 60; width: max-content; max-width: calc(100% - 32px); margin: 0; padding: 12px; justify-content: center; border-radius: var(--r-l); background: var(--mat-regular); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); box-shadow: var(--hark-shadow); }
+      .x-closet { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 70; width: min(440px, calc(100% - 32px)); padding: 16px; border-radius: var(--r-l); background: var(--mat-regular); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); box-shadow: var(--hark-shadow); }
+      .x-ctabs { display: flex; gap: 8px; margin-bottom: 12px; } .x-ctabs [aria-selected="true"] { background: var(--fill-primary); color: var(--text-primary-on); } #closetX { margin-left: auto; padding: 0; }
+      .x-cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; max-height: min(340px, 55vh); overflow-y: auto; }
+      .x-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 84px; padding: 8px; border: 1px solid var(--stroke-secondary); border-radius: var(--r-s); background: var(--fill-tertiary); color: var(--text-primary); font: var(--type-caption); text-align: center; cursor: pointer; }
+      .x-tile b { font-size: 32px; line-height: 1; font-weight: var(--weight-regular); } .x-tile[aria-pressed="true"] { border-color: var(--fill-primary); box-shadow: inset 0 0 0 1px var(--fill-primary); }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <nav class="x-pill glass" aria-label="Site">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="6" width="28" height="21" rx="7" fill="#e6e8ec" /><rect x="5" y="9" width="22" height="15" rx="5" fill="rgb(12,16,40)" /><circle cx="11.5" cy="16.5" r="3.6" fill="rgb(60,190,255)" /><circle cx="20.5" cy="16.5" r="3.6" fill="rgb(60,190,255)" /></svg>
+        <a href="https://praveenp-works.github.io/yathin_apps/" target="_blank" rel="noopener">← Yathin Apps</a>
+        <a href="#app" data-go="app">Play</a>
+        <a href="#chat" data-go="msg">Chat</a>
+        <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>
+      </nav>
+      <main class="main">
+        <section class="hero">
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Preview</p>
+            <h1>Virtual Finko</h1>
+            <p class="hero__sub">Your WALL-E style robot pet. Drive him, pet him, talk to him.</p>
+          </div>
+        </section>
+
+        <section class="section" id="play">
+          <div class="head">
+            <h2>Drive him around the house.</h2>
+            <p class="head__sub">Arrow keys or WASD, or hold the arrows below. Drive off an edge to reach the next room. Tap his head to pet him.</p>
+          </div>
+          <div class="x-app" id="app">
+          <div class="x-bar">
+            <span>Room <b id="roomTxt">Living room</b></span>
+            <span>Task <b id="taskTxt">Idle</b></span>
+            <span class="x-bat" role="presentation"><span id="batFill" style="width:100%"></span></span><b id="batTxt">100%</b>
+            <b class="x-money" id="money" aria-live="polite">💵 $100</b>
+            <span class="pill" id="fetched">Fetched: 0</span>
+            <span id="tvBar" hidden>Watching <b id="tvTime">00:00</b></span>
+            <button class="x-mood x-tvoff" type="button" hidden>📺 Turn off TV</button>
+            <button class="x-mood" id="taskBtn" type="button" aria-controls="tasks">Tasks</button>
+            <button class="x-mood" id="fsBtn" type="button">⛶ Full screen</button>
+          </div>
+          <div class="x-stage">
+            <svg id="scene" viewBox="0 0 1600 900" role="img" aria-label="Finko the robot in a room with a ball, a charging pad and a plant">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3ff" /><stop offset="1" stop-color="#eaf6ff" /></linearGradient>
+                <pattern id="tread" width="40" height="16" patternUnits="userSpaceOnUse"><rect width="40" height="16" fill="#3a3a3c" /><rect width="40" height="6" fill="#5a5a5e" /></pattern>
+                <clipPath id="eyeClip"><circle r="30" /></clipPath>
+              </defs>
+              <rect id="wall" width="1600" height="560" fill="#ecebe6" />
+              <rect id="floor" y="560" width="1600" height="340" fill="#ddd3c4" />
+              <path d="M50 560L-850 900M200 560L-520 900M350 560L-190 900M500 560L140 900M650 560L470 900M800 560L800 900M950 560L1130 900M1100 560L1460 900M1250 560L1790 900M1400 560L2120 900M1550 560L2450 900M0 650H1600M0 760H1600" stroke="#000" stroke-opacity=".07" stroke-width="3" />
+              <rect y="545" width="1600" height="18" fill="#d4d1ca" />
+              <g class="x-room" data-r="0">
+                <rect x="180" y="130" width="760" height="130" rx="10" fill="#c9a77c" /><rect x="180" y="400" width="760" height="148" rx="6" fill="#c9a77c" />
+                <path d="M370 130v130M560 130v130M750 130v130M370 410v130M560 410v130M750 410v130" stroke="#a9875e" stroke-width="4" />
+                <rect x="166" y="384" width="788" height="22" rx="6" fill="#8a8f98" /><ellipse cx="460" cy="384" rx="46" ry="8" fill="#3a3a3c" /><ellipse cx="600" cy="384" rx="46" ry="8" fill="#3a3a3c" />
+                <path d="M418 340h84v40q0 6-6 6h-72q-6 0-6-6Z" fill="#5a5a5e" /><rect x="404" y="332" width="112" height="10" rx="5" fill="#3a3a3c" />
+                <rect x="1100" y="150" width="230" height="398" rx="18" fill="#e9ecf0" stroke="#c4c8cf" stroke-width="4" /><path d="M1100 300h230" stroke="#c4c8cf" stroke-width="4" />
+                <rect x="1296" y="190" width="10" height="70" rx="5" fill="#9aa0a8" /><rect x="1296" y="330" width="10" height="90" rx="5" fill="#9aa0a8" />
+              </g>
+              <g class="x-room" data-r="1">
+                <rect x="620" y="110" width="360" height="250" rx="14" fill="#fff" /><rect x="634" y="124" width="332" height="222" rx="8" fill="url(#sky)" />
+                <path d="M800 124v222M634 235h332" stroke="#fff" stroke-width="10" />
+                <rect x="1210" y="336" width="40" height="12" rx="3" fill="#3a3a3c" /><rect x="1072" y="142" width="316" height="196" rx="12" fill="#2a2a2e" /><rect x="1086" y="156" width="288" height="168" rx="4" fill="#0c0c10" />
+              <g transform="translate(1440 600)">
+                <path d="M0-60C-60-150-90-120-70-60M0-60C10-170 40-180 30-70M0-60C60-160 110-120 60-55M0-60C-30-200-10-210 5-80" fill="none" stroke="#3f9b5a" stroke-width="22" stroke-linecap="round" />
+                <path d="M-55-60H55L40 30H-40Z" fill="#c9734f" /><rect x="-62" y="-72" width="124" height="18" rx="6" fill="#b5613f" />
+              </g>
+              <g transform="translate(330 690)">
+                <ellipse id="padGlow" rx="150" ry="42" fill="rgb(140,230,180)" opacity="0" /><ellipse rx="120" ry="30" fill="#c5c8cf" /><ellipse rx="96" ry="22" fill="#8ee3b4" opacity=".7" />
+                <path d="M6-16L-14 3H2L-6 17L14-3H-2Z" fill="#1d6b45" />
+              </g>
+              </g>
+              <g class="x-room" data-r="2">
+                <rect x="1080" y="130" width="260" height="200" rx="12" fill="#fff" /><rect x="1092" y="142" width="236" height="176" rx="6" fill="#2e3a6e" /><circle cx="1270" cy="190" r="22" fill="#f6e7a8" />
+                <rect x="200" y="320" width="560" height="235" rx="24" fill="#8b6b4f" /><rect x="220" y="440" width="520" height="112" rx="18" fill="#fff" />
+                <rect x="380" y="428" width="360" height="126" rx="18" fill="#7d87ee" /><ellipse cx="300" cy="446" rx="62" ry="26" fill="#f2f2f7" />
+                <rect x="810" y="446" width="110" height="108" rx="8" fill="#a7825f" /><rect x="861" y="370" width="8" height="76" fill="#6b5440" /><path d="M828 372h74l-14-52h-46Z" fill="#f6d27a" />
+              </g>
+              <g class="x-room" data-r="3">
+                <rect x="260" y="300" width="240" height="250" rx="18" fill="#f4f5f7" stroke="#c4c8cf" stroke-width="4" /><rect x="540" y="300" width="240" height="250" rx="18" fill="#f4f5f7" stroke="#c4c8cf" stroke-width="4" />
+                <path d="M260 350h240M540 350h240" stroke="#c4c8cf" stroke-width="4" /><circle cx="460" cy="325" r="10" fill="#8a8f98" /><circle cx="740" cy="325" r="10" fill="#8a8f98" />
+                <circle cx="380" cy="450" r="74" fill="#8fb8de" stroke="#9aa6b4" stroke-width="12" /><circle cx="660" cy="450" r="74" fill="#3a3a3c" stroke="#9aa6b4" stroke-width="12" />
+                <rect x="1060" y="200" width="320" height="16" rx="4" fill="#a7825f" /><rect x="1090" y="140" width="40" height="60" rx="8" fill="#4f5bd5" /><rect x="1150" y="160" width="36" height="40" rx="8" fill="#3f9b5a" />
+                <ellipse cx="1230" cy="470" rx="96" ry="30" fill="#ff9f8a" /><path d="M1130 470h200l-20 82h-160Z" fill="#d8b98a" />
+              </g>
+              <g id="fx" pointer-events="none"></g>
+              <g id="ball" transform="translate(1120 760)">
+                <ellipse cy="-2" rx="36" ry="8" fill="#000" opacity=".12" />
+                <g transform="translate(0 -38)"><g id="spin"><circle r="38" fill="#ff6b4a" /><path d="M-38 0Q0 22 38 0" stroke="#fff" stroke-width="8" fill="none" /></g><circle cx="-12" cy="-14" r="8" fill="#fff" opacity=".5" /></g>
+              </g>
+              <g id="finko" transform="translate(800 743) scale(0.803)">
+                <g id="tilt">
+                  <ellipse rx="150" ry="20" fill="#000" opacity=".14" />
+                  <g id="head">
+                  <rect x="-220" y="-470" width="440" height="490" fill="#fff" fill-opacity="0" />
+                  <rect x="-120" y="-72" width="96" height="74" rx="22" fill="url(#tread)" />
+                  <rect x="24" y="-72" width="96" height="74" rx="22" fill="url(#tread)" />
+                  <rect x="-140" y="-215" width="36" height="96" rx="10" fill="#c7cad1" /><rect x="-146" y="-130" width="48" height="26" rx="8" fill="#8d9099" />
+                  <g id="armR"><rect x="104" y="-215" width="36" height="96" rx="10" fill="#c7cad1" /><rect x="98" y="-130" width="48" height="26" rx="8" fill="#8d9099" /></g>
+                  <path id="torso" d="M-102-232H102L86-70H-86Z" fill="#dcdee3" stroke="#b9bcc4" stroke-width="4" stroke-linejoin="round" />
+                  <rect x="-62" y="-212" width="124" height="120" rx="16" fill="#4f5bd5" />
+                  <circle cy="-152" r="36" fill="#2c3591" /><path d="M-24-164h48M-30-152h60M-24-140h48" stroke="#7d87ee" stroke-width="5" stroke-linecap="round" />
+                  <path id="lower" d="" stroke="rgba(0,0,0,.18)" stroke-width="4" stroke-linejoin="round" />
+                  <rect x="-14" y="-262" width="28" height="34" fill="#a9acb4" /><circle cy="-248" r="20" fill="#c7cad1" />
+                  <g>
+                    <rect x="-122" y="-422" width="244" height="170" rx="42" fill="#e6e8ec" stroke="#babdc5" stroke-width="4" />
+                    <rect x="-102" y="-406" width="204" height="138" rx="28" fill="rgb(12,16,40)" />
+                    <g id="cheeks" fill="rgb(255,195,210)" opacity=".55"><circle cx="-80" cy="-300" r="12" /><circle cx="80" cy="-300" r="12" /></g>
+                    <g transform="translate(-45 -345)"><g class="eye"><g clip-path="url(#eyeClip)"><circle r="30" fill="rgb(215,238,255)" /><g class="look"><circle class="iris" r="19" fill="rgb(60,190,255)" /><circle r="10" fill="rgb(15,30,65)" /><circle cx="-6" cy="-7" r="5" fill="#fff" /></g><rect class="lid" x="-32" y="-32" width="64" height="0" fill="rgb(12,16,40)" /></g></g><path class="heart x-pulse" d="M0 16C-38-8-22-38 0-20C22-38 38-8 0 16Z" fill="rgb(255,130,185)" /></g>
+                    <g transform="translate(45 -345)"><g class="eye"><g clip-path="url(#eyeClip)"><circle r="30" fill="rgb(215,238,255)" /><g class="look"><circle class="iris" r="19" fill="rgb(60,190,255)" /><circle r="10" fill="rgb(15,30,65)" /><circle cx="-6" cy="-7" r="5" fill="#fff" /></g><rect class="lid" x="-32" y="-32" width="64" height="0" fill="rgb(12,16,40)" /></g></g><path class="heart x-pulse" d="M0 16C-38-8-22-38 0-20C22-38 38-8 0 16Z" fill="rgb(255,130,185)" /></g>
+                    <path id="browL" stroke="rgb(90,210,255)" stroke-width="7" stroke-linecap="round" fill="none" />
+                    <path id="browR" stroke="rgb(90,210,255)" stroke-width="7" stroke-linecap="round" fill="none" />
+                    <path id="mouth" stroke="rgb(255,195,210)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                    <path id="tear" class="x-tear" d="M-62-318Q-55-306-62-300Q-69-306-62-318Z" fill="rgb(90,150,215)" />
+                  </g>
+                  <text id="hat" x="0" y="-398" font-size="120" text-anchor="middle"></text>
+                  <text id="zzz" class="x-zzz" x="110" y="-430"><tspan>z</tspan><tspan dx="6" dy="-22">z</tspan><tspan dx="6" dy="-20">z</tspan></text>
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <div class="x-bubble" id="bubble" aria-live="polite" hidden></div>
+            <div class="x-bubble x-tbub" id="tbubble" aria-live="polite" hidden></div>
+            <div id="shots" hidden><img class="x-phone__shot" data-app="Fridge Chef" src="fs-fridgechef.jpg" alt="Fridge Chef on screen" /><img class="x-phone__shot" data-app="Plant Doc" src="fs-plantdoc.jpg" alt="Plant Doc on screen" /><img class="x-phone__shot" data-app="Magic Cursor" src="fs-magiccursor.jpg" alt="Magic Cursor on screen" /><img class="x-phone__shot" data-app="ClassView" src="fs-classview.jpg" alt="ClassView on screen" /></div>
+            <span class="x-bat x-prog" id="prog" role="progressbar" aria-label="Task progress" hidden><span id="progFill" style="width:0"></span></span>
+          </div>
+          <div class="x-controls">
+            <div class="x-pad" aria-label="Drive">
+              <span></span><button class="x-key" data-k="u" aria-label="Away">▲</button><span></span>
+              <button class="x-key" data-k="l" aria-label="Left">◀</button><button class="x-key" data-k="d" aria-label="Toward you">▼</button><button class="x-key" data-k="r" aria-label="Right">▶</button>
+            </div>
+            <div class="x-moods" id="moods" aria-label="Mood"></div>
+            <button class="x-mood" id="petBtn" type="button">♥ Pet Finko</button>
+          </div>
+          <div class="x-moods x-meta" id="tasks" aria-label="Choose a task"><span>Choose a task</span></div>
+          <div class="x-moods x-meta" id="acts" aria-label="Actions">
+            <button class="x-mood" type="button" data-a="wave">👋 Wave</button><button class="x-mood" type="button" data-a="dance">♪ Dance</button><button class="x-mood" type="button" data-a="sleep">Sleep</button><button class="x-mood" type="button" data-a="wake">Wake up</button><button class="x-mood" type="button" data-a="throw">Throw ball</button><button class="x-mood" type="button" data-a="charge">⚡ Charge</button><button class="x-mood" type="button" id="closetBtn" aria-controls="closet">👕 Closet</button><button class="x-mood" type="button" id="decoReset">↺ Reset furniture</button>
+          </div>
+          <div class="x-closet" id="closet" role="dialog" aria-label="Closet" hidden><div class="x-ctabs" role="tablist"><button class="x-mood" type="button" role="tab" data-c="b" aria-selected="true">Boys</button><button class="x-mood" type="button" role="tab" data-c="g" aria-selected="false">Girls</button><button class="x-mood" type="button" id="closetX" aria-label="Close closet">✕</button></div><div class="x-cgrid" id="cgrid"></div></div>
+          <div class="x-moods x-meta" id="rooms" aria-label="Go to a room"></div>
+          <p class="x-status" id="status" aria-live="polite"></p>
+          <form class="x-chat" id="chat">
+            <input class="x-field" id="msg" type="text" placeholder="Talk to Finko…" aria-label="Talk to Finko" autocomplete="off" />
+            <button class="x-mood" type="submit">Send</button>
+            <label class="x-voice"><span aria-hidden="true">🔊</span> Voice <select class="x-field" id="voiceSel"><option>Boy 1</option><option>Boy 2</option><option>Boy 3</option><option>Girl 1</option><option>Girl 2</option></select></label>
+            <input class="x-field" id="key" type="password" placeholder="Gemini API key (optional)" aria-label="Gemini API key" autocomplete="off" />
+          </form>
+          <p class="fineprint">The key stays in this page's memory only. Without it, Finko answers offline. Try "go to the kitchen".</p>
+          </div>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>Preview only · Virtual Finko · Created by Yathin Pedamallu</p>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      (() => {
+        const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+        // localStorage throws in sandboxed previews; never let it stop start-up.
+        const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+        const svg = $("#scene"), finko = $("#finko"), tiltG = $("#tilt"), ball = $("#ball"), tread = $("#tread");
+        const HB = ["M-70,-388 Q-45,-404 -20,-390", "M20,-390 Q45,-404 70,-388"];
+        const M = {
+          happy: { b: HB, m: "M-28,-298 Q0,-272 28,-298", ch: 1 },
+          neutral: { b: ["M-68,-386 L-22,-386", "M22,-386 L68,-386"], m: "M-18,-292 L18,-292" },
+          curious: { b: ["M-72,-396 Q-45,-410 -18,-396", "M22,-384 L68,-388"], m: "M-14,-292 Q4,-298 20,-290", s: [1.25, 0.88] },
+          surprised: { b: ["M-72,-398 Q-45,-412 -18,-398", "M18,-398 Q45,-412 72,-398"], m: "M0,-306 a11,13 0 1,0 .1,0Z", f: 1, s: [1.18, 1.18] },
+          sleepy: { b: ["M-68,-380 L-22,-380", "M22,-380 L68,-380"], m: "M-10,-292 Q0,-288 10,-292", l: 0.55, z: 1 },
+          love: { b: HB, m: "M-26,-298 Q0,-268 26,-298Z", f: 1, ch: 1, h: 1 },
+          angry: { b: ["M-72,-394 L-22,-378", "M22,-378 L72,-394"], m: "M-22,-286 Q0,-298 22,-286", ir: "rgb(255,80,70)", bc: "rgb(255,80,70)", l: 0.18 },
+          sad: { b: ["M-70,-380 L-22,-392", "M22,-392 L70,-380"], m: "M-24,-284 Q0,-302 24,-284", ir: "rgb(90,150,215)", l: 0.15, t: 1 },
+        };
+        let base = "happy", cur = M.happy, blinkUntil = 0, blinkT, shown, tempT;
+        const quickBlink = () => (blinkUntil = performance.now() + 130);
+        const show = (name) => {
+          if (shown && shown !== name) quickBlink();
+          shown = name;
+          const e = (cur = M[name]);
+          $("#browL").setAttribute("d", e.b[0]); $("#browR").setAttribute("d", e.b[1]);
+          $$("#browL,#browR").forEach((b) => b.setAttribute("stroke", e.bc || "rgb(90,210,255)"));
+          const m = $("#mouth"); m.setAttribute("d", e.m); m.setAttribute("fill", e.f ? "rgb(255,195,210)" : "none");
+          $$(".eye").forEach((g, i) => { g.setAttribute("transform", `scale(${e.s ? e.s[i] : 1})`); g.style.display = e.h ? "none" : ""; });
+          $$(".heart").forEach((h) => (h.style.display = e.h ? "" : "none"));
+          $$(".iris").forEach((c) => c.setAttribute("fill", e.ir || "rgb(60,190,255)"));
+          $("#cheeks").style.display = e.ch ? "" : "none";
+          $("#tear").style.display = e.t ? "" : "none";
+          $("#zzz").style.display = e.z ? "" : "none";
+          $("#status").textContent = `Finko feels ${name}.`;
+        };
+        const setMood = (name) => {
+          clearTimeout(tempT); base = name; show(name);
+          $$(".x-mood[data-m]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.m === name));
+        };
+        const flash = (name, ms) => { clearTimeout(tempT); show(name); tempT = setTimeout(() => show(base), ms); };
+        $("#moods").innerHTML = Object.keys(M).map((m) => `<button class="x-mood" data-m="${m}" aria-pressed="false">${m}</button>`).join("");
+        $("#moods").addEventListener("click", (e) => e.target.dataset.m && setMood(e.target.dataset.m));
+
+        const blinker = () => { clearTimeout(blinkT); clearInterval(blinkT); blinkT = setTimeout(() => { quickBlink(); blinker(); }, 6000 + Math.random() * 8700); };
+        blinker();
+
+        const keys = {}, map = { ArrowLeft: "l", a: "l", ArrowRight: "r", d: "r", ArrowUp: "u", w: "u", ArrowDown: "d", s: "d" };
+        addEventListener("keydown", (e) => { if (e.target.closest("input")) return; const k = map[e.key.length > 1 ? e.key : e.key.toLowerCase()]; if (k) { keys[k] = 1; e.preventDefault(); } });
+        addEventListener("keyup", (e) => { const k = map[e.key.length > 1 ? e.key : e.key.toLowerCase()]; if (k) keys[k] = 0; });
+        $$(".x-key").forEach((b) => {
+          const set = (v) => (e) => { e.preventDefault(); keys[b.dataset.k] = v; b.classList.toggle("is-on", !!v); };
+          b.addEventListener("pointerdown", (e) => { b.setPointerCapture(e.pointerId); set(1)(e); });
+          ["pointerup", "pointercancel", "lostpointercapture"].forEach((t) => b.addEventListener(t, set(0)));
+          b.addEventListener("contextmenu", (e) => e.preventDefault());
+        });
+
+        let X = 800, Z = 0.55, S = 1, Y = 0, tilt = 0, off = 0, last = 0, bumpT = 0, mouse = null;
+        addEventListener("pointermove", (e) => {
+          const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+          mouse = p.matrixTransform(svg.getScreenCTM().inverse());
+        });
+
+        const pet = () => {
+          setMood("love");
+          const NS = "http://www.w3.org/2000/svg";
+          for (let i = 0; i < 6; i++) {
+            const g = document.createElementNS(NS, "g"), p = document.createElementNS(NS, "path");
+            g.setAttribute("transform", `translate(${X + (Math.random() - 0.5) * 200 * S} ${Y - 400 * S}) scale(${S * (0.7 + Math.random() * 0.6)})`);
+            g.setAttribute("pointer-events", "none");
+            p.setAttribute("class", "x-heart"); p.style.animationDelay = `${i * 0.12}s`;
+            p.setAttribute("d", "M0 16C-38-8-22-38 0-20C22-38 38-8 0 16Z"); p.setAttribute("fill", "rgb(255,130,185)");
+            g.appendChild(p); svg.appendChild(g);
+            setTimeout(() => g.remove(), 2400);
+          }
+        };
+        $("#head").addEventListener("click", pet);
+        $("#petBtn").addEventListener("click", pet);
+
+        const ROOMS = ["Kitchen", "Living room", "Bedroom", "Laundry"], WALL = ["#f3e9d8", "#ecebe6", "#e4e1f2", "#dff0ee"], FLOOR = ["#e6ded2", "#ddd3c4", "#cdb9a3", "#d3dcdf"];
+        let R = 1, ballR = 1, dest = null;
+        const setRoom = (r) => {
+          R = r; $("#wall").setAttribute("fill", WALL[r]); $("#floor").setAttribute("fill", FLOOR[r]);
+          $$(".x-room").forEach((g) => (g.style.display = +g.dataset.r === r ? "" : "none"));
+          ball.style.display = r === ballR ? "" : "none";
+          $("#roomTxt").textContent = ROOMS[r];
+          $$("[data-g]").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.g === r));
+        };
+        // Background decor: [room, x, y, emoji or shape, size]. Rooms 0-3. Emoji sit on y; shapes are centred on x with their base on y.
+        const DECOR = [
+          [0, 1260, 718, "🪑", 80], [0, 1400, 710, "table", 180], [0, 1522, 718, "🪑", 80],
+          [1, 380, 590, "🛋️", 190], [1, 800, 815, "rug", 500],
+          [2, 1480, 555, "dresser", 180],
+          [3, 1490, 565, "🧺", 110],
+        ];
+        const SHAPE = {
+          table: (x, y, s) => { const h = s * 0.45; return `<path d="M${x - s / 2 + 16} ${y - h + 10}V${y}M${x + s / 2 - 16} ${y - h + 10}V${y}" stroke="#6b5440" stroke-width="10" stroke-linecap="round" /><rect x="${x - s / 2}" y="${y - h}" width="${s}" height="16" rx="5" fill="#a7825f" />`; },
+          rug: (x, y, s) => `<ellipse cx="${x}" cy="${y}" rx="${s / 2}" ry="${s * 0.09}" fill="#c97b63" opacity=".5" /><ellipse cx="${x}" cy="${y}" rx="${s / 2 - 22}" ry="${s * 0.09 - 8}" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="4" />`,
+          dresser: (x, y, s) => { const h = s * 0.85; return `<rect x="${x - s / 2}" y="${y - h}" width="${s}" height="${h}" rx="10" fill="#8b6b4f" />` + [0, 1, 2].map((i) => { const t = y - h + 10 + (i * (h - 20)) / 3; return `<rect x="${x - s / 2 + 10}" y="${t}" width="${s - 20}" height="${(h - 20) / 3 - 6}" rx="5" fill="#a7825f" /><circle cx="${x}" cy="${t + (h - 20) / 6 - 3}" r="5" fill="#6b5440" />`; }).join(""); },
+        };
+        // Each piece is its own draggable group; dpos holds its anchor [x, y] in its room, saved as "finkoDecor".
+        let dpos = {};
+        try { dpos = JSON.parse(store.get("finkoDecor") || "{}") || {}; } catch (e) { dpos = {}; }
+        const placeDeco = (g) => { const i = g.dataset.i, d = DECOR[i], p = dpos[i]; if (p) g.setAttribute("transform", `translate(${(p[0] - d[1]).toFixed(1)} ${(p[1] - d[2]).toFixed(1)})`); else g.removeAttribute("transform"); };
+        const deco = (k) => `<g class="x-deco">${DECOR.map((d, i) => [d, i]).filter(([d]) => d[0] === k).map(([[, x, y, t, s], i]) => `<g class="x-piece" data-i="${i}" style="cursor:grab;touch-action:none">${SHAPE[t] ? SHAPE[t](x, y, s) : `<text x="${x}" y="${y}" font-size="${s}" text-anchor="middle">${t}</text>`}</g>`).join("")}</g>`;
+        try {
+          $$(".x-room").forEach((g) => g.insertAdjacentHTML("afterbegin", deco(+g.dataset.r)));
+          $$(".x-piece").forEach(placeDeco);
+        } catch (e) { console.warn("Decor skipped", e); }
+        let drag = null, dragEnd = 0;
+        const toSvg = (e) => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+        svg.addEventListener("pointerdown", (e) => {
+          const g = e.target.closest && e.target.closest(".x-piece"); if (!g || e.button > 0) return;
+          e.preventDefault();
+          const i = g.dataset.i, d = DECOR[i], c = dpos[i] || [d[1], d[2]], p = toSvg(e);
+          drag = { g, i, id: e.pointerId, ox: p.x - c[0], oy: p.y - c[1], sx: e.clientX, sy: e.clientY, moved: 0 };
+          try { g.setPointerCapture(e.pointerId); } catch (err) {}
+          g.style.cursor = "grabbing";
+        });
+        svg.addEventListener("pointermove", (e) => {
+          if (!drag || e.pointerId !== drag.id) return;
+          if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;
+          drag.moved = 1; e.preventDefault();
+          const p = toSvg(e);
+          dpos[drag.i] = [Math.max(60, Math.min(1540, p.x - drag.ox)), Math.max(300, Math.min(860, p.y - drag.oy))];
+          placeDeco(drag.g);
+        });
+        const endDrag = (e) => {
+          if (!drag || e.pointerId !== drag.id) return;
+          drag.g.style.cursor = "grab";
+          if (drag.moved) { dragEnd = performance.now(); store.set("finkoDecor", JSON.stringify(dpos)); }
+          drag = null;
+        };
+        ["pointerup", "pointercancel", "lostpointercapture"].forEach((t) => svg.addEventListener(t, endDrag));
+        // A drag never counts as a tap on Finko or the floor; normal taps pass through untouched.
+        svg.addEventListener("click", (e) => { if (drag || performance.now() - dragEnd < 350) { e.stopPropagation(); e.preventDefault(); } }, true);
+        $("#decoReset").addEventListener("click", () => { dpos = {}; store.set("finkoDecor", "{}"); $$(".x-piece").forEach(placeDeco); });
+        $("#rooms").innerHTML = ROOMS.map((n, i) => `<button class="x-mood" type="button" data-g="${i}" aria-pressed="false">Go to ${n}</button>`).join("");
+        const goTo = (r) => { if (asleep) wake(); stopJob(); roll = null; if (r === R) goal = { x: 800, z: 0.55, room: 1 }; else { dest = r; goal = null; } say(`Heading to the ${ROOMS[r].toLowerCase()}!`); };
+        $("#rooms").addEventListener("click", (e) => e.target.dataset.g && goTo(+e.target.dataset.g));
+        let tasks = "";
+        const app = $("#app"), fsBtn = $("#fsBtn");
+        const isFs = () => document.fullscreenElement === app || app.classList.contains("x-full");
+        const fsSync = () => { const on = isFs(); document.body.classList.toggle("x-fs", on); fsBtn.textContent = on ? "⛶ Exit full screen" : "⛶ Full screen"; };
+        const fallback = () => { app.classList.add("x-full"); fsSync(); };
+        fsBtn.addEventListener("click", () => {
+          if (isFs()) { if (document.fullscreenElement) document.exitFullscreen(); app.classList.remove("x-full"); fsSync(); }
+          else if (app.requestFullscreen) app.requestFullscreen().catch(fallback);
+          else fallback();
+        });
+        document.addEventListener("fullscreenchange", fsSync);
+        addEventListener("keydown", (e) => { if (e.key === "Escape" && app.classList.contains("x-full")) { app.classList.remove("x-full"); fsSync(); } });
+        $$("[data-go]").forEach((a) => a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const el = $("#" + a.dataset.go);
+          el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+          if (el.id === "msg") el.focus({ preventScroll: true });
+        }));
+        let qx = 1120, qz = 0.615, rot = 0, roll = null, goal = null, act = null, bat = 100, charging = 0, low = 0, asleep = 0, fetched = 0, talkUntil = 0, bubbleUntil = 0, lastIn = 0, noteT = 0, joke = 0;
+        const OPEN = "M-16,-298 Q0,-270 16,-298Z", bubble = $("#bubble"), mouth = $("#mouth"), armR = $("#armR"), batFill = $("#batFill");
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), now = () => performance.now();
+        let voiceOn = true, unlocked = false, actx = null, voice = null;
+        const SS = window.speechSynthesis;
+        const VOICES = { "Boy 1": [1.25, 1.0, ["Google US English", "Microsoft Guy", "Alex"]], "Boy 2": [1.0, 0.95, ["Google UK English Male", "Microsoft David", "Daniel"]], "Boy 3": [1.45, 1.08, ["Microsoft Mark", "Fred"]], "Girl 1": [1.35, 1.0, ["Samantha", "Microsoft Aria", "Google US English"]], "Girl 2": [1.2, 1.0, ["Microsoft Jenny", "Microsoft Zira", "Karen", "Google UK English Female"]] };
+        let vKey = "Boy 1", tKey = "Girl 2";
+        const voiceFor = (key, avoid) => {
+          if (!SS) return null; const vs = SS.getVoices(), en = vs.filter((v) => /^en/i.test(v.lang));
+          const c = [...VOICES[key][2].map((n) => vs.find((v) => v.name.includes(n) && /^en/i.test(v.lang))), vs.find((v) => /^en[-_]US/i.test(v.lang)), ...en].filter(Boolean);
+          return c.find((v) => v !== avoid) || c[0] || null;
+        };
+        const pickVoice = () => { if (SS && SS.getVoices().length) voice = voiceFor(vKey); };
+        if (SS) { pickVoice(); SS.addEventListener ? SS.addEventListener("voiceschanged", pickVoice) : (SS.onvoiceschanged = pickVoice); }
+        const chirp = () => {
+          if (!actx) return 0; const t0 = actx.currentTime;
+          [[900, 0], [1300, 0.08]].forEach(([f, d]) => {
+            const o = actx.createOscillator(), g = actx.createGain();
+            o.type = "sine"; o.frequency.value = f; g.gain.value = 0.04;
+            o.connect(g); g.connect(actx.destination); o.start(t0 + d); o.stop(t0 + d + 0.07);
+          });
+          return 160;
+        };
+        let curU = null, pend = null, chirpT = 0, lastTxt = "", lastAt = 0;
+        const recent = (txt) => txt === lastTxt && performance.now() - lastAt < 3000;
+        const busy = () => !!(curU || chirpT || pend || (SS && (SS.speaking || SS.pending)));
+        const utter = (txt, tch) => {
+          const p = VOICES[tch ? tKey : vKey], v = tch ? voiceFor(tKey, voice) : voice;
+          const u = (curU = new SpeechSynthesisUtterance(txt)); u.pitch = p[0]; u.rate = p[1]; u.volume = 1;
+          if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "en-US";
+          u.onend = u.onerror = () => { if (curU === u) { curU = null; nextLine(); } };
+          lastTxt = txt; lastAt = performance.now();
+          SS.resume(); SS.speak(u);
+        };
+        const nextLine = () => { if (!pend) return; const [t, w] = pend; pend = null; if (recent(t)) return nextLine(); utter(t, w); };
+        const speak = (s, idle, tch) => {
+          if (!voiceOn || !unlocked || !SS) return;
+          const txt = s.replace(/[^\p{L}\p{N}\s.,!?'’…:;/-]/gu, "").trim(); if (!txt || recent(txt)) return;
+          if (curU || chirpT || SS.speaking) { if (!idle && txt !== lastTxt) pend = [txt, tch]; return; }
+          lastTxt = txt; lastAt = performance.now();
+          chirpT = setTimeout(() => { chirpT = 0; utter(txt, tch); }, tch ? 0 : chirp());
+        };
+        const hush = () => { pend = null; clearTimeout(chirpT); chirpT = 0; curU = null; if (SS) SS.cancel(); };
+        setInterval(() => { if (curU && SS && !SS.speaking && !SS.pending && performance.now() - lastAt > 1500) { curU = null; nextLine(); } }, 1000);
+        const unlock = () => {
+          if (unlocked) return; unlocked = true;
+          try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); } catch (e) {}
+          if (SS) pickVoice();
+          if (!bubble.hidden && bubble.textContent) speak(bubble.textContent);
+        };
+        document.addEventListener("pointerdown", unlock, { capture: true });
+        document.addEventListener("keydown", unlock, { capture: true });
+        const tbub = $("#tbubble"); let tbUntil = 0;
+        const tSay = (s, ms) => { tbub.textContent = s; tbub.hidden = false; tbUntil = now() + (ms || Math.max(2500, s.length * 70)); speak(s, 0, 1); };
+        $("#voiceSel").addEventListener("change", (e) => { vKey = e.target.value; unlock(); pickVoice(); hush(); lastTxt = ""; speak("Hi, I'm Finko!"); });
+        const say = (s, ms, idle, sc) => { if (job && job.k === "School" && !sc) return; bubble.textContent = s; bubble.hidden = false; talkUntil = now() + Math.min(4000, s.length * 60); bubbleUntil = now() + (ms || Math.max(2500, s.length * 70)); speak(s, idle); };
+        const CHAT = ["Beep! Anyone want to play?", "My battery feels great!", "I love this house.", "Want me to cook something?", "Boop boop."];
+        const chatter = () => setTimeout(() => { if (!asleep && !job && !busy()) say(CHAT[(Math.random() * CHAT.length) | 0], 0, 1); chatter(); }, 10000 + Math.random() * 10000);
+        chatter();
+        const wake = () => { asleep = 0; finko.classList.remove("x-dim"); setMood(low ? "sleepy" : "happy"); };
+        const sleep = () => { stopJob(); asleep = 1; act = goal = dest = null; finko.classList.add("x-dim"); setMood("sleepy"); };
+        const doAct = (n, ms) => { if (asleep) wake(); stopJob(); act = { n, until: now() + ms }; if (n === "dance") setMood("happy"); };
+        const throwBall = () => {
+          if (asleep) wake(); stopJob();
+          if (ballR !== R) { ballR = R; qx = X; qz = Z; ball.style.display = ""; }
+          roll = { x0: qx, z0: qz, x1: 120 + Math.random() * 1360, z1: 0.05 + Math.random() * 0.9, t0: now() }; goal = dest = null; setMood("curious");
+        };
+        ["keydown", "pointerdown", "input"].forEach((t) => addEventListener(t, () => (lastIn = now())));
+        $("#acts").addEventListener("click", (e) => {
+          const a = e.target.dataset.a;
+          if (a === "wave") doAct("wave", 2400);
+          if (a === "dance") doAct("dance", 3200);
+          if (a === "sleep") sleep();
+          if (a === "wake") { wake(); say("Beep! I'm awake!"); }
+          if (a === "throw") throwBall();
+          if (a === "charge") { if (asleep) wake(); charging = 1; say(bat >= 100 ? "Battery's already full!" : "Charging up! ⚡"); }
+        });
+
+        const up = (x, y, s, n, extra) => Array.from({ length: n }, (_, i) => `<circle class="x-up" cx="${x + i * 22}" cy="${y - (i % 2) * 10}" r="${s}" ${extra} style="animation-delay:${i * 0.35}s" />`).join("");
+        const FRIDGE = '<rect x="1104" y="154" width="222" height="390" rx="14" fill="#fdfcf6" /><path d="M1108 300h214M1108 420h214" stroke="#d6dbe1" stroke-width="5" /><path d="M1330 152l118 30v340l-118 26Z" fill="#e9ecf0" stroke="#c4c8cf" stroke-width="4" stroke-linejoin="round" />';
+        const LAPTOP = '<rect x="1050" y="500" width="320" height="16" rx="4" fill="#a7825f" /><path d="M1072 516v100M1348 516v100" stroke="#6b5440" stroke-width="10" stroke-linecap="round" /><clipPath id="lapClip"><rect x="1132" y="358" width="176" height="124" rx="3" /></clipPath><rect x="1122" y="348" width="196" height="144" rx="10" fill="#3a3a3c" /><rect x="1132" y="358" width="176" height="124" rx="3" fill="#f2f2f7" /><g id="lapScr" clip-path="url(#lapClip)"></g><path d="M1100 500h240l-16-10h-208Z" fill="#c7cad1" stroke="#8d9099" stroke-width="3" stroke-linejoin="round" />';
+        const SPL = 'calcMode="spline" keyTimes="0;.5;1" keySplines=".3 0 .7 1;.3 0 .7 1" repeatCount="indefinite"';
+        const TVFX = `<clipPath id="tvClip"><rect x="1086" y="156" width="288" height="168" rx="4" /></clipPath><g clip-path="url(#tvClip)"><g id="tvScr"><rect x="1086" y="156" width="288" height="168" fill="#7fd0ff"><animate attributeName="fill" values="#7fd0ff;#ffd27f;#c9a0ff;#8ee3b4;#7fd0ff" dur="5s" repeatCount="indefinite" /></rect><rect x="1086" y="296" width="288" height="28" fill="#4cc35b" /><circle cx="1340" cy="186" r="16" fill="#ffe066"><animate attributeName="r" values="16;20;16" dur="1.2s" repeatCount="indefinite" /></circle><circle cx="1140" cy="280" r="16" fill="#ff6b4a"><animate attributeName="cy" values="280;200;280" dur=".9s" ${SPL} /></circle><rect x="1200" y="266" width="30" height="30" rx="4" fill="#4f5bd5"><animate attributeName="y" values="266;196;266" dur="1.2s" begin=".3s" ${SPL} /></rect><circle cx="1290" cy="284" r="12" fill="#ff9f1c"><animate attributeName="cy" values="284;226;284" dur=".7s" begin=".1s" ${SPL} /></circle><path d="M0 0l18 30h-36Z" fill="#ff6fa8"><animateTransform attributeName="transform" type="translate" values="1110 266;1350 266;1110 266" dur="3s" repeatCount="indefinite" /></path><rect id="tvWhite" x="1086" y="156" width="288" height="168" fill="#fff" opacity="0" /></g></g>`;
+        const banner = (txt) => {
+          $("#phoneB")?.remove();
+          fx.insertAdjacentHTML("beforeend", `<g id="phoneB"><rect x="40" y="36" height="56" rx="18" fill="#1c1c1e" /><text x="60" y="73" font-size="24" fill="#fff">${txt}</text></g>`);
+          const pb = $("#phoneB"), w = pb.querySelector("text").getBBox().width; pb.querySelector("rect").setAttribute("width", w + 40);
+        };
+        const carry = (items) => { $("#carry")?.remove(); if (items) tiltG.insertAdjacentHTML("beforeend", `<g id="carry" pointer-events="none"><rect x="-120" y="-120" width="240" height="18" rx="9" fill="#8d9099" />${items.map((f, i) => `<text x="${(i - (items.length - 1) / 2) * 48}" y="-126" font-size="52" text-anchor="middle">${f}</text>`).join("")}</g>`); };
+        let money = 100;
+        const cash = (d) => {
+          const was = money; money = Math.max(0, money + d); d = money - was; if (!d) return;
+          const m = $("#money"); m.textContent = `💵 $${money}`; m.classList.remove("is-up", "is-dn"); void m.offsetWidth; m.classList.add(d < 0 ? "is-dn" : "is-up");
+          svg.insertAdjacentHTML("beforeend", `<text class="x-cashf" x="${(X + 120 * S).toFixed(0)}" y="${(Y - 480 * S).toFixed(0)}" text-anchor="middle" style="fill:${d < 0 ? "rgb(214,60,60)" : "rgb(40,150,80)"}">${d < 0 ? "-" : "+"}$${Math.abs(d)}</text>`);
+          const el = svg.lastElementChild; setTimeout(() => el.remove(), 1700);
+        };
+        const PIZZAS = [["Paneer Tikka", ["#e8682a", "#fffaf0", "#3f9b5a"]], ["Margherita", ["#3f9b5a", "#fffaf0"]], ["Veggie", ["#3f9b5a", "#ff9f1c", "#8b4fbf"]], ["BBQ Veggie", ["#8b5a2b", "#ffd84d", "#7a1f3d"]], ["Pineapple & Pepper", ["#ffd84d", "#3f9b5a", "#e03c31"]], ["Mushroom", ["#a58d72", "#d9c7b0"]], ["Four Cheese", ["#fff3b0", "#e8c26a", "#fffaf0", "#f0b84a"]], ["Veggie Supreme", ["#e03c31", "#3f9b5a", "#1c1c1e", "#8b4fbf", "#a58d72"]], ["Buffalo Cauliflower", ["#e8682a", "#f2efe6"]], ["Spinach & Feta", ["#2e7d32", "#ffffff"]]];
+        const goStep = (x, z) => (goal = { x, z, q: 1 });
+        let lastDish = "", lastLes = -1;
+        const TASKS = {
+          Cook: { e: "🧑‍🍳", w: [[0, 1215, 0.15]], a: "wait", done: "Dinner's ready!", fx: "", go: (j) => {
+            camHold = () => finkoCam(1.8);
+            const mix = (a) => [...a].sort(() => Math.random() - 0.5);
+            const POOL = [..."🍅🥬🧀⬜🟨🍞🫑🥕🥔🧅🍄🌽🍚🫘🌿🥑🥛🍎"], LBL = { "⬜": "paneer", "🟨": "tofu", "🌿": "spinach" };
+            const R = [["Veggie Sandwich", "🥪", "🍞🥬"], ["Paneer Pepper Stir-fry", "🥘", "⬜🫑"], ["Tofu Fried Rice", "🥡", "🟨🍚"], ["Bean Burrito", "🌯", "🫘🧀"], ["Mushroom Pasta", "🍝", "🍄🧅"], ["Potato Curry", "🍛", "🥔🧅"], ["Corn Salad", "🥗", "🌽🍅"], ["Spinach Dal", "🥣", "🌿🫘"], ["Avocado Toast", "🥑", "🥑🍞"], ["Veggie Soup", "🍲", "🥕🥔"], ["Cheese Quesadilla", "🫓", "🧀🌽"], ["Tomato Rice", "🍚", "🍅🍚"], ["Tofu Scramble Wrap", "🥙", "🟨🌿"]].map(([n, d, i]) => ({ n, d, i: [...i] }));
+            const want = mix(R.filter((r) => r.n !== lastDish))[0].i, size = 4 + ((Math.random() * 3) | 0);
+            const F = mix([...want, ...mix(POOL.filter((f) => !want.includes(f))).slice(0, size - want.length)]);
+            const ok = R.filter((r) => r.n !== lastDish && r.i.every((f) => F.includes(f)));
+            const { n: rec, d: DISH } = ok.length ? ok[(Math.random() * ok.length) | 0] : R.find((r) => r.n === "Veggie Soup");
+            const nm = (f) => (LBL[f] ? `${f} ${LBL[f]} ` : f);
+            lastDish = rec;
+            j.d = `${DISH} ${rec} ready!`;
+            return [
+              [3500, "Opening the fridge…", () => {
+                fx.insertAdjacentHTML("beforeend", `<g id="fridge">${FRIDGE}<g id="shelf">${F.map((f, i) => `<text x="${1145 + (i % 3) * 70}" y="${i < 3 ? 240 : 290}" font-size="44" text-anchor="middle">${f}</text>${LBL[f] ? `<text x="${1145 + (i % 3) * 70}" y="${i < 3 ? 254 : 304}" font-size="13" fill="#3a3a3c" text-anchor="middle">${LBL[f]}</text>` : ""}`).join("")}</g></g>`);
+                later(j, 1900, () => { $("#shelf")?.remove(); carry(F); say("Got the food!", 1500); });
+              }],
+              [phDur(3500), null, () => { $("#fridge")?.remove(); openPhone("https://praveenp-works.github.io/yathin_apps/fridgechef/", "Fridge Chef", 3500, `${DISH} ${rec}`); }],
+              [3500, "Carrying it to the stove…", () => { banner(`${DISH} Fridge Chef: found ${F.map(nm).join("")} → ${rec}`); say(`Fridge Chef says: ${rec}! ${DISH}`, 2400); goStep(580, 0.12); }],
+              [3500, "Chop, chop, chop!", () => {
+                carry();
+                fx.insertAdjacentHTML("beforeend", `<g id="board"><rect x="650" y="368" width="170" height="16" rx="5" fill="#c9965f" stroke="#9a6b3e" stroke-width="3" />${F.map((f, i) => `<text x="${672 + i * 30}" y="366" font-size="28" text-anchor="middle">${f}</text>`).join("")}<g class="x-chop"><path d="M700 318h70l-6 12h-64Z" fill="#d7dbe0" stroke="#8a8f98" stroke-width="3" stroke-linejoin="round" /><rect x="770" y="316" width="40" height="14" rx="5" fill="#3a3a3c" /></g></g>`);
+              }, "chop"],
+              [4000, "Stir, stir, stir…", () => {
+                $("#board")?.remove();
+                fx.insertAdjacentHTML("beforeend", `<g id="steam">${up(438, 318, 14, 3, 'fill="#fff"')}<path class="x-wig" d="M470 338l26-44" stroke="#8a8f98" stroke-width="8" stroke-linecap="round" /></g>`);
+              }, "stir"],
+              [3500, `Plating the ${rec.toLowerCase()}…`, () => {
+                $("#steam")?.remove();
+                fx.insertAdjacentHTML("beforeend", `<g class="x-show"><ellipse cx="730" cy="378" rx="66" ry="14" fill="#fff" stroke="#c4c8cf" stroke-width="3" /><text x="730" y="372" font-size="64" text-anchor="middle">${DISH}</text></g>`);
+              }, "load"],
+            ];
+          } },
+          Sleep: { e: "🛏", w: [[2, 480, 0.1]], a: "rest", done: "Good morning!", fx: '<rect width="1600" height="900" fill="rgb(10,14,40)" opacity=".45" />', go: () => [[10000, "Zzz…"]] },
+          Laundry: { e: "🧺", w: [[3, 560, 0.2]], a: "wait", done: "Clothes are clean!", fx: "", go: (j) => [
+            [4000, "Loading the washer…", () => cash(-12) || fx.insertAdjacentHTML("beforeend", `<g id="load"><text x="190" y="640" font-size="72" text-anchor="middle">🧺</text>${[..."👕👖🧦👗"].map((c, i) => `<text class="x-in" x="190" y="570" font-size="44" text-anchor="middle" style="--dx:190px;--dy:-110px;animation-delay:${i * 0.8}s">${c}</text>`).join("")}</g>`), "load"],
+            [6000, "Spinning… swish, swash!", () => {
+              $("#load")?.remove();
+              fx.insertAdjacentHTML("beforeend", '<g id="wash"><g class="x-spin"><circle cx="380" cy="450" r="74" fill="none" stroke="#7c8896" stroke-width="12" stroke-dasharray="36 22" /><path d="M326 450h108" stroke="#fff" stroke-width="10" stroke-linecap="round" /></g>' + up(340, 400, 12, 4, 'fill="#e8f6ff" stroke="#9cc9ea" stroke-width="3"') + "</g>");
+              later(j, 3000, () => say("Almost done…", 2800));
+            }],
+            [5000, "Folding the clothes…", () => {
+              $("#wash")?.remove();
+              fx.insertAdjacentHTML("beforeend", ["#8fb8de", "#ff9f8a", "#7d87ee", "#4cc35b"].map((c, i) => `<rect class="x-show" x="605" y="${282 - i * 17}" width="120" height="16" rx="5" fill="${c}" stroke="#fff" stroke-width="2" style="animation-delay:${i * 1.1}s" />`).join(""));
+            }, "load"],
+          ] },
+          Garden: { e: "🌱", w: [[1, 1000, 0.35]], a: "wait", done: "All plants healthy!", fx: "", go: (j) => {
+            const N = ["Sunny", "Leafy", "Spike", "Bloom", "Fern", "Mint", "Basil", "Rosie", "Ziggy", "Pip"].sort(() => Math.random() - 0.5);
+            const P = [0, 1, 2].map((i) => ({ n: N[i], t: [..."🌵🌸🌷🌿🌳"][(Math.random() * 5) | 0], h: 0.8 + Math.random() * 0.7, s: 20 + ((Math.random() * 80) | 0) }));
+            const tip = (s) => (s >= 70 ? "Healthy" : s >= 40 ? "Needs water" : "Needs sun");
+            const thirsty = P.filter((p) => p.s < 60).map((p) => p.n);
+            if (thirsty.length) j.d = `Watered ${thirsty.join(", ")}!`;
+            fx.insertAdjacentHTML("beforeend", P.map((p, i) => { const x = 520 + i * 150; return `<g><text x="${x}" y="596" font-size="${Math.round(52 * p.h)}" text-anchor="middle">${p.t}</text><path d="M${x - 34} 600h68l-10 54h-48Z" fill="#c8754a" stroke="#9a5434" stroke-width="3" stroke-linejoin="round" /><rect x="${x - 38}" y="594" width="76" height="12" rx="4" fill="#b2653d" /><text x="${x}" y="682" font-size="20" fill="#3a3a3c" text-anchor="middle">${p.n}</text></g>`; }).join(""));
+            const W = P.map((p, i) => [p, i]).filter(([p]) => !thirsty.length || p.s < 60);
+            return [
+              [phDur(3500), null, () => openPhone("https://praveenp-works.github.io/yathin_apps/plantdoc/", "Plant Doc", 3500)],
+              ...P.map((p, i) => [3200, `Checking ${p.n}…`, () => {
+                banner(`🌿 Plant Doc: ${p.n} ${p.s} · ${tip(p.s)}`);
+                $("#lens")?.remove();
+                fx.insertAdjacentHTML("beforeend", `<text id="lens" class="x-show" x="${520 + i * 150}" y="530" font-size="44" text-anchor="middle">🔍</text>`);
+                later(j, 1500, () => say(`${p.n}: ${tip(p.s).toLowerCase()}.`, 1600));
+              }]),
+              [5500, thirsty.length ? `Watering ${thirsty.join(" and ")}…` : "A little water for everyone…", () => {
+                $("#lens")?.remove(); $("#phoneB")?.remove();
+                fx.insertAdjacentHTML("beforeend", W.map(([, i]) => { const x = 520 + i * 150; return `<text x="${x + 46}" y="500" font-size="44" text-anchor="middle">🚿</text>${[0, 1, 2].map((k) => `<circle class="x-fall" cx="${x - 14 + k * 14}" cy="${512 + k * 6}" r="5" fill="rgb(90,150,215)" style="animation-delay:${k * 0.3}s" />`).join("")}`; }).join(""));
+              }, "load"],
+            ];
+          } },
+          Homework: { e: "📚", w: [[2, 990, 0.12]], a: "write", done: "A+!", fx: LAPTOP, go: (j) => { camHold = () => camAt(2.8, 1220, 420);
+            let cx = 1220, cy = 450;
+            const mv = (x, y) => { const c = $("#mcur"), s = $("#mtrail"); if (!c || !s) return; for (let k = 1; k <= 6; k++) later(j, k * 110, () => { const t = k / 6, e = document.createElementNS("http://www.w3.org/2000/svg", "circle"); e.setAttribute("cx", cx + (x - cx) * t); e.setAttribute("cy", cy + (y - cy) * t); e.setAttribute("r", 4); e.setAttribute("fill", `hsl(${k * 55},90%,60%)`); e.setAttribute("class", "x-spark"); s.appendChild(e); setTimeout(() => e.remove(), 1000); }); later(j, 700, () => { cx = x; cy = y; }); c.style.transform = `translate(${x}px,${y}px)`; };
+            return [
+            [2500, "Opening Magic Cursor…", () => {
+              const src = $('#shots [data-app="Magic Cursor"]')?.src || "fs-magiccursor.jpg";
+              $("#lapScr").innerHTML = `<image href="${src}" x="1132" y="358" width="176" height="124" preserveAspectRatio="xMidYMid slice" /><rect x="1136" y="361" width="74" height="15" rx="7.5" fill="#1c1c1e" opacity=".85" /><text x="1173" y="372" font-size="9" fill="#fff" text-anchor="middle">✨ Magic Cursor</text><rect x="1140" y="382" width="160" height="94" rx="6" fill="#fff" opacity=".88" /><g id="msums"></g><g id="mtrail"></g><g id="mcur" style="transform:translate(1220px,450px)"><path transform="scale(.75) translate(-872 -360)" d="M872 360l0 52 13-12 10 22 9-4-10-21 18-1Z" fill="#fff" stroke="#1c1c1e" stroke-width="4" stroke-linejoin="round" /></g>`;
+              later(j, 1200, () => say("✨ Big rainbow cursor!", 1800));
+            }, "wait"],
+            [8400, "Solving my sums…", () => {
+              ["7 × 8 = 56", "9 × 6 = 54", "48 ÷ 6 = 8"].forEach((ln, i) => {
+                const y = 404 + i * 26, t = i * 2700;
+                later(j, t, () => $("#msums")?.insertAdjacentHTML("beforeend", `<text class="x-show" x="1150" y="${y}" font-size="16" fill="#1c1c1e" font-family="Geist Mono, monospace">${ln}</text>`));
+                later(j, t + 300, () => mv(1150, y - 12));
+                later(j, t + 1200, () => mv(1282, y - 12));
+                later(j, t + 2000, () => { $("#msums")?.insertAdjacentHTML("beforeend", `<text class="x-show" x="1290" y="${y}" font-size="16" fill="#3f9b5a" text-anchor="middle">✓</text>`); say(`${ln.split("= ")[1]}! ✓`, 1200); });
+              });
+            }],
+            [2500, "All checked!", () => { mv(1220, 455); later(j, 900, () => $("#mtrail")?.insertAdjacentHTML("beforeend", [[1180, 440], [1260, 440], [1220, 470]].map(([x, y], i) => `<text class="x-pulse" x="${x}" y="${y}" font-size="16" text-anchor="middle" style="animation-delay:${i * 0.2}s">✨</text>`).join(""))); }, "wait"],
+          ]; } },
+          TV: { e: "📺", w: [[1, 960, 0.3]], a: "wait", done: "That was fun!", fx: TVFX, go: () => { prog.hidden = true; tvUI(1); return [[1e9, "Ooh, cartoons!"]]; } },
+          School: { e: "🏫", w: [[2, 900, 0.7]], a: "wait", done: "Great job, Finko!", fx: "", go: (j) => {
+            const pick = (a) => a[(Math.random() * a.length) | 0], COL = ["#2bb3a3", "#ff6fa8", "#ff9f1c", "#8b6cff", "#4cc35b", "#3d8bff", "#ff5a5a"], SITES = ["Docs", "Math", "Reading"];
+            const T = pick(["Ms. Lopez", "Mr. Patel", "Mrs. Kim", "Mr. Brown", "Ms. Rivera", "Mrs. Nguyen"]);
+            const K = ["Ava", "Leo", "Mia", "Noah", "Zara", "Eli", "Ivy", "Sam", "Kai", "Ruby", "Omar", "Lily"].sort(() => Math.random() - 0.5).slice(0, 5).map((n) => ({ n, c: pick(COL), s: pick(SITES) }));
+            const all = [...K, { n: "Finko", c: "#4f5bd5", s: pick(SITES) }], off = (Math.random() * 5) | 0;
+            tKey = T.startsWith("Mr.") ? (vKey === "Boy 2" ? "Boy 1" : "Boy 2") : (vKey === "Girl 2" ? "Girl 1" : "Girl 2");
+            const PLAN = [
+              ["Today: Mercury ☿", "Mercury is closest to the Sun.", "A year there is just 88 days.", "Which planet is closest to the Sun?", "Mercury!"],
+              ["Today: Venus 🔥", "Venus is the hottest planet.", "Thick clouds trap the heat.", "Which planet is the hottest?", "Venus!"],
+              ["Today: Earth 🌍", "Earth is our home planet.", "It has air and liquid water.", "Which planet do we live on?", "Earth!"],
+              ["Today: Mars 🔴", "Mars is the red planet.", "Rusty dust makes it red.", "Which planet is called the red planet?", "Mars!"],
+              ["Today: Jupiter 🪐", "Jupiter is the biggest planet.", "Its Great Red Spot is a giant storm.", "Which is the biggest planet?", "Jupiter!"],
+              ["Today: Saturn 💫", "Saturn has beautiful rings.", "They're made of ice and rock.", "Which planet has the biggest rings?", "Saturn!"],
+              ["Today: Uranus 🔵", "Uranus spins on its side.", "It rolls around the Sun!", "Which planet spins on its side?", "Uranus!"],
+              ["Today: Neptune 🌬️", "Neptune is the windiest planet.", "Its winds beat 2,000 km/h.", "Which planet has the strongest winds?", "Neptune!"],
+              ["Today: the 8 planets", "Mercury, Venus, Earth, Mars,", "Jupiter, Saturn, Uranus, Neptune.", "How many planets are there?", "Eight!"],
+              ["Today: the Sun ☀️", "The Sun is a star.", "All 8 planets go around it.", "Is the Sun a planet or a star?", "A star!"],
+              ["Today: moons 🌙", "Moons orbit planets.", "Earth has 1, Saturn has 140+.", "How many moons does Earth have?", "One!"],
+              ["Today: Pluto", "Pluto is a dwarf planet.", "It's smaller than our Moon.", "What kind of planet is Pluto?", "A dwarf planet!"],
+            ];
+            let li = (Math.random() * PLAN.length) | 0;
+            if (li === lastLes) li = (li + 1 + ((Math.random() * (PLAN.length - 1)) | 0)) % PLAN.length;
+            lastLes = li;
+            const LES = PLAN[li];
+            setMood("neutral");
+            finko.insertAdjacentHTML("beforeend", '<g id="fdesk" pointer-events="none"><path d="M-150-122v124M150-122v124" stroke="#6b5440" stroke-width="16" stroke-linecap="round" /><rect x="-175" y="-140" width="350" height="26" rx="8" fill="#a7825f" /></g>');
+            const bot = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse rx="150" ry="20" fill="#000" opacity=".14" /><rect x="-120" y="-72" width="96" height="74" rx="22" fill="#3a3a3c" /><rect x="24" y="-72" width="96" height="74" rx="22" fill="#3a3a3c" /><rect x="-140" y="-215" width="36" height="96" rx="10" fill="#c7cad1" /><rect x="104" y="-215" width="36" height="96" rx="10" fill="#c7cad1" /><path d="M-102-232H102L86-70H-86Z" fill="#dcdee3" stroke="#b9bcc4" stroke-width="4" stroke-linejoin="round" /><rect x="-62" y="-212" width="124" height="120" rx="16" fill="${c}" /><rect x="-14" y="-262" width="28" height="34" fill="#a9acb4" /><rect x="-122" y="-422" width="244" height="170" rx="42" fill="${c}" stroke="#babdc5" stroke-width="4" /><rect x="-102" y="-406" width="204" height="138" rx="28" fill="rgb(12,16,40)" /><circle cx="-45" cy="-345" r="26" fill="rgb(60,190,255)" /><circle cx="45" cy="-345" r="26" fill="rgb(60,190,255)" /><path d="M-24-298Q0-276 24-298" stroke="rgb(255,195,210)" stroke-width="8" stroke-linecap="round" fill="none" /></g>`;
+            const tile = (p, i) => { const x = 345 + (i % 3) * 195, y = 165 + ((i / 3) | 0) * 105; return `<g id="ct${i}"><rect x="${x}" y="${y}" width="180" height="95" rx="10" fill="#fff" stroke="#c4c8cf" stroke-width="3" /><rect x="${x + 12}" y="${y + 12}" width="44" height="34" rx="9" fill="${p.c}" /><rect x="${x + 17}" y="${y + 17}" width="34" height="24" rx="6" fill="rgb(12,16,40)" /><circle cx="${x + 27}" cy="${y + 29}" r="4" fill="rgb(60,190,255)" /><circle cx="${x + 41}" cy="${y + 29}" r="4" fill="rgb(60,190,255)" /><text x="${x + 66}" y="${y + 36}" font-size="20" fill="#1c1c1e">${p.n}</text><text x="${x + 12}" y="${y + 80}" font-size="18" fill="#636366">${p.s}</text></g>`; };
+            fx.insertAdjacentHTML("beforeend", `<g><rect width="1600" height="560" fill="#f3efe4" opacity=".85" /><rect x="330" y="110" width="600" height="270" rx="14" fill="#2f4a3c" stroke="#a7825f" stroke-width="8" /><text x="345" y="148" font-size="26" fill="#fff">👀 ClassView</text><g id="ctiles">${all.map(tile).join("")}</g>${bot(200, 600, 0.5, pick(COL))}<text x="200" y="640" font-size="22" fill="#3a3a3c" text-anchor="middle">${T}</text><g id="tdesk"><path d="M248 552v48M312 552v48" stroke="#6b5440" stroke-width="6" /><rect x="238" y="540" width="84" height="14" rx="4" fill="#a7825f" /><text x="280" y="540" font-size="34" text-anchor="middle">💻</text></g>${K.map((p, i) => { const x = 1080 + i * 100; return `${bot(x, 560, 0.26, p.c)}<rect x="${x - 50}" y="505" width="100" height="14" rx="4" fill="#a7825f" /><path d="M${x - 42} 519v40M${x + 42} 519v40" stroke="#6b5440" stroke-width="6" />`; }).join("")}</g>`);
+            const yt = (on) => { const g = $(`#ct${off}`); if (!g) return; g.querySelector("rect").setAttribute("fill", on ? "#ff5a5a" : "#fff"); const s = g.querySelectorAll("text")[1]; s.textContent = on ? "YouTube" : K[off].s; s.setAttribute("fill", on ? "#fff" : "#636366"); };
+            const cvPop = () => {
+              $("#cvPop")?.remove();
+              const p = document.createElement("div"), lx = cam.tx * 100 + (cam.k * 280) / 16, ly = cam.ty * 100 + (cam.k * 525) / 9;
+              p.id = "cvPop"; p.className = "x-cv"; p.setAttribute("role", "group"); p.setAttribute("aria-label", `${T}'s ClassView`);
+              p.style.transformOrigin = `${(((lx - 20) / 60) * 100).toFixed(1)}% ${(((ly - 6) / 86) * 100).toFixed(1)}%`;
+              p.innerHTML = `<div class="x-cv__scr"><p class="x-phone__tag">👩‍🏫 ${T}'s ClassView</p></div><div class="x-cv__base"></div>`;
+              const sh = $('#shots [data-app="ClassView"]'); if (sh) p.querySelector(".x-phone__tag").before(sh.cloneNode());
+              $(".x-stage").appendChild(p);
+              later(j, 50, () => p.classList.add("is-up"));
+              later(j, 3700, () => p.classList.remove("is-up"));
+              later(j, 4200, () => p.remove());
+            };
+            return [
+              [4500, null, () => { yt(1); later(j, 800, () => tSay(`${K[off].n}, back to work!`, 2400)); later(j, 3400, () => yt(0)); }],
+              ...LES.slice(0, 4).map((ln, i) => [3200, null, () => {
+                if (!i) { yt(0); $("#ctiles").style.display = "none"; }
+                fx.insertAdjacentHTML("beforeend", `<text class="x-show" x="360" y="${200 + i * 52}" font-size="${i ? 30 : 38}" fill="#fff">${ln}</text>`);
+                tSay(ln, 3000);
+              }]),
+              [7200, null, () => { tSay("Let me check everyone's screens on ClassView.", 3000); later(j, 2800, cvPop); }],
+              [2800, null, () => { armUp = now() + 6000; later(j, 700, () => { setMood("happy"); say(LES[4], 2600, 0, 1); }); }],
+              [3500, null, () => { tSay("Correct, great job Finko!", 3400); later(j, 2600, () => { armUp = 0; armR.removeAttribute("transform"); }); }],
+            ];
+          } },
+          Groceries: { e: "🛒", w: [[-1, 170, 0.55]], a: "wait", done: "Fridge is full!", fx: "", go: (j) => {
+            const G = [["🥕", "carrots"], ["🥛", "milk"], ["🍎", "apples"]];
+            return [
+              [3500, "Driving to the store… vroom!", () => { finko.style.visibility = "hidden"; fx.insertAdjacentHTML("beforeend", `<text id="car" class="x-drive" x="${X.toFixed(0)}" y="${Y.toFixed(0)}" font-size="140" text-anchor="middle">🚗</text>`); }],
+              [3500, "Shopping… beep boop!", () => { fx.innerHTML = `<g class="x-show"><rect x="560" y="190" width="480" height="270" rx="24" fill="#fff" stroke="#c4c8cf" stroke-width="4" /><text x="800" y="320" font-size="96" text-anchor="middle">🏪</text><text x="800" y="410" font-size="36" fill="#3a3a3c" text-anchor="middle">${G.map((g) => g[0]).join(" ")} in the cart</text></g>`; }],
+              [4500, `Back with a bag! That was $${j.n}.`, () => { fx.innerHTML = ""; setRoom(0); X = 200; Z = 0.55; finko.style.visibility = ""; carry(["🛍️"]); goStep(1215, 0.15); cash(-j.n); }],
+              ...G.map(([e, n], i) => [3000, `Putting away the ${n}…`, () => {
+                if (!$("#fridge")) fx.insertAdjacentHTML("beforeend", `<g id="fridge">${FRIDGE}</g>`);
+                if (i === G.length - 1) carry();
+                fx.insertAdjacentHTML("beforeend", `<text class="x-show" x="${1150 + i * 65}" y="250" font-size="48" text-anchor="middle">${e}</text>`);
+              }, "load"]),
+            ];
+          } },
+          Work: { e: "💼", w: [[-1, 170, 0.55]], a: "wait", done: "Shift done! +$30", fx: "", go: (j) => {
+            const [pn, tc] = PIZZAS[(Math.random() * PIZZAS.length) | 0];
+            const pz = (s, o = 1) => { const g = $("#pz"); if (g) { g.style.transform = s; g.style.opacity = o; } };
+            const HOME = "translate(730px, 452px) scale(1, .5)";
+            const dots = Array.from({ length: 16 }, (_, i) => { const a = i * 2.4, r = 22 + ((i * 37) % 52); return `<circle class="x-show" cx="${(Math.cos(a) * r).toFixed(0)}" cy="${(Math.sin(a) * r).toFixed(0)}" r="${tc.length === 1 ? 13 : 9}" fill="${tc[i % tc.length]}" stroke="rgba(0,0,0,.15)" stroke-width="2" style="animation-delay:${(i * 0.12).toFixed(2)}s" />`; }).join("");
+            return [
+              [2000, "Off to work… vroom!", () => { finko.style.visibility = "hidden"; fx.insertAdjacentHTML("beforeend", `<text id="car" class="x-drive" x="${X.toFixed(0)}" y="${Y.toFixed(0)}" font-size="140" text-anchor="middle">🚗</text>`); }],
+              [2000, `Pizza cook time! Today: ${pn}.`, () => {
+                setRoom(0); X = 400; Z = 0.2; finko.style.visibility = ""; camHold = () => camAt(1.8, 760, 430);
+                fx.innerHTML = `<g><rect width="1600" height="560" fill="#f7e6c9" /><rect y="560" width="1600" height="340" fill="#eadfce" />${Array.from({ length: 16 }, (_, i) => `<rect x="${i * 100}" y="100" width="50" height="40" fill="#c0392b" />`).join("")}<rect x="530" y="150" width="460" height="80" rx="16" fill="#c0392b" stroke="#fff" stroke-width="5" /><text x="760" y="204" font-size="40" fill="#fff" text-anchor="middle">🍕 Finko's Pizzeria</text><path d="M990 545V370a105 105 0 0 1 210 0v175Z" fill="#b5613f" stroke="#8a4a30" stroke-width="5" /><rect x="1070" y="220" width="50" height="60" fill="#8a4a30" /><path d="M1035 545v-70a60 60 0 0 1 120 0v70Z" fill="#2a1a12" /><ellipse id="ovenGlow" cx="1095" cy="515" rx="52" ry="26" fill="#ff9f1c" opacity="0" /><rect x="510" y="470" width="440" height="180" rx="10" fill="#c9965f" stroke="#9a6b3e" stroke-width="4" /><rect x="495" y="452" width="470" height="26" rx="8" fill="#e9ecf0" stroke="#c4c8cf" stroke-width="3" /><g id="pz" class="x-pzmove" style="transform:${HOME}"></g></g>`;
+              }],
+              [3000, "Rolling the dough…", () => { $("#pz").innerHTML = '<circle r="12" fill="#f3d9a4" stroke="#d9b77a" stroke-width="6"><animate attributeName="r" from="12" to="110" dur="2.4s" begin="indefinite" fill="freeze" /></circle>'; $("#pz animate").beginElement?.(); }, "load"],
+              [3000, "Spreading the sauce…", () => $("#pz").insertAdjacentHTML("beforeend", '<circle class="x-show" r="94" fill="#c8392b" />'), "stir"],
+              [3000, "Sprinkling cheese…", () => $("#pz").insertAdjacentHTML("beforeend", '<circle class="x-show" r="86" fill="#f6d36b" opacity=".92" />'), "load"],
+              [3000, `Adding ${pn} toppings…`, () => $("#pz").insertAdjacentHTML("beforeend", dots), "load"],
+              [3000, "Into the oven… hot hot!", () => { pz("translate(1095px, 512px) scale(.42, .2)"); later(j, 800, () => { pz("translate(1095px, 512px) scale(.42, .2)", 0); $("#ovenGlow")?.setAttribute("opacity", ".9"); $("#ovenGlow")?.classList.add("x-pulse"); }); }],
+              [3000, `One ${pn} pizza, coming up!`, () => {
+                const g = $("#ovenGlow"); g?.setAttribute("opacity", "0"); g?.classList.remove("x-pulse");
+                pz(HOME); $("#pz").insertAdjacentHTML("beforeend", '<path d="M-110 0H110M0-110V110M-78-78L78 78M-78 78L78-78" stroke="#9a6b3e" stroke-width="5" />');
+                fx.insertAdjacentHTML("beforeend", up(700, 400, 12, 3, 'fill="#fff"'));
+                later(j, 2700, () => cash(30));
+              }, "wave"],
+            ];
+          } },
+        };
+        let job = null, rndOn = 0, rndT;
+        const later = (j, ms, f) => setTimeout(() => job === j && f(), ms);
+        let phoneEl = null, phoneT = [], armUp = 0;
+        const APPS = { "Fridge Chef": "🧑‍🍳", "Plant Doc": "🌿", "Magic Cursor": "✨", ClassView: "👀" };
+
+        let cam = { k: 1, tx: 0, ty: 0 };
+        const camTo = (k, tx, ty) => { cam = { k, tx, ty }; svg.style.transform = k === 1 ? "" : `translate(${(tx * 100).toFixed(2)}%, ${(ty * 100).toFixed(2)}%) scale(${k})`; };
+        const camAt = (k, x, y) => [k, clamp(0.5 - (k * x) / 1600, 1 - k, 0), clamp(0.5 - (k * y) / 900, 1 - k, 0)];
+        const finkoCam = (k) => camAt(k, X, Y - 300 * S);
+        let camHold = null;
+        const camRest = () => camTo(...(camHold ? camHold() : [1, 0, 0]));
+        const tvUI = (on) => { $("#tvBar").hidden = !on; $$(".x-tvoff").forEach((b) => (b.hidden = !on)); if (on) $("#tvTime").textContent = "00:00"; };
+        const tvOff = (msg) => {
+          const j = job; if (!j || j.k !== "TV" || !j.t0 || j.off) return;
+          const broke = typeof msg === "string";
+          j.off = 1; tvUI(0); camHold = () => camAt(2.2, 1230, 240);
+          later(j, 600, () => { $("#tvWhite")?.classList.add("x-tvw"); $("#tvScr")?.classList.add("x-tvoff-anim"); });
+          later(j, 2000, () => { setMood(broke ? "neutral" : "happy"); say(broke ? msg : "That was fun!", 2800); });
+          later(j, 3400, () => stopJob(1));
+        };
+        const phDur = (ms) => ms + 1000;
+        const closePhone = () => { phoneT.forEach(clearTimeout); phoneT = []; $("#cvPop")?.remove(); $("#miniPh")?.remove(); if (armUp) { armUp = 0; armR.removeAttribute("transform"); } phoneEl?.remove(); phoneEl = null; camRest(); };
+        const openPhone = (url, label, ms = 3500, tag = "") => {
+          closePhone();
+          const stage = $(".x-stage"), host = url.replace(/^https?:\/\//, "").replace(/\/$/, ""), k = 1.8;
+          camTo(...finkoCam(k));
+          armUp = now() + 500 + ms; armR.insertAdjacentHTML("beforeend", '<rect id="miniPh" x="104" y="-176" width="36" height="58" rx="7" fill="#1c1c1e" stroke="#8d9099" stroke-width="3" />');
+          say(`Opening ${label}…`, 500 + ms);
+          const p = (phoneEl = document.createElement("div"));
+          p.className = "x-phone"; p.setAttribute("role", "group"); p.setAttribute("aria-label", `${label} on Finko's phone`);
+          p.innerHTML = `<div class="x-phone__scr"><div class="x-phone__bar"><span aria-hidden="true">🔒</span><span class="x-phone__url">${host}</span></div><div class="x-phone__view"><p class="x-phone__fb"><span aria-hidden="true">${APPS[label] || "📱"}</span>${label}</p><span class="x-tap" aria-hidden="true"></span>${tag ? `<p class="x-phone__tag">${tag}</p>` : ""}</div></div><span class="x-phone__notch"></span>`;
+          const sh = $(`#shots [data-app="${label}"]`); if (sh) p.querySelector(".x-phone__fb").after(sh.cloneNode());
+          const W = stage.clientWidth, H = stage.clientHeight, s = Math.min(1, (H * 0.68) / 520), hw = 260 * s, hh = 260 * s;
+          const hx = (cam.tx + (k * (X + 170 * S)) / 1600) * W, hy = (cam.ty + (k * (Y - 300 * S)) / 900) * H;
+          p.style.left = clamp(hx, 8, W - hw - 8).toFixed(1) + "px"; p.style.top = clamp(hy, hh + 8, H - hh - 8).toFixed(1) + "px";
+          p.style.setProperty("--s", s.toFixed(3));
+          stage.appendChild(p);
+          phoneT.push(setTimeout(() => p.classList.add("is-up"), 500));
+          phoneT.push(setTimeout(() => { p.classList.remove("is-up"); $("#miniPh")?.remove(); camRest(); }, 500 + ms));
+          phoneT.push(setTimeout(() => { p.remove(); if (phoneEl === p) phoneEl = null; }, 1000 + ms));
+          return phDur(ms);
+        };
+        const fx = $("#fx"), prog = $("#prog"), progFill = $("#progFill");
+        const markT = () => $$("[data-t]").forEach((b) => b.setAttribute("aria-pressed", !!job && b.dataset.t === job.k));
+        const stopJob = (done) => { if (!job) return; if (!done) hush(); camHold = null; tvUI(0); closePhone(); carry(); finko.style.visibility = ""; if (goal && (goal.w || goal.q)) goal = null; if (!job.t0 && dest !== null) dest = null; if (job.t0) { act = null; armR.removeAttribute("transform"); } const wasNap = job.b != null; job = null; fx.innerHTML = ""; $("#fdesk")?.remove(); prog.hidden = true; progFill.style.width = "0"; finko.classList.remove("x-dim"); if (wasNap) setMood(low ? "sleepy" : "happy"); markT(); };
+        const step = () => {
+          const w = job.c.w[job.i++];
+          if (w) { const r = w[0] < 0 ? R : w[0]; job.w = { x: w[1], z: w[2], room: 1, w: 1 }; if (r === R) goal = job.w; else { dest = r; goal = null; } return; }
+          job.t0 = now(); fx.innerHTML = job.c.fx || ""; prog.hidden = false;
+          const j = job, L = j.c.go(j); let o = 0; j.D = L.reduce((s, x) => s + x[0], 0);
+          L.forEach(([ms, line, f, a]) => { later(j, o, () => { act = { n: a || j.c.a, until: now() + ms }; if (line) say(line, ms); if (f) f(); }); o += ms; });
+          if (job.k === "Sleep") { job.b = bat; finko.classList.add("x-dim"); setMood("sleepy"); }
+        };
+        const runTask = (k) => {
+          if (asleep) wake(); stopJob(); act = roll = null; armR.removeAttribute("transform");
+          const n = k === "Laundry" ? 12 : k === "Groceries" ? 6 + ((Math.random() * 9) | 0) : 0;
+          if (n > money) { flash("sad", 2500); return say("Not enough money! I need to work."); }
+          job = { k, c: TASKS[k], i: 0, n }; markT(); setMood("happy"); say(`${job.c.e} ${k}! On my way.`); step();
+        };
+        const rnd = () => { clearTimeout(rndT); if (rndOn) rndT = setTimeout(() => { if (rndOn && !job && !roll) { if (bat < 20) { charging = 1; say("Charging up first!"); } else { const k = Object.keys(TASKS).filter((n) => n !== "TV"); runTask(money < 20 && Math.random() < 0.8 ? "Work" : k[(Math.random() * k.length) | 0]); } } rnd(); }, 25000 + Math.random() * 10000); };
+        const setRnd = (on) => { rndOn = on; $("#rndBtn").setAttribute("aria-pressed", !!on); rnd(); if (on) say("I'll pick my own tasks!"); };
+        $("#tasks").insertAdjacentHTML("beforeend", Object.keys(TASKS).map((k) => `<button class="x-mood" type="button" data-t="${k}" aria-pressed="false">${TASKS[k].e} ${k}</button>`).join("") + '<button class="x-mood" type="button" id="rndBtn" aria-pressed="false">🎲 Random</button><button class="x-mood x-tvoff" type="button" hidden>📺 Turn off TV</button>');
+        $$(".x-tvoff").forEach((b) => b.addEventListener("click", tvOff));
+        $("#tasks").addEventListener("click", (e) => {
+          const b = e.target.closest("button"); if (!b || b.classList.contains("x-tvoff")) return;
+          b.id === "rndBtn" ? setRnd(!rndOn) : runTask(b.dataset.t); $("#tasks").classList.remove("x-pop");
+        });
+        $("#taskBtn").addEventListener("click", () => $("#tasks").classList.toggle("x-pop"));
+
+        const O = (name, emoji, shirt, pants, hat, skirt) => ({ name, emoji, shirt, pants, hat, skirt });
+        const OUTFITS = {
+          b: [O("Baseball", "🧢", "#ffffff", "#2c4a8a", "🧢", false), O("Superhero", "🦸", "#d6302f", "#1f3f99", "", false), O("Cowboy", "🤠", "#b5613f", "#3a5a8c", "", false), O("Prince", "👑", "#6b3fa0", "#f4f4f4", "👑", false), O("Astronaut", "🚀", "#f2f2f2", "#c7cad1", "", false),
+            O("Pirate", "🏴‍☠️", "#f4f4f4", "#2a2a2a", "🏴‍☠️", false), O("Hoodie", "🧥", "#7d8796", "#2b3a55", "", false), O("Soccer", "⚽", "#2f9e4f", "#ffffff", "", false), O("Basketball", "🏀", "#f28c28", "#1c1c1e", "", false), O("Graduate", "🎓", "#1c1c1e", "#3a3a3c", "🎓", false),
+            O("Chef", "👨‍🍳", "#ffffff", "#3a3a3c", "", false), O("Firefighter", "🚒", "#c0392b", "#f1c40f", "⛑️", false), O("Police", "👮", "#1f3f99", "#1c2a55", "", false), O("Wizard", "🧙", "#3b2a7a", "#2a1f5a", "", false), O("Karate", "🥋", "#ffffff", "#ffffff", "", false),
+            O("Football", "🏈", "#8a1c1c", "#f0e4c8", "", false), O("Gentleman", "🎩", "#1c1c1e", "#3a3a3c", "🎩", false), O("Cool dude", "😎", "#1c1c1e", "#4a6fa5", "🕶️", false), O("Surfer", "🏄", "#3cc2e0", "#f28c28", "", false), O("Scientist", "🧑‍🔬", "#ffffff", "#4a6fa5", "🥽", false),
+            O("Dino", "🦖", "#4cae4c", "#2f7a2f", "", false), O("Rock star", "🎸", "#1c1c1e", "#8a1c1c", "🕶️", false), O("Santa", "🎅", "#d6302f", "#d6302f", "", false), O("Soldier", "🪖", "#5a6b3a", "#4a5a30", "🪖", false), O("Diver", "🤿", "#1e88c8", "#1c1c1e", "🤿", false)],
+          g: [O("Princess", "👑", "#f7a8c8", "#f7a8c8", "👑", true), O("Party dress", "👗", "#e04a8a", "#e04a8a", "", true), O("Bow & skirt", "🎀", "#ffffff", "#f06aa0", "🎀", true), O("Ballet", "🩰", "#ffc4d6", "#ffd9e4", "", true), O("Fairy", "🧚", "#b9e3c6", "#9ad0f5", "✨", true),
+            O("Supergirl", "🦸‍♀️", "#1f3f99", "#d6302f", "", true), O("Mermaid", "🧜‍♀️", "#2fb3a8", "#6a4fc2", "🐚", true), O("Flower girl", "🌸", "#fff0f5", "#f7b6d2", "🌸", true), O("Beach", "🏖️", "#ffd23f", "#3cc2e0", "🕶️", false), O("Graduate", "🎓", "#1c1c1e", "#1c1c1e", "🎓", true),
+            O("Soccer", "⚽", "#e04a8a", "#ffffff", "", false), O("Cowgirl", "🤠", "#b5613f", "#3a5a8c", "", true), O("Hoodie", "🧥", "#c59be0", "#2b3a55", "", false), O("Astronaut", "👩‍🚀", "#f2f2f2", "#c7cad1", "", false), O("Chef", "👩‍🍳", "#ffffff", "#3a3a3c", "", false),
+            O("Pop star", "🎤", "#9b59b6", "#1c1c1e", "🕶️", true), O("Witch", "🧙‍♀️", "#3b2a7a", "#1c1c1e", "", true), O("Rainbow", "🌈", "#ff7f50", "#7d87ee", "🌈", true), O("Skater", "⛸️", "#6ec6ff", "#ffffff", "", true), O("Pirate", "🏴‍☠️", "#f4f4f4", "#8a1c1c", "🏴‍☠️", true),
+            O("Sunflower", "🌻", "#ffd23f", "#4cae4c", "🌻", true), O("Artist", "🎨", "#ffffff", "#4a6fa5", "", false), O("Snow queen", "❄️", "#bfe6ff", "#8fc8f0", "👑", true), O("Tennis", "🎾", "#ffffff", "#ffffff", "🧢", true), O("Strawberry", "🍓", "#e8384f", "#4cae4c", "🍓", true)],
+        };
+        let ctab = "b", worn = store.get("finkoOutfit") || "";
+        const wear = (id, talk) => {
+          const o = id && OUTFITS[id[0]] && OUTFITS[id[0]][+id.slice(1)]; worn = o ? id : "";
+          store.set("finkoOutfit", worn);
+          $("#torso").setAttribute("fill", o ? o.shirt : "#dcdee3");
+          $("#lower").setAttribute("d", !o ? "" : o.skirt ? "M-91-118H91L120-56H-120Z" : "M-91-118H91L86-70H10L0-90L-10-70H-86Z");
+          $("#lower").setAttribute("fill", o ? o.pants : "none");
+          $("#hat").textContent = o ? o.hat : "";
+          if (talk) { setMood("happy"); say(o ? `${o.name} outfit on!` : "Back to my robot look!"); }
+          drawCloset();
+        };
+        const drawCloset = () => {
+          $$("#closet [role=tab]").forEach((t) => t.setAttribute("aria-selected", t.dataset.c === ctab));
+          $("#cgrid").innerHTML = `<button class="x-tile" type="button" data-o="" aria-pressed="${!worn}"><b>🚫</b>No outfit</button>` + OUTFITS[ctab].map((o, i) => `<button class="x-tile" type="button" data-o="${ctab}${i}" aria-pressed="${worn === ctab + i}"><b>${o.emoji}</b>${o.name}</button>`).join("");
+        };
+        const openCloset = (on) => { $("#closet").hidden = !on; if (on) drawCloset(); };
+        $("#closetBtn").addEventListener("click", () => openCloset($("#closet").hidden));
+        $("#closetX").addEventListener("click", () => openCloset(false));
+        $("#closet").addEventListener("click", (e) => {
+          const t = e.target.closest("[data-c]"), b = e.target.closest("[data-o]");
+          if (t) { ctab = t.dataset.c; drawCloset(); } else if (b) wear(b.dataset.o, true);
+        });
+        try { wear(worn); } catch (e) { console.warn("Outfit restore skipped", e); }
+
+        const JOKES = ["Why did the robot go on vacation? To recharge his batteries!", "What do robots eat for snacks? Microchips!", "Why was the robot so tired? He had a hard drive!"];
+        const offline = (q) => {
+          if (/how are you/.test(q)) return [low ? "A little sleepy… my battery is low." : "Fully charged and happy!", low ? "sleepy" : "happy"];
+          if (/\b(hi|hello|hey)\b/.test(q)) return ["Hi friend! Beep beep!", "happy"];
+          if (/name/.test(q)) return ["I'm Finko!", "happy"];
+          if (/joke/.test(q)) return [JOKES[joke++ % 3], "happy"];
+          if (/dance/.test(q)) { doAct("dance", 3200); return ["Watch my moves!", "happy"]; }
+          if (/sleep/.test(q)) { setTimeout(sleep); return ["Time for a nap… zzz", "sleepy"]; }
+          if (/love|good boy/.test(q)) return ["I love you too!", "love"];
+          if (/sad/.test(q)) return ["Oh no… I'm right here with you. Want a hug?", "sad"];
+          return ["Beep boop? Tell me more!", "curious"];
+        };
+        const SYS = "You are Finko, a cheerful WALL-E style robot pet for kids. Reply in 1-2 short kind sentences, then one tag [happy|neutral|curious|surprised|sleepy|love|sad].";
+        const ask = async (q) => {
+          const key = $("#key").value.trim();
+          if (key) try {
+            say("…", 20000);
+            const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + encodeURIComponent(key), {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ systemInstruction: { parts: [{ text: SYS }] }, contents: [{ role: "user", parts: [{ text: q }] }], generationConfig: { thinkingConfig: { thinkingLevel: "minimal" } } }),
+            });
+            if (!r.ok) throw r.status;
+            const txt = (await r.json()).candidates[0].content.parts.map((p) => p.text || "").join("");
+            const tag = txt.match(/\[(happy|neutral|curious|surprised|sleepy|love|sad)\]/i), reply = txt.replace(/\[[^\]]*\]/g, "").trim();
+            if (reply) return [reply, tag ? tag[1].toLowerCase() : "happy"];
+          } catch (e) {}
+          return offline(q.toLowerCase());
+        };
+        $("#chat").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const q = $("#msg").value.trim(); if (!q) return;
+          $("#msg").value = ""; if (asleep) wake();
+          const g = q.toLowerCase().match(/go to (?:the )?(kitchen|living ?room|bedroom|laundry)/);
+          if (g) { setMood("happy"); return goTo(ROOMS.findIndex((n) => n.toLowerCase().replace(" ", "").startsWith(g[1].replace(" ", "").slice(0, 4)))); }
+          if (/\b(closet|clothes|outfits?)\b/i.test(q)) { openCloset(true); setMood("happy"); return say("Let's pick an outfit!"); }
+          const tk = q.toLowerCase().match(/\b(cook|sleep|bed|laundry|homework|groceries|shopping|garden|plants|school|class|random|tv|watch|work|job)\b/);
+          if (tk) return tk[1] === "random" ? setRnd(!rndOn) : runTask({ work: "Work", job: "Work", tv: "TV", watch: "TV", school: "School", class: "School", cook: "Cook", sleep: "Sleep", bed: "Sleep", laundry: "Laundry", homework: "Homework", garden: "Garden", plants: "Garden", groceries: "Groceries", shopping: "Groceries" }[tk[1]]);
+          const [reply, emo] = await ask(q);
+          setMood(emo); say(reply);
+        });
+
+        function frame(t) {
+          const dt = Math.min(50, t - (last || t)) / 16.67; last = t;
+          let dx = (keys.r || 0) - (keys.l || 0), dz = (keys.d || 0) - (keys.u || 0);
+          const manual = dx || dz;
+          if (manual) { goal = dest = null; stopJob(); }
+          if (dest === R) { dest = null; goal = job && job.w ? job.w : { x: 800, z: 0.55, room: 1 }; }
+          if (asleep) dx = dz = 0;
+          else if (dest !== null) { dx = dest > R ? 1 : -1; dz = clamp((0.55 - Z) / 0.05, -1, 1) * 0.5; }
+          else if (goal) {
+            dx = clamp((goal.x - X) / 30, -1, 1); dz = clamp((goal.z - Z) / 0.05, -1, 1);
+            if (Math.abs(goal.x - X) < 6 && Math.abs(goal.z - Z) < 0.01) {
+              dx = dz = 0; setMood("happy"); const g = goal; goal = null;
+              if (g.w) { if (job) step(); } else if (g.q) {} else if (g.room) say(`Here's the ${ROOMS[R].toLowerCase()}!`); else { $("#fetched").textContent = `Fetched: ${++fetched}`; say("Got it! Beep beep!"); }
+            }
+          }
+          const moving = dx || dz, sp = (low ? 0.5 : 1) * (manual ? 1 : 0.6);
+          if (roll) {
+            const p = Math.min(1, (t - roll.t0) / 1000), e = 1 - (1 - p) ** 3, nx = roll.x0 + (roll.x1 - roll.x0) * e;
+            rot += ((nx - qx) / 38) * 57.3; qx = nx; qz = roll.z0 + (roll.z1 - roll.z0) * e;
+            if (p === 1) {
+              roll = null;
+              if (R === ballR) {
+              const s = 0.5 + 0.55 * qz, side = X < qx ? -1 : 1, off = 150 * s + 50;
+              let gx = qx + side * off; if (gx < 150 * s || gx > 1600 - 150 * s) gx = qx - side * off;
+              goal = { x: gx, z: qz };
+            } }
+          }
+          if (moving) bat = Math.max(0, bat - 0.012 * dt);
+          const chg = (charging || (R === 1 && Math.abs(X - 330) < 110 && Math.abs(Z - 0.346) < 0.12)) && bat < 100;
+          if (chg) bat = Math.min(100, bat + 0.4 * dt); else charging = 0;
+          if (bat < 20 && !low) { low = 1; setMood("sleepy"); say("Low battery… so sleepy."); }
+          if (bat >= 20 && low) { low = 0; if (!asleep && !(job && job.b != null)) setMood("happy"); }
+          finko.classList.toggle("x-glow", chg);
+          $("#padGlow").setAttribute("opacity", chg ? (0.5 + 0.4 * Math.sin(t / 200)).toFixed(2) : 0);
+          batFill.style.width = bat.toFixed(1) + "%";
+          batFill.parentNode.classList.toggle("is-low", !!low); batFill.parentNode.classList.toggle("is-chg", chg);
+          $("#batTxt").textContent = `${Math.round(bat)}%`;
+          if (job && job.t0) {
+            const p = Math.min(1, (t - job.t0) / job.D); progFill.style.width = (p * 100).toFixed(1) + "%";
+            if (job.b != null) bat = Math.max(bat, job.b + (100 - job.b) * p);
+            if (p === 1) { const d = job.d || job.c.done, sc = job.k === "School"; stopJob(1); setMood("happy"); if (!sc) say(d); }
+          }
+          if (act && t > act.until) { act = null; armR.removeAttribute("transform"); }
+          const an = act && act.n;
+          let nz = Z + dz * 0.012 * dt * sp;
+          const bz = nz < 0 || nz > 1; Z = Math.max(0, Math.min(1, nz));
+          S = 0.5 + 0.55 * Z; Y = 600 + 260 * Z;
+          const lim = 150 * S;
+          let nx = X + dx * 7 * dt * sp, bx = 0;
+          if (dx > 0 && nx > 1600 - lim && R < 3) { setRoom(R + 1); nx = lim + 2; }
+          else if (dx < 0 && nx < lim && R > 0) { setRoom(R - 1); nx = 1600 - lim - 2; }
+          else bx = nx < lim || nx > 1600 - lim;
+          X = clamp(nx, lim, 1600 - lim);
+          const task = job ? `${job.c.e} ${job.k}${job.t0 ? "" : " · on the way"}` : asleep ? "Sleeping" : chg ? "Charging" : dest !== null ? `Driving to ${ROOMS[dest]}` : goal ? (goal.room ? `Driving to ${ROOMS[R]}` : "Fetching the ball") : roll ? "Watching the ball" : an === "dance" ? "Dancing" : an === "wave" ? "Waving" : moving ? "Driving" : "Idle";
+          if (task !== tasks) $("#taskTxt").textContent = tasks = task;
+          if ((bx || bz) && manual && t > bumpT) { bumpT = t + 1400; flash("surprised", 900); }
+          const extra = an === "dance" ? Math.sin(t / 110) * 10 : an === "wiggle" ? Math.sin(t / 60) * 8 : 0, hy = an === "dance" ? -Math.abs(Math.sin(t / 160)) * 24 * S : 0;
+          tilt += ((dx * 6 + (dz ? Math.sin(t / 90) * 2.5 : 0) + extra) - tilt) * 0.2;
+          if (an === "wave" || an === "dance" || an === "stir" || an === "write" || an === "chop" || an === "load") armR.setAttribute("transform", `rotate(${(an === "wave" ? -150 + Math.sin(t / 110) * 25 : an === "stir" ? -70 + Math.sin(t / 120) * 22 : an === "write" ? -35 + Math.sin(t / 45) * 8 : an === "chop" ? -50 + Math.sin(t / 45) * 18 : an === "load" ? -95 + Math.sin(t / 160) * 30 : -60 + Math.sin(t / 110) * 40).toFixed(1)} 122 -212)`);
+          if (t < armUp) armR.setAttribute("transform", "rotate(-150 122 -212)");
+          if (an === "dance" && t > noteT) {
+            noteT = t + 450;
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.setAttribute("transform", `translate(${X + (Math.random() - 0.5) * 260 * S} ${Y - 430 * S}) scale(${S})`); g.setAttribute("pointer-events", "none");
+            g.innerHTML = '<text class="x-heart" font-size="64" fill="#4f5bd5">♪</text>'; svg.appendChild(g); setTimeout(() => g.remove(), 1600);
+          }
+          if (!asleep && !job && !act && !goal && !roll && !moving && t - lastIn > 10000) {
+            lastIn = t;
+            Math.random() < 0.5 ? doAct("look", 2500) : doAct("wiggle", 1200);
+          }
+          const md = t < talkUntil && (t / 110 | 0) % 2 ? OPEN : cur.m;
+          if (mouth.getAttribute("d") !== md) { mouth.setAttribute("d", md); mouth.setAttribute("fill", md === OPEN || cur.f ? "rgb(255,195,210)" : "none"); }
+          if (camHold && !phoneEl) { const c = camHold(); if (c[0] !== cam.k || Math.abs(c[1] - cam.tx) + Math.abs(c[2] - cam.ty) > 0.003) camTo(...c); }
+          if (job && job.k === "TV" && job.t0 && !job.off) { const s = ((t - job.t0) / 1000) | 0, tv = `${String((s / 60) | 0).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; if ($("#tvTime").textContent !== tv) $("#tvTime").textContent = tv; if (t - job.t0 >= ((job.pd || 0) + 1) * 2000) { job.pd = (job.pd || 0) + 1; cash(-1); if (money <= 0) tvOff("Out of money! Time to work."); } }
+          if (!bubble.hidden) {
+            if (t > bubbleUntil) bubble.hidden = true;
+            else { bubble.style.left = cam.tx * 100 + (cam.k * X) / 16 + "%"; bubble.style.top = Math.max(12, cam.ty * 100 + (cam.k * (Y + hy - 470 * S)) / 9) + "%"; }
+          }
+          if (!tbub.hidden) {
+            if (t > tbUntil || !job || job.k !== "School") tbub.hidden = true;
+            else { tbub.style.left = cam.tx * 100 + (cam.k * 200) / 16 + "%"; tbub.style.top = Math.max(12, cam.ty * 100 + (cam.k * 375) / 9) + "%"; }
+          }
+          ball.setAttribute("transform", `translate(${qx.toFixed(1)} ${(600 + 260 * qz).toFixed(1)}) scale(${((0.5 + 0.55 * qz) / 0.838).toFixed(3)})`);
+          $("#spin").setAttribute("transform", `rotate(${rot.toFixed(1)})`);
+          Y += hy;
+          if (moving) { off = (off + 2.5 * dt) % 16; tread.setAttribute("patternTransform", `translate(0 ${off})`); }
+          if (Math.abs(tilt) < 0.01) tilt = 0;
+          const ft = `translate(${X.toFixed(1)} ${Y.toFixed(1)}) scale(${S.toFixed(3)})`, tt = `rotate(${tilt.toFixed(2)})`;
+          if (finko.getAttribute("transform") !== ft) finko.setAttribute("transform", ft);
+          if (tiltG.getAttribute("transform") !== tt) tiltG.setAttribute("transform", tt);
+          if ((Z < qz) !== (finko.nextElementSibling === ball)) Z < qz ? svg.insertBefore(finko, ball) : svg.insertBefore(finko, ball.nextSibling);
+          let gx = 0, gy = 0;
+          if (phoneEl) { gx = 7; gy = 8; }
+          else if (job && job.k === "TV" && job.t0) { gx = 8; gy = -7; }
+          else if (job && job.k === "School" && job.t0) { gx = -8; gy = -6; }
+          else if (an === "look") { gx = Math.sin(t / 350) * 9; gy = -3; }
+          else if (mouse) {
+            const ddx = mouse.x - X, ddy = mouse.y - (Y - 345 * S), d = Math.hypot(ddx, ddy) || 1, k = Math.min(1, d / 260) * 9;
+            gx = (ddx / d) * k; gy = (ddy / d) * k;
+          }
+          $$(".look").forEach((l) => l.setAttribute("transform", `translate(${gx.toFixed(1)} ${gy.toFixed(1)})`));
+          const lid = Math.max(t < blinkUntil ? 1 : 0, cur.l || 0) * 64;
+          $$(".lid").forEach((r) => r.setAttribute("height", lid));
+          requestAnimationFrame(frame);
+        }
+        setMood("happy"); setRoom(1);
+        requestAnimationFrame(frame);
+      })();
+    </script>
+  <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-finko/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("fk_seen")){localStorage.setItem("fk_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
+</body>
+</html>
