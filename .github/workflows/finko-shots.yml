@@ -1,0 +1,36 @@
+name: Finko phone screenshots
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/finko-shots.yml"]
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - name: Shoot
+        shell: python
+        run: |
+          import os
+          from playwright.sync_api import sync_playwright
+          os.makedirs("videos/finko-shots", exist_ok=True)
+          apps = ["fridgechef", "plantdoc", "magiccursor", "classview"]
+          with sync_playwright() as p:
+              b = p.chromium.launch()
+              for a in apps:
+                  pg = b.new_page(viewport={"width": 390, "height": 780}, device_scale_factor=2, color_scheme="light", is_mobile=True)
+                  pg.goto(f"https://praveenp-works.github.io/yathin_apps/{a}/", wait_until="networkidle")
+                  pg.wait_for_timeout(3000)
+                  pg.screenshot(path=f"videos/finko-shots/{a}.jpg", type="jpeg", quality=82)
+              b.close()
+      - run: |
+          git config user.name praveenp-works
+          git config user.email praveenp-works@users.noreply.github.com
+          git add videos/finko-shots
+          git commit -m "Finko phone screenshots [skip ci]" || exit 0
+          git pull --rebase && git push
