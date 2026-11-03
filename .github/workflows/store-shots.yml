@@ -1,0 +1,56 @@
+name: Store screenshots (all apps)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - name: Shoot
+        shell: python
+        run: |
+          import os, http.server, threading, functools
+          from playwright.sync_api import sync_playwright
+          h = functools.partial(http.server.SimpleHTTPRequestHandler, directory=".")
+          s = http.server.ThreadingHTTPServer(("127.0.0.1", 8765), h)
+          threading.Thread(target=s.serve_forever, daemon=True).start()
+          os.makedirs("shots", exist_ok=True)
+          hide = "[data-dl],.x-navdl,.ya-dl,#who,#video{display:none!important}"
+          def shoot(pg, name):
+              pg.screenshot(path=f"shots/{name}.png")
+          with sync_playwright() as p:
+              b = p.chromium.launch()
+              def page(path, wait=3000):
+                  pg = b.new_page(viewport={"width": 1920, "height": 1080})
+                  pg.goto("http://127.0.0.1:8765/" + path, wait_until="networkidle")
+                  pg.add_style_tag(content=hide)
+                  pg.wait_for_timeout(wait)
+                  return pg
+              # Finko
+              pg = page("finko/index.html", 5000); shoot(pg, "finko-1")
+              pg.wait_for_timeout(9000); shoot(pg, "finko-2")
+              pg.wait_for_timeout(12000); shoot(pg, "finko-3")
+              # Plant Doc (127.0.0.1 = app mode)
+              pg = page("plantdoc/index.html", 4000); shoot(pg, "plantdoc-1")
+              pg.mouse.wheel(0, 900); pg.wait_for_timeout(1200); shoot(pg, "plantdoc-2")
+              # ClassView
+              pg = page("classview/index.html", 2500); shoot(pg, "classview-1")
+              try:
+                  pg.get_by_text("Try demo mode").first.click(); pg.wait_for_timeout(3500); shoot(pg, "classview-2")
+                  pg.mouse.wheel(0, 700); pg.wait_for_timeout(1200); shoot(pg, "classview-3")
+              except Exception as ex: print("classview demo", ex)
+              # Magic Cursor site
+              pg = page("magiccursor/index.html", 2500); shoot(pg, "magiccursor-1")
+              pg.mouse.wheel(0, 1000); pg.wait_for_timeout(1200); shoot(pg, "magiccursor-2")
+              pg.mouse.wheel(0, 1000); pg.wait_for_timeout(1200); shoot(pg, "magiccursor-3")
+              b.close()
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete store-shots --yes --cleanup-tag || true
+          gh release create store-shots shots/*.png --title "Store screenshots" --notes "Screenshots for Microsoft Store listings. Created by Yathin Pedamallu." --latest=false
