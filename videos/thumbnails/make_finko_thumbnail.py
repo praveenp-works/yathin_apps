@@ -6,6 +6,7 @@ def bgsky(W,H,cx,cy):
     import colorsys
     y,x=np.mgrid[0:H,0:W]; dx=(x-cx)/W; dy=(y-cy)/W; r=np.sqrt(dx*dx+dy*dy); ang=np.arctan2(dy,dx)
     hue=((ang/(2*np.pi))+1-0.17)%1
+    hue=(hue-0.10*np.sin(2*np.pi*(hue-0.6)))%1   # widen the blue band
     hsv=np.stack([hue,np.full_like(hue,.78),np.full_like(hue,.98)],-1)
     rgb=np.vectorize(lambda h:0)(hue[:1,:1])  # placeholder
     h6=hue*6; i=np.floor(h6).astype(int)%6; f=h6-np.floor(h6); v=.98; s_=.72
