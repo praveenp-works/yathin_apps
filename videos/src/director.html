@@ -159,6 +159,42 @@ const SCRIPTS = {
    {end:true, say:"Yathin Apps. Free, all in one place."}
   ]},
 
+ "finko-vertical": { vertical:true, bg:"linear-gradient(180deg,#0ea5e9 0%,#38bdf8 18%,#22d3ee 32%,#a5f3fc 46%,#f4f4f4 56%,#ffffff 100%)", btn:"linear-gradient(90deg,#38bdf8,#facc15)",
+  voice:"en-US-AvaNeural", rate:"+10%",
+  icon:"/finko/finko_icon.png", title:"Virtual Finko", tag:"A robot pet you can play with",
+  chips:["100% free","Plays in your browser","Made by Yathin"], foot:"praveenp-works.github.io/yathin_apps/finko",
+  scenes:[
+   {hook:["A robot pet","that goes to","SCHOOL?!"], strike:false, say:"A robot pet that goes to school?"},
+   {tb:["/finko/finko_icon.png","Virtual Finko"], say:"Meet Virtual Finko. He talks, he jokes, and he never stops chatting.", pill:"Meet Finko: a robot pet who talks", html:`
+     <div style="display:flex;flex-direction:column;align-items:center;padding-top:60px">
+      <div class="card hide" id="bub" style="font-size:52px;font-weight:700;padding:30px 44px;border-radius:40px;position:relative;box-shadow:inset 0 0 0 3px #38bdf8">Hi! I'm Finko! 👋</div>
+      <div id="fk" style="margin-top:60px;width:520px;height:520px;border-radius:70px;background:linear-gradient(180deg,#ffffff,#000000);display:flex;align-items:center;justify-content:center;font-size:330px">🤖</div>
+      <div class="card hide" id="bub2" style="margin-top:60px;font-size:40px;font-weight:600;padding:24px 36px;border-radius:34px">Want to hear a joke? 😄</div></div>`,
+    run: async () => { const f=q("#fk"); f.animate([{transform:"rotate(-7deg)"},{transform:"rotate(7deg)"}],{duration:450,iterations:14,direction:"alternate"}); await sleep(300); q("#bub").classList.add("popin"); await sleep(1600); q("#bub2").classList.add("popin"); }},
+   {tb:["/finko/finko_icon.png","Planet class"], say:"At school, the teacher asks a question, and Finko raises his hand to answer.", pill:"Planet class: Finko raises his hand", html:`
+     <div style="background:#1f5136;border-radius:26px;padding:40px;box-shadow:inset 0 0 0 10px #8b5e34">
+      <div style="font-size:34px;color:#d1fae5">Lesson 4 · Planets</div>
+      <div style="font-size:120px;margin:20px 0">🪐</div>
+      <div style="font-size:56px;font-weight:700">Which planet has the biggest rings?</div></div>
+     <div style="display:flex;align-items:center;gap:40px;margin-top:70px">
+      <div style="position:relative;width:300px;height:300px;border-radius:50px;background:linear-gradient(180deg,#ffffff,#000000);display:flex;align-items:center;justify-content:center;font-size:190px">🤖<div id="hand" style="position:absolute;right:-40px;top:20px;font-size:110px;opacity:0;transform:translateY(60px);transition:all .4s">✋</div></div>
+      <div class="card hide" id="ans" style="font-size:64px;font-weight:800;padding:30px 44px;box-shadow:inset 0 0 0 3px #facc15">Saturn! 🪐</div></div>`,
+    run: async () => { await sleep(1500); const h=q("#hand"); h.style.opacity=1; h.style.transform="none"; await sleep(1100); q("#ans").classList.add("popin"); }},
+   {tb:["/finko/finko_icon.png","Pizzeria"], say:"He works pizza shifts to earn money,", pill:"Work a pizza shift: +$30", html:`
+     <div style="text-align:center;padding-top:50px"><div style="font-size:240px" id="pz">🍕</div>
+      <div class="muted" style="font-size:40px;margin-top:20px">Finko's wallet</div>
+      <div style="font-size:190px;font-weight:800;line-height:1.1">$<span id="mn">100</span></div>
+      <div class="chip hide" id="plus" style="font-size:52px;background:#14532d;color:#86efac;margin-top:30px">+$30 shift done ✓</div></div>`,
+    run: async () => { q("#pz").animate([{transform:"rotate(0)"},{transform:"rotate(360deg)"}],{duration:1600}); await sleep(500); const el=q("#mn"), t0=performance.now(); while(true){ const k=Math.min(1,(performance.now()-t0)/1200); el.textContent=100+Math.round(30*k); if(k>=1)break; await sleep(30);} q("#plus").classList.add("popin"); }},
+   {tb:["/finko/finko_icon.png","Finko's home"], say:"then cooks a veggie dinner and picks an outfit from his closet.", pill:"Cook dinner, then dress up", html:`
+     <div class="h">Dinner tonight</div>
+     ${[["🍲","Paneer Curry","Paneer, peas, rice"],["🍕","Veggie Pizza","Peppers, olives"]].map(r=>`<div class="card hide t" style="display:flex;align-items:center;gap:30px;margin-bottom:26px;padding:30px"><div style="font-size:100px">${r[0]}</div><div><div style="font-size:46px;font-weight:700">${r[1]}</div><div class="muted" style="font-size:30px">${r[2]}</div></div></div>`).join("")}
+     <div class="h" style="margin-top:50px">Closet</div>
+     <div style="display:flex;gap:24px">${["🧢","👕","🕶️","🎩"].map(e=>`<div class="card hide t" style="flex:1;text-align:center;font-size:110px;padding:30px 0">${e}</div>`).join("")}</div>`,
+    run: async () => { await sleep(150); await popAll(".t",320); }},
+   {end:true, say:"Virtual Finko. Free on Yathin Apps."}
+  ]},
+
  yathin: { bg:"linear-gradient(135deg,#0f766e 0%,#15803d 30%,#ca8a04 65%,#e07a1f 100%)", btn:"linear-gradient(90deg,#14b8a6,#22c55e,#f59e0b)",
   voice:"en-US-JennyNeural", rate:"-4%",
   icon:"/yathinapps_hero.jpg", icons:["/magiccursor/logo.png","/classview/classview_icon.png","/plantdoc/plantdoc_icon.png","/fridgechef/fridgechef_icon.png","/finko/finko_icon.png"],
