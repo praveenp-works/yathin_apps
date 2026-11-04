@@ -3,11 +3,18 @@ import numpy as np
 src=open('thumbnails/make_yathin_thumbnail.py').read().split('# ---- wide')[0]
 exec(src)
 def bgsky(W,H,cx,cy):
-    y,x=np.mgrid[0:H,0:W]; dx=(x-cx)/W; dy=(y-cy)/W; r=np.sqrt(dx*dx+dy*dy)
-    stops=[(0,(255,244,120)),(.2,(255,214,40)),(.42,(80,210,250)),(.75,(14,150,235)),(1,(10,110,210))]
-    out=np.zeros((H,W,3))
-    for c in range(3): out[...,c]=np.interp(r,[s[0] for s in stops],[s[1][c] for s in stops])
-    ang=np.arctan2(dy,dx); rays=(np.sin(ang*16)>0.55)*np.clip(1-r*1.1,0,1)*40
+    import colorsys
+    y,x=np.mgrid[0:H,0:W]; dx=(x-cx)/W; dy=(y-cy)/W; r=np.sqrt(dx*dx+dy*dy); ang=np.arctan2(dy,dx)
+    hue=((ang/(2*np.pi))+1-0.17)%1
+    hsv=np.stack([hue,np.full_like(hue,.78),np.full_like(hue,.98)],-1)
+    rgb=np.vectorize(lambda h:0)(hue[:1,:1])  # placeholder
+    h6=hue*6; i=np.floor(h6).astype(int)%6; f=h6-np.floor(h6); v=.98; s_=.72
+    p_=v*(1-s_); q_=v*(1-s_*f); t_=v*(1-s_*(1-f))
+    R=np.choose(i,[v,q_,p_,p_,t_,v]); G=np.choose(i,[t_,v,v,q_,p_,p_]); B=np.choose(i,[p_,p_,t_,v,v,q_])
+    out=np.stack([R,G,B],-1)*255
+    c=np.clip(1-r*2.6,0,1)[...,None]; out=out*(1-c)+np.array([255,246,170])*c   # warm glow centre
+    e=np.clip((r-.6)*1.2,0,.2)[...,None]; out=out*(1-e)                          # gentle darker edges
+    rays=(np.sin(ang*16)>0.55)*np.clip(1-r*1.1,0,1)*35
     return Image.fromarray(np.clip(out+rays[...,None],0,255).astype('uint8')).convert('RGBA')
 bg=bgsky(1080,1920,540,1200); d=ImageDraw.Draw(bg)
 fa=ImageFont.truetype(F,120); fb=ImageFont.truetype(F,188)
