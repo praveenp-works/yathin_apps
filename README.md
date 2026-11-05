@@ -1,4 +1,4 @@
-# Yathin Apps
+# Yathin Labs
 
 Free apps by **Yathin Pedamallu**, powered by Google Gemini.
 

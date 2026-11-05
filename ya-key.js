@@ -1,4 +1,4 @@
-/* Yathin Apps: one Gemini API key for every app, saved on this device only */
+/* Yathin Labs: one Gemini API key for every app, saved on this device only */
 (function () {
   var K = "ya-gemini-key", OLD = ["plantdoc-key", "fridgechef-key"];
   function get() { try { return localStorage.getItem(K) || OLD.map(function (k) { return localStorage.getItem(k); }).filter(Boolean)[0] || ""; } catch (e) { return ""; } }
