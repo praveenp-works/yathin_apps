@@ -1,4 +1,4 @@
-/* Yathin Labs: "Download" in the top bar -> sign in -> download. Created by Yathin Pedamallu. */
+/* Yathin Looops: "Download" in the top bar -> sign in -> download. Created by Yathin Pedamallu. */
 (function () {
   var me = document.currentScript;
   var APP = me.getAttribute("data-app"), URL = me.getAttribute("data-url"), ICON = me.getAttribute("data-icon") || "";
