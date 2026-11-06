@@ -1,0 +1,67 @@
+name: Build Android APKs
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["android/**", "fridgechef/**", ".github/workflows/android-apk.yml"]
+permissions:
+  contents: write
+concurrency: android-apk
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - app: fridgechef
+            name: Fridge Chef
+            file: FridgeChef
+            id: com.yathinlooops.fridgechef
+            icon: fridgechef/fridgechef_icon.png
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.9" }
+      - name: Signing key (made once, kept in repo)
+        run: |
+          if [ ! -f android/yathin.keystore ]; then
+            keytool -genkeypair -v -keystore android/yathin.keystore -storepass yathinlooops -keypass yathinlooops -alias yathin -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Yathin Looops, O=Yathin Looops, C=US"
+            git config user.name praveenp-works; git config user.email praveenp-works@users.noreply.github.com
+            git add android/yathin.keystore; git commit -m "Android signing key [skip ci]"; git pull --rebase -q; git push
+          fi
+      - name: Stage web files and icon
+        run: |
+          A=android/app/src/main
+          rm -rf $A/assets && mkdir -p $A/assets/web/${{ matrix.app }}
+          cp -r ${{ matrix.app }}/* $A/assets/web/${{ matrix.app }}/
+          cp ya-key.js $A/assets/web/ 2>/dev/null || true
+          rm -f $A/assets/web/${{ matrix.app }}/sw.js
+          python3 -m pip install -q pillow
+          python3 - <<'PY'
+          from PIL import Image
+          import os
+          im = Image.open("${{ matrix.icon }}").convert("RGBA")
+          for d, n in {"mdpi":48,"hdpi":72,"xhdpi":96,"xxhdpi":144,"xxxhdpi":192}.items():
+              p = f"android/app/src/main/res/mipmap-{d}"; os.makedirs(p, exist_ok=True)
+              im.resize((n, n), Image.LANCZOS).save(p + "/ic_launcher.png")
+          PY
+      - name: Build APK
+        working-directory: android
+        env:
+          APP_ID: ${{ matrix.id }}
+          APP_NAME: ${{ matrix.name }}
+          APP_START: ${{ matrix.app }}/index.html
+          VCODE: ${{ github.run_number }}
+        run: gradle --no-daemon assembleRelease
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk ${{ matrix.file }}.apk
+          gh release delete ${{ matrix.app }}-android --yes --cleanup-tag || true
+          gh release create ${{ matrix.app }}-android ${{ matrix.file }}.apk --title "${{ matrix.name }} for Android" --notes "${{ matrix.name }} for Android phones (.apk). Turn on 'install unknown apps' to install. Created by Yathin Pedamallu." --latest=false

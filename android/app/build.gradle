@@ -1,0 +1,29 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.yathinlooops.app'
+    compileSdk 34
+    defaultConfig {
+        applicationId System.getenv("APP_ID") ?: "com.yathinlooops.app"
+        minSdk 24
+        targetSdk 34
+        versionCode((System.getenv("VCODE") ?: "1") as int)
+        versionName "1." + (System.getenv("VCODE") ?: "1")
+        resValue "string", "app_name", System.getenv("APP_NAME") ?: "Yathin App"
+        buildConfigField "String", "START", "\"" + (System.getenv("APP_START") ?: "index.html") + "\""
+    }
+    buildFeatures { buildConfig true }
+    signingConfigs {
+        rel {
+            storeFile file("../yathin.keystore")
+            storePassword "yathinlooops"
+            keyAlias "yathin"
+            keyPassword "yathinlooops"
+        }
+    }
+    buildTypes { release { minifyEnabled false; signingConfig signingConfigs.rel } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+    implementation 'androidx.core:core:1.13.1'
+}
