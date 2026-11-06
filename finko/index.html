@@ -126,7 +126,7 @@
       .x-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 84px; padding: 8px; border: 1px solid var(--stroke-secondary); border-radius: var(--r-s); background: var(--fill-tertiary); color: var(--text-primary); font: var(--type-caption); text-align: center; cursor: pointer; }
       .x-tile b { font-size: 32px; line-height: 1; font-weight: var(--weight-regular); } .x-tile[aria-pressed="true"] { border-color: var(--fill-primary); box-shadow: inset 0 0 0 1px var(--fill-primary); }
     </style>
-  </head>
+  <script>/* Gemini thinking-level fallback: if the model rejects a thinking level, retry with low, then with none */(function(){var f=window.fetch;if(!f||f.__ya)return;function nf(u,o){var url=String(u&&u.url||u);if(url.indexOf("generativelanguage.googleapis.com")<0||!o||typeof o.body!=="string"||o.body.indexOf("thinkingConfig")<0)return f.apply(this,arguments);var self=this;return f.call(self,u,o).then(function(r){if(r.status!==400)return r;return r.clone().text().then(function(t){if(!/thinking/i.test(t))return r;var b=JSON.parse(o.body),g=b.generationConfig||{};var lv=g.thinkingConfig&&g.thinkingConfig.thinkingLevel;if(lv&&lv!=="low"){g.thinkingConfig={thinkingLevel:"low"};}else{delete g.thinkingConfig;}var o2=Object.assign({},o,{body:JSON.stringify(b)});return nf.call(self,u,o2);});});}nf.__ya=1;window.fetch=nf;})();</script></head>
   <body>
     <div class="page" id="top">
       <nav class="x-pill glass" aria-label="Site">

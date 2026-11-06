@@ -222,7 +222,7 @@
       .x-count { font: var(--type-small); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
       [hidden] { display: none !important; }
     </style>
-  </head>
+  <script>/* Gemini thinking-level fallback: if the model rejects a thinking level, retry with low, then with none */(function(){var f=window.fetch;if(!f||f.__ya)return;function nf(u,o){var url=String(u&&u.url||u);if(url.indexOf("generativelanguage.googleapis.com")<0||!o||typeof o.body!=="string"||o.body.indexOf("thinkingConfig")<0)return f.apply(this,arguments);var self=this;return f.call(self,u,o).then(function(r){if(r.status!==400)return r;return r.clone().text().then(function(t){if(!/thinking/i.test(t))return r;var b=JSON.parse(o.body),g=b.generationConfig||{};var lv=g.thinkingConfig&&g.thinkingConfig.thinkingLevel;if(lv&&lv!=="low"){g.thinkingConfig={thinkingLevel:"low"};}else{delete g.thinkingConfig;}var o2=Object.assign({},o,{body:JSON.stringify(b)});return nf.call(self,u,o2);});});}nf.__ya=1;window.fetch=nf;})();</script></head>
   <body>
     <div class="page" id="top">
       <header class="nav glass">
