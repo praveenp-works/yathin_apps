@@ -501,11 +501,17 @@
 
         // Base layer by feels-like temperature, °F
         function band(f) {
-          if (f < 40) return { key: "cold", phrase: "Heavy coat", items: [["🧥", "Heavy coat"], ["🧢", "Hat"], ["🧤", "Gloves"], ["🧣", "Scarf"], ["👖", "Long pants"]] };
-          if (f < 55) return { key: "cool", phrase: "Jacket", items: [["🧥", "Jacket"], ["👖", "Long pants"]] };
-          if (f < 65) return { key: "mild", phrase: "Light jacket", items: [["🧥", "Light jacket or hoodie"], ["👖", "Jeans"]] };
-          if (f < 80) return { key: "warm", phrase: "T-shirt", items: [["👕", "T-shirt"], ["👖", "Jeans"]] };
-          return { key: "hot", phrase: "Shorts", items: [["🩳", "Shorts"], ["👕", "T-shirt"]] };
+          if (f < 25) return { key: "freezing", phrase: "Bundle up", items: [["🧥", "Parka"], ["🧶", "Thick sweater"], ["🧢", "Beanie"], ["🧤", "Gloves"], ["🧣", "Scarf"], ["🧦", "Warm socks"], ["🥾", "Snow boots"]] };
+          if (f < 35) return { key: "cold", phrase: "Winter coat", items: [["🧥", "Winter coat"], ["🧶", "Sweater"], ["🧢", "Beanie"], ["🧤", "Gloves"], ["👖", "Long pants"]] };
+          if (f < 45) return { key: "chilly", phrase: "Puffer jacket", items: [["🧥", "Puffer jacket"], ["🧶", "Sweater"], ["🧣", "Scarf"], ["👖", "Long pants"]] };
+          if (f < 50) return { key: "cool", phrase: "Warm jacket", items: [["🧥", "Warm jacket"], ["👔", "Long-sleeve shirt"], ["👖", "Jeans"]] };
+          if (f < 55) return { key: "brisk", phrase: "Fleece", items: [["🧥", "Fleece jacket"], ["👔", "Long-sleeve shirt"], ["👖", "Jeans"]] };
+          if (f < 60) return { key: "crisp", phrase: "Hoodie", items: [["🧥", "Hoodie"], ["👕", "T-shirt under it"], ["👖", "Jeans"]] };
+          if (f < 65) return { key: "mild", phrase: "Light jacket", items: [["🧥", "Light jacket"], ["👕", "T-shirt"], ["👖", "Jeans"]] };
+          if (f < 70) return { key: "nice", phrase: "Long sleeves", items: [["👔", "Long-sleeve tee"], ["👖", "Jeans"]] };
+          if (f < 77) return { key: "warm", phrase: "T-shirt", items: [["👕", "T-shirt"], ["👖", "Jeans or chinos"]] };
+          if (f < 86) return { key: "hot", phrase: "Shorts", items: [["👕", "T-shirt"], ["🩳", "Shorts"]] };
+          return { key: "scorching", phrase: "Stay cool", items: [["🎽", "Tank top"], ["🩳", "Shorts"], ["💧", "Water bottle"]] };
         }
 
         function hourIdx(times, hour) {
@@ -527,11 +533,12 @@
           var b = band(feels), items = b.items.slice(), names = {};
           items.forEach(function (i) { names[i[1]] = 1; });
           function add(e, n) { if (!names[n]) { names[n] = 1; items.push([e, n]); } }
-          if (wet) { add("🧥", "Raincoat"); add("☂️", "Umbrella"); add("🥾", "Rain boots"); }
-          else add("👟", "Sneakers");
+          var booted = b.key === "freezing";
+          if (wet) { add("🧥", "Raincoat"); add("☂️", "Umbrella"); if (!booted) add("🥾", "Rain boots"); }
+          else if (!booted) add(b.key === "scorching" || b.key === "hot" ? "🩴" : "👟", b.key === "scorching" || b.key === "hot" ? "Sandals or sneakers" : "Sneakers");
           if (windy && !wet) add("🧥", "Windbreaker");
           if (sunny) { add("🕶️", "Sunglasses"); add("🧢", "Hat"); add("🧴", "Sunscreen"); }
-          if (swing && b.key !== "cold") add("🧶", "Layer for later");
+          if (swing && b.key !== "cold" && b.key !== "freezing") add("🎒", "Extra layer in your bag");
 
           // Summary: morning vs lunch, then rain timing from hourly data
           var parts = [];
