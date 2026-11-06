@@ -104,7 +104,7 @@
     </style>
   <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#22c55e"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Plant Doc">
 <style>html:not(.is-desktop) #form{display:none!important}.is-desktop .x-webonly{display:none!important}</style>
-<script>(function(){var h=location.hostname,app=h==="127.0.0.1"||h==="localhost"||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;if(app)document.documentElement.classList.add("is-app","is-desktop");})();</script>
+<script>(function(){var h=location.hostname,app=h==="127.0.0.1"||h==="localhost"||h==="appassets.androidplatform.net"||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;if(app)document.documentElement.classList.add("is-app","is-desktop");})();</script>
 <style>
 .x-splash{display:none}
 .is-app .x-splash{display:flex;position:fixed;inset:0;z-index:10000;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#f5f5f7;transition:opacity .5s ease}
@@ -515,7 +515,7 @@ Scores: 85-100 Thriving, 70-84 Good, 50-69 Needs care, 25-49 Struggling, 0-24 Cr
       })();
     </script>
     <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-plantdoc/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("pd_seen")){localStorage.setItem("pd_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
-  <script src="../signin-download.js" data-needs-key="plantdoc-key" data-app="Plant Doc" data-icon="plantdoc_icon.png" data-url="https://github.com/praveenp-works/yathin_apps/releases/download/plantdoc-windows/PlantDoc.exe"></script>
+  <script src="../signin-download.js" data-needs-key="plantdoc-key" data-app="Plant Doc" data-icon="plantdoc_icon.png" data-url="https://github.com/praveenp-works/yathin_apps/releases/download/plantdoc-windows/PlantDoc.exe" data-android="https://github.com/praveenp-works/yathin_apps/releases/download/plantdoc-android/PlantDoc.apk"></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});</script>
 <script>/* Ctrl+Shift+P: open the Gemini API key box */document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||!e.shiftKey||(e.key||"").toLowerCase()!=="p")return;e.preventDefault();var i=document.getElementById("key");if(i&&i.offsetParent){i.scrollIntoView({behavior:"smooth",block:"center"});i.focus();i.select();return;}var k=prompt("Paste your Gemini API key (free at aistudio.google.com/apikey):",i?i.value:"");if(k===null)return;k=k.trim();if(i){i.value=k;i.dispatchEvent(new Event("input"));i.dispatchEvent(new Event("change"));}try{["ya-gemini-key","plantdoc-key"].forEach(function(n){k?localStorage.setItem(n,k):localStorage.removeItem(n);});}catch(_){}});</script></body>
 </html>

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["android/**", "fridgechef/**", ".github/workflows/android-apk.yml"]
+    paths: ["android/**", "fridgechef/**", "plantdoc/**", "magiccursor/phone/**", ".github/workflows/android-apk.yml"]
 permissions:
   contents: write
 concurrency: android-apk
@@ -21,6 +21,19 @@ jobs:
             file: FridgeChef
             id: com.yathinlooops.fridgechef
             icon: fridgechef/fridgechef_icon.png
+            start: fridgechef/index.html
+          - app: plantdoc
+            name: Plant Doc
+            file: PlantDoc
+            id: com.yathinlooops.plantdoc
+            icon: plantdoc/plantdoc_icon.png
+            start: plantdoc/index.html
+          - app: magiccursor
+            name: Magic Cursor
+            file: MagicCursor
+            id: com.yathinlooops.magiccursor
+            icon: magiccursor/phone/icon-512.png
+            start: magiccursor/phone/index.html
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -40,7 +53,7 @@ jobs:
           rm -rf $A/assets && mkdir -p $A/assets/web/${{ matrix.app }}
           cp -r ${{ matrix.app }}/* $A/assets/web/${{ matrix.app }}/
           cp ya-key.js $A/assets/web/ 2>/dev/null || true
-          rm -f $A/assets/web/${{ matrix.app }}/sw.js
+          rm -f $A/assets/web/${{ matrix.app }}/sw.js $A/assets/web/${{ matrix.app }}/*.zip $A/assets/web/${{ matrix.app }}/*.exe
           python3 -m pip install -q pillow
           python3 - <<'PY'
           from PIL import Image
@@ -55,7 +68,7 @@ jobs:
         env:
           APP_ID: ${{ matrix.id }}
           APP_NAME: ${{ matrix.name }}
-          APP_START: ${{ matrix.app }}/index.html
+          APP_START: ${{ matrix.start }}
           VCODE: ${{ github.run_number }}
         run: gradle --no-daemon assembleRelease
       - name: Publish release

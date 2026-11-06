@@ -1,7 +1,7 @@
 /* Yathin Looops: "Download" in the top bar -> sign in -> download. Created by Yathin Pedamallu. */
 (function () {
   var me = document.currentScript;
-  var APP = me.getAttribute("data-app"), URL = me.getAttribute("data-url"), ICON = me.getAttribute("data-icon") || "";
+  var APP = me.getAttribute("data-app"), URL = me.getAttribute("data-url"), AND = me.getAttribute("data-android") || "", ICON = me.getAttribute("data-icon") || "";
   var KEY = "ya_user", NEED = me.getAttribute("data-needs-key"), gotKey = false;
   var TOP = NEED ? '<p class="ya-need">Gemini API key needed</p>' : "";
   function get() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return window.__yaUser || null; } }
@@ -63,6 +63,7 @@
     ov.innerHTML = '<div class="ya-box">' + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
       "<h2>Hi " + String(u.name).replace(/[<>&"]/g, "") + "!</h2><p>" + APP + " for Windows 10 and 11." + (NEED ? " The first time you open it, paste the same key into its Gemini API key box." : "") + " Windows may say it's from an unknown publisher: click More info, then Run anyway.</p>" +
       '<a class="ya-btn" id="ya-go" href="' + URL + '">Download for Windows</a>' +
+      (AND ? '<a class="ya-btn" href="' + AND + '" style="margin-top:8px">Download for Android (.apk)</a><p style="font-size:12px;opacity:.7">Android: allow "install unknown apps" when asked.</p>' : "") +
       '<button class="ya-x" type="button" id="ya-out">Not you? Sign out</button><br><button class="ya-x" type="button" id="ya-c">Close</button></div>';
     ov.querySelector("#ya-c").onclick = close;
     ov.querySelector("#ya-out").onclick = function () { try { localStorage.removeItem(KEY); } catch (e) {} window.__yaUser = null; signin(); };
