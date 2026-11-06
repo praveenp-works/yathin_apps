@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="apple-touch-icon" href="icon-180.png" />
     <script>
-      window.FORCE_APP_MODE = false;
+      window.FORCE_APP_MODE = /[?&]app=1\b/.test(location.search);
       (function () {
         var app = false;
         try {
@@ -430,6 +430,7 @@
           </div>
           <div class="x-install">
             <button class="x-go" type="button" id="install-btn">📲 Download for phone</button>
+            <a class="x-go x-go--ghost" href="?app=1" style="text-decoration:none;display:inline-flex;align-items:center;margin-left:8px">👀 See the app preview</a>
             <p class="x-msg" id="install-msg" role="status" aria-live="polite"></p>
             <div class="cards" id="install-steps" hidden>
               <div>
