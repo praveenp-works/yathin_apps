@@ -64,6 +64,7 @@
         <a class="x-navlink" href="screenread/">Screen Read</a>
         <a class="x-navlink" href="finko/">Finko</a>
         <a class="x-navlink" href="#about">About</a>
+        <button class="x-navlink" id="share-btn" type="button" style="background:none;border:0;font:inherit;color:inherit;cursor:pointer">Share</button>
         <button class="x-navlink" id="ya-key-btn" type="button" style="background:none;border:0;font:inherit;color:inherit;cursor:pointer">API key</button>
         <button class="x-theme" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>
       </nav>
@@ -205,5 +206,18 @@
     </div>
     <script src="hark.js"></script>
     <script src="ya-key.js"></script>
+    <script>
+      (function () {
+        var b = document.getElementById("share-btn"); if (!b) return;
+        var url = "https://praveenp-works.github.io/yathin_apps/";
+        var data = { title: "Yathin Looops", text: "Free apps, all in one place. Created by Yathin Pedamallu.", url: url };
+        function done(t) { var o = b.textContent; b.textContent = t; setTimeout(function () { b.textContent = o; }, 1800); }
+        b.addEventListener("click", function () {
+          if (navigator.share) { navigator.share(data).catch(function () {}); return; }
+          if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { done("Link copied!"); }, function () { prompt("Copy this link:", url); });
+          else prompt("Copy this link:", url);
+        });
+      })();
+    </script>
   <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathin-apps/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("ya_seen")){localStorage.setItem("ya_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script></body>
 </html>
