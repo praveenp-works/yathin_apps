@@ -50,7 +50,7 @@ def arrow(bg,pts,w=16,col=(255,40,60)):
 def curve(p0,p1,p2,n=30): return [((1-t)**2*p0[0]+2*(1-t)*t*p1[0]+t*t*p2[0],(1-t)**2*p0[1]+2*(1-t)*t*p1[1]+t*t*p2[1]) for t in [i/n for i in range(n+1)]]
 
 def brand(bg,center,size,rot=0):
-    f=ImageFont.truetype(F,size); t='YATHIN APPS'; tw=ImageDraw.Draw(bg).textlength(t,font=f)
+    f=ImageFont.truetype(F,size); t='YATHIN LOOOPS'; tw=ImageDraw.Draw(bg).textlength(t,font=f)
     g=int(size*1.25); cell=(g-6)//2
     W=int(g+tw+size*1.6); H=int(size*1.95)
     L=Image.new('RGBA',(W+10,H+12),(0,0,0,0)); d=ImageDraw.Draw(L)
