@@ -368,7 +368,7 @@
         <button class="x-go" type="submit">Sign in</button>
       </form>
       <div class="x-form" data-view="download" hidden>
-        <p>Signed in as <strong id="dlName"></strong>.</p>
+        <p hidden>Signed in as <strong id="dlName"></strong>.</p><p class="fineprint">Free download. No account needed.</p>
         <a class="x-go" href="https://github.com/praveenp-works/yathin_apps/releases/download/fridgechef-windows/FridgeChef.exe" style="text-align:center;text-decoration:none">Download for Windows</a>
         <button class="x-ghost" type="button" disabled>Download for Android (coming soon)</button>
         <button class="x-ghost" type="button" id="a2hs" aria-expanded="false" aria-controls="a2hsHow">Add to Home Screen</button>
@@ -376,7 +376,7 @@
           <li><strong>iPhone:</strong> Share &gt; Add to Home Screen</li>
           <li><strong>Android:</strong> menu &gt; Install app</li>
         </ul>
-        <button class="x-ghost" type="button" id="signOut">Sign out</button>
+        <button class="x-ghost" type="button" id="signOut" hidden>Sign out</button>
       </div>
       <p class="x-error" id="acctErr" role="alert" hidden style="margin-top:16px"></p>
     </dialog>
@@ -796,7 +796,7 @@
           err();
           dlg.querySelector(`[data-view="${v}"] input, [data-view="${v}"] button:not([disabled])`)?.focus();
         }
-        function openAcct() { dlg.showModal(); view(user ? "download" : "signup"); }
+        function openAcct() { dlg.showModal(); view("download"); }
         function signIn(a) {
           user = a;
           $("dlName").textContent = $("who").textContent = a.name;
