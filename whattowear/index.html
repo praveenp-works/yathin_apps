@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>What to Wear · Yathin Looops</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%95%3C/text%3E%3C/svg%3E" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="What to Wear" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <script>
+      window.FORCE_APP_MODE = false;
+      (function () {
+        var app = false;
+        try {
+          app = window.FORCE_APP_MODE === true ||
+            (window.matchMedia && matchMedia("(display-mode: standalone)").matches) ||
+            window.navigator.standalone === true;
+        } catch (e) {}
+        if (app) document.documentElement.classList.add("is-app");
+        // Keep the install prompt for the "Download for phone" button
+        window.__wtwPrompt = null;
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault();
+          window.__wtwPrompt = e;
+        });
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root {
+        --sans: "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+        --x-blue: #1e88ff;
+        --x-red: #f0313b;
+        --x-accent: linear-gradient(90deg, var(--x-blue), var(--x-red));
+        /* the same gradient, deepened so white text on it keeps 4.5:1 */
+        --x-accent-fill: linear-gradient(rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.2)), var(--x-accent);
+      }
+      /* nav: back link before the tab track */
+      .x-back {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 4px 14px 4px 6px;
+        border-radius: var(--r-pill);
+        font: var(--type-label);
+        color: var(--text-primary-on);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .nav .x-back { background: var(--fill-segment); }
+      .nav .x-back, .nav .x-back span { color: var(--text-primary-on); }
+      .x-back:hover { box-shadow: inset 0 0 0 100px var(--hover-wash-primary-on); }
+      .x-back img { width: 26px; height: 26px; border-radius: 8px; }
+      @media (max-width: 599px) {
+        .x-back { min-height: var(--tap); }
+        .x-back img { display: none; }
+        .x-back { padding-left: 12px; }
+      }
+      /* hero title and icon */
+      .x-brand { display: flex; align-items: center; gap: 14px; }
+      .x-brand img { width: 64px; height: 64px; border-radius: var(--r-s); box-shadow: var(--hark-shadow); flex: none; }
+      .x-grad {
+        background: var(--x-accent);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: var(--hero-text);
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+      }
+      .hero h1.x-grad { font-weight: var(--weight-bold); }
+      /* accent button and chip */
+      .x-go {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: var(--tap);
+        padding: 0 18px;
+        border: 0;
+        border-radius: var(--r-pill);
+        background: var(--x-accent-fill);
+        color: #fff;
+        font: var(--type-body-strong);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: transform var(--dur-quick) ease, box-shadow var(--dur-quick) ease;
+      }
+      .x-go:hover { box-shadow: inset 0 0 0 100px rgb(255 255 255 / 0.1); }
+      .x-go:active { transform: scale(0.97); }
+      .x-go[disabled] { opacity: 0.6; cursor: progress; }
+      .x-go--ghost { background: var(--fill-tertiary); color: var(--text-primary); }
+      .x-go--ghost:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: var(--r-pill);
+        background: var(--x-accent-fill);
+        color: #fff;
+        font: var(--type-tag);
+        vertical-align: middle;
+      }
+      /* search form in the callout */
+      .x-start { grid-template-columns: minmax(0, 1fr); box-sizing: border-box; max-width: calc(100% - 24px); }
+      .x-start > * { min-width: 0; max-width: 100%; }
+      .x-form { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; box-sizing: border-box; }
+      .x-form .x-go { flex: none; max-width: 100%; }
+      .x-start #locate-btn { justify-self: stretch; width: 100%; max-width: 100%; box-sizing: border-box; white-space: normal; }
+      .x-form input {
+        flex: 1 1 140px;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+        min-height: var(--tap);
+        padding: 0 14px;
+        border-radius: var(--r-pill);
+        border: 1px solid var(--stroke-primary);
+        background: var(--fill-primary-on);
+        color: var(--text-primary);
+        font: var(--type-body);
+      }
+      .x-form input:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 1px; }
+      .x-results { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+      .x-results:empty { display: none; }
+      .x-results button {
+        width: 100%;
+        min-height: var(--tap);
+        padding: 8px 12px;
+        border: 0;
+        border-radius: var(--r-s);
+        background: var(--fill-tertiary);
+        color: var(--text-primary);
+        font: var(--type-small);
+        text-align: left;
+        cursor: pointer;
+      }
+      .x-results button:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-msg { font-size: var(--size-small); color: var(--text-secondary); }
+      .x-msg:empty { display: none; }
+      .x-msg.is-error { color: var(--fill-system-red); }
+      .x-msg.is-soft { color: var(--text-secondary); }
+      /* result card */
+      .x-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+      .x-units { display: inline-flex; padding: 3px; border-radius: var(--r-pill); background: var(--fill-tertiary); }
+      .x-units button {
+        min-width: var(--tap);
+        min-height: var(--tap);
+        padding: 0 14px;
+        border: 0;
+        border-radius: var(--r-pill);
+        background: transparent;
+        color: var(--text-secondary);
+        font: var(--type-label);
+        cursor: pointer;
+      }
+      .x-units button[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); }
+      .x-card {
+        display: grid;
+        gap: 24px;
+        padding: clamp(20px, 3vw, 32px);
+        border-radius: var(--r-l);
+        background: var(--fill-tertiary);
+        transition: opacity var(--dur-quick) ease;
+      }
+      .x-card.is-loading { opacity: 0.5; }
+      .x-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; }
+      .x-place { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font: var(--type-label); color: var(--text-secondary); }
+      .x-feels { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+      .x-emoji { font-size: 56px; line-height: 1; }
+      .x-temp { font: var(--weight-medium) clamp(56px, 9vw, 88px)/1 var(--sans); font-variant-numeric: tabular-nums; }
+      .x-cond { font: var(--type-heading); }
+      .x-cond small { display: block; font: var(--type-small); color: var(--text-secondary); }
+      .x-card .stats { padding-top: 0; }
+      .x-card h3 { font: var(--type-heading); margin-bottom: 12px; }
+      .x-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+      .x-tiles li {
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 12px;
+        min-height: 180px;
+        padding: 28px 14px 24px;
+        border-radius: var(--r-l);
+        background: var(--fill-primary-on);
+        border: 1px solid var(--stroke-secondary);
+        font: var(--weight-bold) var(--size-heading)/1.25 var(--sans);
+        text-align: center;
+        text-wrap: balance;
+      }
+      .x-tiles span { font-size: 64px; line-height: 1; }
+      @media (max-width: 599px) {
+        .x-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .x-tiles li { min-height: 160px; padding: 22px 10px 18px; font-size: var(--size-body); }
+      }
+      .x-summary { font: var(--type-lede); max-width: 60ch; text-wrap: pretty; }
+      /* install section */
+      .x-install { display: grid; gap: 16px; justify-items: start; }
+      .x-install .cards { width: 100%; }
+      .x-install .cards[hidden] { display: none; }
+      /* app mode */
+      .x-app { display: none; }
+      html.is-app .x-app {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .x-app__brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+      .x-app__brand img { width: 40px; height: 40px; border-radius: var(--r-s); flex: none; }
+      .x-app__brand p { font: var(--type-heading); font-weight: var(--weight-bold); white-space: nowrap; }
+      html.is-app .hero,
+      html.is-app #phone,
+      html.is-app #how,
+      html.is-app #check > .head,
+      html.is-app .nav .seg,
+      html.is-app .foot nav { display: none !important; }
+      html.is-app .x-start { max-width: 100%; }
+      @media (max-width: 599px) {
+        html.is-app .x-card { padding: 18px; border-radius: var(--r-m); gap: 20px; }
+        html.is-app .x-temp { font-size: 56px; }
+      }
+      /* loading animation, app mode only */
+      .x-splash { display: none; }
+      html.is-app .x-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 6px;
+        background: linear-gradient(160deg, #2563eb, var(--x-blue) 35%, var(--x-red));
+        color: #fff;
+        text-align: center;
+        cursor: pointer;
+        transition: opacity 0.45s ease, visibility 0.45s;
+      }
+      html.is-app .x-splash.is-out { opacity: 0; visibility: hidden; pointer-events: none; }
+      .x-splash__scene { position: relative; width: 220px; height: 200px; }
+      .x-splash svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+      .x-sun { animation: x-rise 0.9s var(--ease-out) both; }
+      .x-sun__spin { transform-box: fill-box; transform-origin: center; animation: x-spin 8s linear infinite; }
+      .x-cloud { animation: x-drift 0.8s var(--ease-out) 0.35s both; }
+      .x-drop { opacity: 0; animation: x-drop 0.6s ease-in both; }
+      .x-drop:nth-of-type(1) { animation-delay: 0.95s; }
+      .x-drop:nth-of-type(2) { animation-delay: 1.1s; }
+      .x-drop:nth-of-type(3) { animation-delay: 1.25s; }
+      .x-shirt {
+        position: absolute;
+        left: 50%;
+        top: 92px;
+        font-size: 72px;
+        line-height: 1;
+        transform: translateX(-50%);
+        filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.25));
+        animation: x-fall 0.7s 1.05s both;
+      }
+      .x-splash__title { font: var(--weight-bold) 32px/1.1 var(--sans); color: #fff; animation: x-fade 0.5s ease 1.5s both; }
+      .x-splash__sub { font: var(--type-small); color: #fff; opacity: 0.9; animation: x-fade 0.5s ease 1.65s both; }
+      @keyframes x-rise { from { transform: translateY(70px); opacity: 0; } to { transform: none; opacity: 1; } }
+      @keyframes x-spin { to { transform: rotate(360deg); } }
+      @keyframes x-drift { from { transform: translateX(-90px); opacity: 0; } to { transform: none; opacity: 1; } }
+      @keyframes x-drop { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(46px); } }
+      @keyframes x-fall {
+        0% { transform: translate(-50%, -160px); opacity: 0; animation-timing-function: ease-in; }
+        55% { transform: translate(-50%, 0); opacity: 1; animation-timing-function: ease-out; }
+        75% { transform: translate(-50%, -14px); animation-timing-function: ease-in; }
+        100% { transform: translate(-50%, 0); opacity: 1; }
+      }
+      @keyframes x-fade { from { opacity: 0; transform: translateY(6px); } }
+      @media (prefers-reduced-motion: reduce) {
+        .x-splash *, .x-splash *::before { animation: none !important; }
+        .x-drop { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="x-splash" id="splash" aria-hidden="true">
+      <div class="x-splash__scene">
+        <svg viewBox="0 0 220 200" aria-hidden="true">
+          <g class="x-sun">
+            <g class="x-sun__spin">
+              <g stroke="#ffd34d" stroke-width="5" stroke-linecap="round">
+                <line x1="78" y1="18" x2="78" y2="30" /><line x1="78" y1="98" x2="78" y2="110" />
+                <line x1="32" y1="64" x2="44" y2="64" /><line x1="112" y1="64" x2="124" y2="64" />
+                <line x1="45" y1="31" x2="54" y2="40" /><line x1="102" y1="88" x2="111" y2="97" />
+                <line x1="45" y1="97" x2="54" y2="88" /><line x1="102" y1="40" x2="111" y2="31" />
+              </g>
+              <circle cx="78" cy="64" r="24" fill="#ffd34d" />
+            </g>
+          </g>
+          <g class="x-cloud">
+            <path d="M118 84h58a16 16 0 0 0 0-32 22 22 0 0 0-42-6 17 17 0 0 0-16 38z" fill="#fff" />
+            <g fill="#bfe0ff">
+              <path class="x-drop" d="M132 92c-3 5-4 7-4 9a4 4 0 0 0 8 0c0-2-1-4-4-9z" />
+              <path class="x-drop" d="M150 92c-3 5-4 7-4 9a4 4 0 0 0 8 0c0-2-1-4-4-9z" />
+              <path class="x-drop" d="M168 92c-3 5-4 7-4 9a4 4 0 0 0 8 0c0-2-1-4-4-9z" />
+            </g>
+          </g>
+        </svg>
+        <span class="x-shirt" aria-hidden="true">👕</span>
+      </div>
+      <p class="x-splash__title">What to Wear</p>
+      <p class="x-splash__sub">Checking the sky…</p>
+    </div>
+    <div class="page" id="top">
+      <header class="nav glass">
+        <a class="x-back" href="https://praveenp-works.github.io/yathin_apps/"
+          ><img src="whattowear_icon_sq.png" alt="" /><span>← Yathin Looops</span></a
+        >
+        <nav class="seg" aria-label="Sections">
+          <a href="#check">Check</a>
+          <a href="#how">How it works</a>
+          <a href="#phone">Phone app</a>
+        </nav>
+        <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>
+      </header>
+
+      <main class="main">
+        <div class="x-app" id="app-head">
+          <div class="x-app__brand">
+            <img src="whattowear_icon_sq.png" alt="" />
+            <p>What to Wear</p>
+          </div>
+        </div>
+        <section class="hero">
+          <img class="hero__img" src="whattowear_hero.jpg" alt="An entryway with a red raincoat, a blue jacket and an umbrella" />
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Free · No sign-up · Created by Yathin Pedamallu</p>
+            <div class="x-brand">
+              <img src="whattowear_icon_sq.png" alt="What to Wear app icon" />
+              <h1 class="x-grad">What to Wear</h1>
+            </div>
+            <p class="hero__sub">Check the weather, get your outfit.</p>
+            <p class="hero__meta">No account, no API key · Part of Yathin Looops</p>
+          </div>
+          <aside class="callout x-start" aria-label="Get started">
+            <p class="callout__head">Get started</p>
+            <form class="x-form" id="search-form" role="search">
+              <input id="city" name="city" type="search" placeholder="Search a city" autocomplete="off" aria-label="City" />
+              <button class="x-go" type="submit" id="search-btn">Search</button>
+            </form>
+            <ul class="x-results" id="results" aria-label="Matching cities"></ul>
+            <button class="x-go x-go--ghost" type="button" id="locate-btn">📍 Use my location</button>
+            <p class="x-msg is-soft" id="geo-hint" aria-live="polite"></p>
+            <p class="x-msg" id="hero-msg" role="status" aria-live="polite"></p>
+          </aside>
+        </section>
+
+        <section class="section" id="check" data-nav="Check">
+          <div class="head">
+            <h2>Today's weather, and what to put on for it.</h2>
+            <p class="head__sub">Built from feels-like temperature, rain, wind, UV and the day's swing.</p>
+          </div>
+          <div class="x-bar">
+            <p class="x-msg" id="check-msg" role="status" aria-live="polite"></p>
+            <div class="x-units" role="group" aria-label="Temperature unit">
+              <button type="button" data-unit="F" aria-pressed="true">°F</button>
+              <button type="button" data-unit="C" aria-pressed="false">°C</button>
+            </div>
+          </div>
+          <article class="x-card" id="result" aria-live="polite">
+            <div class="x-top">
+              <div>
+                <p class="x-place"><span id="r-place">Plano, Texas</span> <span class="x-tag" id="r-example">Example</span></p>
+                <div class="x-feels">
+                  <span class="x-emoji" id="r-emoji" aria-hidden="true">⛅</span>
+                  <span class="x-temp" id="r-temp">61°</span>
+                  <p class="x-cond"><span id="r-cond">Partly cloudy</span><small>Feels like</small></p>
+                </div>
+              </div>
+            </div>
+            <section class="stats" aria-label="Today">
+              <div class="stat"><span class="stat__fig" id="r-hilo">72° / 54°</span><span class="stat__label">High / low</span></div>
+              <div class="stat"><span class="stat__fig" id="r-rain">20%</span><span class="stat__label">Rain chance</span></div>
+              <div class="stat"><span class="stat__fig" id="r-wind">9 mph</span><span class="stat__label">Wind</span></div>
+              <div class="stat"><span class="stat__fig" id="r-uv">5</span><span class="stat__label">UV index</span></div>
+            </section>
+            <div>
+              <h3>Wear this</h3>
+              <ul class="x-tiles" id="r-tiles"></ul>
+            </div>
+            <p class="x-summary" id="r-summary"></p>
+          </article>
+          <p class="fineprint">
+            <a class="link" href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a>. Your last city is
+            remembered on this device only.
+          </p>
+        </section>
+
+        <section class="section" id="how" data-nav="How it works">
+          <div class="head">
+            <h2>Three steps from forecast to front door.</h2>
+          </div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__intro"><p class="step__num">01</p><p class="step__eyebrow">Where</p></div>
+              <div><h3>Pick your city or use your location</h3><p>Search by name and choose the match, or let your browser share where you are.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">02</p><p class="step__eyebrow">Weather</p></div>
+              <div><h3>We check today's weather</h3><p>Feels-like temperature, high and low, rain chance by the hour, wind and UV, from free Open-Meteo data.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">03</p><p class="step__eyebrow">Wear</p></div>
+              <div><h3>Get your outfit</h3><p>A row of things to wear and carry, plus one line on how the day will turn.</p></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="phone" data-nav="Phone app">
+          <div class="head">
+            <p class="head__eyebrow">Free · No app store</p>
+            <h2>Get it on your phone.</h2>
+            <p class="head__sub">Add What to Wear to your home screen and it opens like an app, straight to today's outfit.</p>
+          </div>
+          <div class="x-install">
+            <button class="x-go" type="button" id="install-btn">📲 Download for phone</button>
+            <p class="x-msg" id="install-msg" role="status" aria-live="polite"></p>
+            <div class="cards" id="install-steps" hidden>
+              <div>
+                <h3>iPhone (Safari)</h3>
+                <p>Tap the Share button, then <strong>Add to Home Screen</strong>.</p>
+              </div>
+              <div>
+                <h3>Android (Chrome)</h3>
+                <p>Tap the ⋮ menu, then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        <p><strong>What to Wear</strong> · Part of Yathin Looops · Created by Yathin Pedamallu<br /><a class="link" href="https://open-meteo.com/" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a></p>
+        <nav aria-label="Back to sections" data-auto></nav>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        var $ = function (id) { return document.getElementById(id); };
+        var KEY = "whattowear-last";
+        var state = { unit: "F", data: null, place: null, example: true };
+
+        // WMO weather codes
+        var WMO = {
+          0: ["☀️", "Clear sky"], 1: ["🌤️", "Mainly clear"], 2: ["⛅", "Partly cloudy"], 3: ["☁️", "Overcast"],
+          45: ["🌫️", "Fog"], 48: ["🌫️", "Freezing fog"],
+          51: ["🌦️", "Light drizzle"], 53: ["🌦️", "Drizzle"], 55: ["🌧️", "Heavy drizzle"],
+          56: ["🌧️", "Freezing drizzle"], 57: ["🌧️", "Freezing drizzle"],
+          61: ["🌦️", "Light rain"], 63: ["🌧️", "Rain"], 65: ["🌧️", "Heavy rain"],
+          66: ["🌧️", "Freezing rain"], 67: ["🌧️", "Freezing rain"],
+          71: ["🌨️", "Light snow"], 73: ["🌨️", "Snow"], 75: ["❄️", "Heavy snow"], 77: ["🌨️", "Snow grains"],
+          80: ["🌦️", "Rain showers"], 81: ["🌧️", "Rain showers"], 82: ["⛈️", "Violent showers"],
+          85: ["🌨️", "Snow showers"], 86: ["❄️", "Heavy snow showers"],
+          95: ["⛈️", "Thunderstorm"], 96: ["⛈️", "Thunderstorm, hail"], 99: ["⛈️", "Thunderstorm, hail"]
+        };
+
+        // Sample shown before any search: Plano, Texas
+        function sample() {
+          var temps = [55,54,54,54,54,55,55,56,57,59,62,65,68,70,71,72,72,71,69,66,63,60,58,57];
+          var rain = [5,5,5,5,5,5,5,5,5,5,10,10,10,15,15,20,20,20,15,10,10,5,5,5];
+          var times = temps.map(function (_, h) { return "2025-01-01T" + (h < 10 ? "0" : "") + h + ":00"; });
+          return {
+            current: { time: "2025-01-01T08:00", temperature_2m: 63, apparent_temperature: 61, precipitation: 0, weather_code: 2, wind_speed_10m: 9, uv_index: 2 },
+            hourly: { time: times, temperature_2m: temps, precipitation_probability: rain },
+            daily: { temperature_2m_max: [72], temperature_2m_min: [54], precipitation_probability_max: [20], uv_index_max: [5] }
+          };
+        }
+
+        function store(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+        function recall() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
+
+        function msg(el, text, isError) { el.textContent = text || ""; el.classList.toggle("is-error", !!isError); el.classList.remove("is-soft"); }
+        function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+        function deg(f) { return Math.round(state.unit === "C" ? (f - 32) * 5 / 9 : f) + "°"; }
+        function hourLabel(t) {
+          var h = parseInt(t.slice(11, 13), 10);
+          if (h === 0) return "midnight";
+          if (h === 12) return "noon";
+          return (h % 12) + (h < 12 ? " AM" : " PM");
+        }
+
+        // Base layer by feels-like temperature, °F
+        function band(f) {
+          if (f < 40) return { key: "cold", phrase: "Heavy coat", items: [["🧥", "Heavy coat"], ["🧢", "Hat"], ["🧤", "Gloves"], ["🧣", "Scarf"], ["👖", "Long pants"]] };
+          if (f < 55) return { key: "cool", phrase: "Jacket", items: [["🧥", "Jacket"], ["👖", "Long pants"]] };
+          if (f < 65) return { key: "mild", phrase: "Light jacket", items: [["🧥", "Light jacket or hoodie"], ["👖", "Jeans"]] };
+          if (f < 80) return { key: "warm", phrase: "T-shirt", items: [["👕", "T-shirt"], ["👖", "Jeans"]] };
+          return { key: "hot", phrase: "Shorts", items: [["🩳", "Shorts"], ["👕", "T-shirt"]] };
+        }
+
+        function hourIdx(times, hour) {
+          for (var i = 0; i < times.length; i++) if (parseInt(times[i].slice(11, 13), 10) === hour) return i;
+          return -1;
+        }
+
+        function outfit(d) {
+          var c = d.current, day = d.daily, hr = d.hourly;
+          var feels = c.apparent_temperature;
+          var hi = day.temperature_2m_max[0], lo = day.temperature_2m_min[0];
+          var rainMax = day.precipitation_probability_max[0] || 0;
+          var uv = Math.max(day.uv_index_max[0] || 0, c.uv_index || 0);
+          var wet = rainMax >= 40 || (c.precipitation || 0) > 0;
+          var windy = c.wind_speed_10m >= 15;
+          var sunny = uv >= 6;
+          var swing = hi - lo >= 18;
+
+          var b = band(feels), items = b.items.slice(), names = {};
+          items.forEach(function (i) { names[i[1]] = 1; });
+          function add(e, n) { if (!names[n]) { names[n] = 1; items.push([e, n]); } }
+          if (wet) { add("🧥", "Raincoat"); add("☂️", "Umbrella"); add("🥾", "Rain boots"); }
+          else add("👟", "Sneakers");
+          if (windy && !wet) add("🧥", "Windbreaker");
+          if (sunny) { add("🕶️", "Sunglasses"); add("🧢", "Hat"); add("🧴", "Sunscreen"); }
+          if (swing && b.key !== "cold") add("🧶", "Layer for later");
+
+          // Summary: morning vs lunch, then rain timing from hourly data
+          var parts = [];
+          var iM = hourIdx(hr.time, 8), iL = hourIdx(hr.time, 13);
+          var mB = iM >= 0 ? band(hr.temperature_2m[iM]) : b, lB = iL >= 0 ? band(hr.temperature_2m[iL]) : b;
+          if (mB.key !== lB.key) parts.push(mB.phrase + " morning, " + lB.phrase.toLowerCase() + " by lunch.");
+          else parts.push(b.phrase + " weather all day.");
+
+          var now = parseInt((c.time || "T00").slice(11, 13), 10) || 0;
+          var start = -1, peak = 0;
+          for (var i = 0; i < hr.time.length; i++) {
+            var p = hr.precipitation_probability[i];
+            if (p == null || parseInt(hr.time[i].slice(11, 13), 10) < now) continue;
+            if (p >= 40 && start < 0) start = i;
+            if (start >= 0 && p > peak) peak = p;
+          }
+          if (start >= 0) parts.push(peak + "% rain after " + hourLabel(hr.time[start]) + ", so grab the umbrella.");
+          else if (wet) parts.push("Rain is about, so grab the umbrella.");
+          else parts.push("Only " + rainMax + "% rain, so leave the umbrella.");
+          if (windy) parts.push("Gusty at " + Math.round(c.wind_speed_10m) + " mph" + (wet ? "; the raincoat blocks it." : ", so zip up a windbreaker."));
+          if (sunny) parts.push("UV hits " + Math.round(uv) + ": sunglasses and sunscreen.");
+          if (swing) parts.push("It swings " + Math.round(hi - lo) + "°F today, so bring a layer for later.");
+
+          return { items: items, summary: parts.join(" "), feels: feels, hi: hi, lo: lo, rain: rainMax, uv: uv };
+        }
+
+        function render() {
+          var d = state.data, o = outfit(d), w = WMO[d.current.weather_code] || ["🌡️", "Weather"];
+          $("r-place").textContent = state.place;
+          $("r-example").hidden = !state.example;
+          $("r-emoji").textContent = w[0];
+          $("r-cond").textContent = w[1];
+          $("r-temp").textContent = deg(o.feels);
+          $("r-hilo").textContent = deg(o.hi) + " / " + deg(o.lo);
+          $("r-rain").textContent = o.rain + "%";
+          $("r-wind").textContent = Math.round(d.current.wind_speed_10m) + " mph";
+          $("r-uv").textContent = Math.round(o.uv);
+          $("r-tiles").innerHTML = o.items.map(function (i) {
+            return '<li><span aria-hidden="true">' + i[0] + "</span>" + esc(i[1]) + "</li>";
+          }).join("");
+          $("r-summary").textContent = o.summary;
+        }
+
+        function busy(on) {
+          $("result").classList.toggle("is-loading", on);
+          $("search-btn").disabled = on;
+          $("locate-btn").disabled = on;
+        }
+
+        function loadWeather(place) {
+          var url = "https://api.open-meteo.com/v1/forecast?latitude=" + place.lat + "&longitude=" + place.lon +
+            "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,uv_index" +
+            "&hourly=temperature_2m,precipitation_probability" +
+            "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max" +
+            "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1";
+          busy(true);
+          msg($("check-msg"), "Checking the weather in " + place.name + "…");
+          return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error("busy");
+            return r.json();
+          }).then(function (data) {
+            if (!data || !data.current || !data.daily) throw new Error("busy");
+            state.data = data; state.place = place.name; state.example = false;
+            render();
+            store(place);
+            msg($("check-msg"), "");
+            msg($("hero-msg"), "");
+          }).catch(function () {
+            msg($("check-msg"), "Weather service is busy, try again in a minute.", true);
+            msg($("hero-msg"), "Weather service is busy, try again in a minute.", true);
+          }).then(function () { busy(false); });
+        }
+
+        function pick(place) {
+          $("results").innerHTML = "";
+          loadWeather(place).then(function () {
+            if (!state.example) $("check").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+          });
+        }
+
+        $("search-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var q = $("city").value.trim();
+          var list = $("results");
+          if (q.length < 2) { msg($("hero-msg"), "Type at least two letters of a city.", true); return; }
+          list.innerHTML = "";
+          msg($("hero-msg"), "Looking up “" + q + "”…");
+          $("search-btn").disabled = true;
+          fetch("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(q) + "&count=5&language=en")
+            .then(function (r) { if (!r.ok) throw new Error("busy"); return r.json(); })
+            .then(function (data) {
+              var res = (data && data.results) || [];
+              if (!res.length) { msg($("hero-msg"), "No city called “" + q + "”. Try another spelling.", true); return; }
+              msg($("hero-msg"), "Pick your city:");
+              res.forEach(function (c) {
+                var name = [c.name, c.admin1, c.country].filter(Boolean).join(", ");
+                var li = document.createElement("li"), b = document.createElement("button");
+                b.type = "button"; b.textContent = name;
+                b.addEventListener("click", function () { pick({ name: name, lat: c.latitude, lon: c.longitude }); });
+                li.appendChild(b); list.appendChild(li);
+              });
+            })
+            .catch(function () { msg($("hero-msg"), "City search is busy, try again in a minute.", true); })
+            .then(function () { $("search-btn").disabled = false; });
+        });
+
+        $("locate-btn").addEventListener("click", function () {
+          var btn = $("locate-btn"), hint = $("geo-hint"), done = false, exact = false, timer;
+          var BLOCKED = "Location is blocked for this site. Turn it on in your browser's site settings for an exact match.";
+          btn.disabled = true;
+          hint.textContent = "";
+          function finish() { done = true; clearTimeout(timer); btn.disabled = false; }
+          function nameFor(lat, lon) {
+            // Optional reverse lookup for a city name; falls back to a plain label
+            var ctl = window.AbortController ? new AbortController() : null;
+            var t = setTimeout(function () { if (ctl) ctl.abort(); }, 4000);
+            return fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat + "&longitude=" + lon + "&localityLanguage=en", ctl ? { signal: ctl.signal } : undefined)
+              .then(function (r) { if (!r.ok) throw new Error("rev"); return r.json(); })
+              .then(function (g) {
+                clearTimeout(t);
+                var city = g && (g.city || g.locality);
+                return city ? "Your exact location · " + [city, g.principalSubdivision].filter(Boolean).join(", ") : "Your exact location";
+              })
+              .catch(function () { clearTimeout(t); return "Your exact location"; });
+          }
+          function onExact(pos) {
+            if (exact) return;
+            exact = true; done = true; clearTimeout(timer); btn.disabled = false;
+            hint.textContent = "";
+            var lat = pos.coords.latitude.toFixed(4), lon = pos.coords.longitude.toFixed(4);
+            msg($("hero-msg"), "Got your exact location…");
+            nameFor(lat, lon).then(function (name) { pick({ name: name, lat: lat, lon: lon }); });
+          }
+          function askExact() {
+            hint.textContent = "Your browser will ask to share your exact location. Tap Allow.";
+            msg($("hero-msg"), "Finding you…");
+            // Safety net in case the browser never answers (some embedded previews)
+            timer = setTimeout(byIp, 30000);
+            try {
+              navigator.geolocation.getCurrentPosition(onExact, function (err) {
+                if (err && err.code === 1) hint.textContent = "";
+                byIp();
+              }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            } catch (e) { byIp(); }
+          }
+          function soft() {
+            var el = $("hero-msg");
+            msg(el, "Couldn't find your location. Search for your city instead.");
+            el.classList.add("is-soft");
+          }
+          function byIp() {
+            if (done || exact) return;
+            finish();
+            msg($("hero-msg"), "Finding your approximate location…");
+            var ctl = window.AbortController ? new AbortController() : null;
+            var t = setTimeout(function () { if (ctl) ctl.abort(); }, 8000);
+            fetch("https://get.geojs.io/v1/ip/geo.json", ctl ? { signal: ctl.signal } : undefined)
+              .then(function (r) { if (!r.ok) throw new Error("ip"); return r.json(); })
+              .then(function (g) {
+                clearTimeout(t);
+                var lat = parseFloat(g && g.latitude), lon = parseFloat(g && g.longitude);
+                if (!isFinite(lat) || !isFinite(lon)) throw new Error("ip");
+                var where = [g.city, g.region].filter(Boolean).join(", ") || g.country || "you";
+                if (exact) return;
+                pick({ name: "Near " + where + " (approximate — allow location for exact)", lat: lat.toFixed(3), lon: lon.toFixed(3) });
+              })
+              .catch(function () { clearTimeout(t); if (!exact) soft(); });
+          }
+          if (!navigator.geolocation) { byIp(); return; }
+          if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: "geolocation" }).then(function (p) {
+              if (p && p.state === "denied") { byIp(); hint.textContent = BLOCKED; }
+              else askExact();
+            }, askExact);
+          } else askExact();
+        });
+
+        [].forEach.call(document.querySelectorAll(".x-units button"), function (b) {
+          b.addEventListener("click", function () {
+            state.unit = b.getAttribute("data-unit");
+            [].forEach.call(document.querySelectorAll(".x-units button"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+            try { localStorage.setItem(KEY + "-unit", state.unit); } catch (e) {}
+            render();
+          });
+        });
+
+        // Start: sample first, then the remembered city if there is one
+        try { var u = localStorage.getItem(KEY + "-unit"); if (u === "C" || u === "F") state.unit = u; } catch (e) {}
+        [].forEach.call(document.querySelectorAll(".x-units button"), function (o) { o.setAttribute("aria-pressed", o.getAttribute("data-unit") === state.unit ? "true" : "false"); });
+        state.data = sample(); state.place = "Sample: Plano, Texas"; state.example = true;
+        render();
+        var last = recall();
+        if (last && last.lat != null && last.lon != null && last.name) {
+          $("city").value = (last.name.indexOf("Your ") === 0 || last.name.indexOf("Near ") === 0) ? "" : last.name.split(",")[0];
+          loadWeather(last);
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        "use strict";
+        var $ = function (id) { return document.getElementById(id); };
+        var isApp = document.documentElement.classList.contains("is-app");
+
+        // Install button: native prompt when available, otherwise the steps
+        var btn = $("install-btn");
+        if (btn) btn.addEventListener("click", function () {
+          var p = window.__wtwPrompt;
+          if (p && p.prompt) {
+            try {
+              p.prompt();
+              window.__wtwPrompt = null;
+              if (p.userChoice) p.userChoice.then(function (r) {
+                $("install-msg").textContent = r && r.outcome === "accepted" ? "Installed. Find What to Wear on your home screen." : "";
+              }, function () {});
+              return;
+            } catch (e) {}
+          }
+          $("install-steps").hidden = false;
+          $("install-msg").textContent = "Free, no app store. Add it from your browser:";
+        });
+        window.addEventListener("appinstalled", function () {
+          var m = $("install-msg");
+          if (m) m.textContent = "Installed. Find What to Wear on your home screen.";
+        });
+
+        // App mode: compact header with the unit toggle, search above the card
+        if (isApp) {
+          var units = document.querySelector(".x-units"), head = $("app-head");
+          if (units && head) head.appendChild(units);
+          var start = document.querySelector(".x-start"), bar = document.querySelector("#check .x-bar");
+          if (start && bar) bar.parentNode.insertBefore(start, bar);
+
+          var splash = $("splash");
+          if (splash) {
+            var gone = false;
+            var hide = function () {
+              if (gone) return;
+              gone = true;
+              splash.classList.add("is-out");
+              setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
+            };
+            var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+            setTimeout(hide, reduce ? 900 : 2200);
+            splash.addEventListener("click", hide);
+          }
+        } else {
+          var s = $("splash");
+          if (s && s.parentNode) s.parentNode.removeChild(s);
+        }
+
+        // Service worker: only on the hosted site, never inside a preview frame
+        try {
+          var framed = true;
+          try { framed = window.self !== window.top; } catch (e) { framed = true; }
+          if ("serviceWorker" in navigator && !framed) {
+            window.addEventListener("load", function () {
+              try { navigator.serviceWorker.register("sw.js").catch(function () {}); } catch (e) {}
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
+  <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-whattowear/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("wtw_seen")){localStorage.setItem("wtw_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
+</body>
+</html>
