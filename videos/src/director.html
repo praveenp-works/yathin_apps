@@ -249,6 +249,63 @@ const SCRIPTS = {
     run: async () => { await sleep(1400); const g=Math.max(1500,(window.__need-2500)/7); for (const e of wb().querySelectorAll(".m")){ e.classList.add("popin"); await sleep(g);} }},
    {end:true, say:"Yathin Loops. Free apps, all in one place."}
   ]},
+ whattowear: { bg:"linear-gradient(135deg,#48b1fb 0%,#6667b5 50%,#f02c38 100%)", btn:"linear-gradient(90deg,#3b9cf0,#7c6fd0,#f02c38)",
+  icon:"/whattowear/whattowear_icon_sq.png", title:"What to Wear", tag:"Check the weather, get your outfit.",
+  chips:["100% free","No sign-up","Phones & web"], foot:"Your city  ·  Today's weather  ·  Your outfit",
+  scenes:[
+   {hook:["Too cold?","Too hot?","Wrong jacket again?"], strike:true, say:"Too cold? Too hot? Wrong jacket, again?"},
+   {say:"Meet What to Wear. Tap use my location.", pill:"One tap for your weather", html:`
+     <div class="h">Where are you today?</div>
+     <div style="display:flex;gap:40px;align-items:flex-start"><div style="width:520px"><div class="card" style="font-size:26px;margin-bottom:22px" id="sr">🔎 Search a city</div><span class="btn" id="loc">📍 Use my location</span></div>
+     <div class="card hide" id="wx" style="flex:1;text-align:center"><div class="muted" style="font-size:24px">Plano, Texas</div><div style="font-size:70px">⛅</div><div style="font-size:120px;font-weight:800;line-height:1"><span id="tp">0</span>°</div><div class="muted" style="font-size:24px;margin-top:10px">Feels like 44° · Rain 60%</div></div></div>`,
+    run: async () => { await cursorTo("#loc", 900); await click("#loc"); hideCursor(); q("#wx").classList.remove("hide"); q("#wx").classList.add("popin"); count(q("#tp"), 48, 1400); await sleep(1900); }},
+   {say:"It checks the weather, and picks your outfit.", pill:"An outfit for today's weather", html:`
+     <div class="h">Wear this</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+     ${[["🧥","Warm jacket"],["👕","Long-sleeve shirt"],["👖","Jeans"]].map(x=>`<div class="card hide t" style="height:300px;text-align:center"><div style="font-size:110px;margin-top:20px">${x[0]}</div><div style="font-size:32px;font-weight:700;margin-top:18px">${x[1]}</div></div>`).join("")}</div>`,
+    run: async () => { await sleep(200); await popAll(".t", 450); await sleep(500); }},
+   {say:"Rain coming? It adds an umbrella. Sunny? Sunglasses.", pill:"Ready for rain, sun, and wind", html:`
+     <div class="h">Bring along</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+     ${[["☔","Umbrella","60% rain this afternoon"],["🕶️","Sunglasses","UV 7 at noon"],["🧣","Scarf","Windy, 22 mph"]].map(x=>`<div class="card hide t" style="height:300px;text-align:center"><div style="font-size:100px;margin-top:16px">${x[0]}</div><div style="font-size:32px;font-weight:700;margin-top:14px">${x[1]}</div><div class="muted" style="font-size:22px;margin-top:6px">${x[2]}</div></div>`).join("")}</div>`,
+    run: async () => { await sleep(200); await popAll(".t", 550); await sleep(500); }},
+   {say:"Plus one line on how the day will turn.", pill:"Know how the day will turn", html:`
+     <div style="text-align:center;padding-top:70px"><div style="font-size:90px">🌤️ → 🌧️</div><div class="hide" id="ln" style="font-size:50px;font-weight:700;margin:36px auto;max-width:1000px">Cool morning, rain after 3 PM. Keep the jacket on.</div></div>`,
+    run: async () => { await sleep(500); q("#ln").classList.remove("hide"); q("#ln").classList.add("upin"); await sleep(2200); }},
+   {say:"No account, no key. Add it to your phone, and it opens like an app.", pill:"Free, no sign-up, on your phone", html:`
+     <div style="display:flex;gap:60px;align-items:center;justify-content:center;padding-top:20px"><div class="card hide t" style="width:300px;height:470px;border-radius:44px;text-align:center"><img src="/whattowear/whattowear_icon_sq.png" style="width:130px;border-radius:30px;margin-top:70px"><div style="font-size:30px;font-weight:700;margin-top:24px">What to Wear</div><div class="muted" style="font-size:22px">48° · Warm jacket</div></div>
+     <div>${["✅ No account","✅ No API key","✅ Free weather data"].map(x=>`<div class="chip hide" style="display:block;font-size:30px;margin:16px 0">${x}</div>`).join("")}</div></div>`,
+    run: async () => { await sleep(200); await popAll(".t", 300); await popAll(".chip", 400); await sleep(600); }},
+   {end:true, say:"What to Wear. Free on Yathin Loops."}
+  ]},
+ screenread: { bg:"linear-gradient(135deg,#f2c500 0%,#6fa8a0 50%,#0278fe 100%)", btn:"linear-gradient(90deg,#eab308,#0278fe)",
+  icon:"/screenread/screenread_icon_sq.png", title:"Screen Read", tag:"Grab text from any screenshot.",
+  chips:["100% free","No sign-up","Reads on your device"], foot:"Screenshot  ·  Read  ·  Copy  ·  Save",
+  scenes:[
+   {hook:["Typing notes","off a screenshot?","Letter by letter?"], strike:true, say:"Still typing notes off a screenshot, letter by letter?"},
+   {say:"Meet Screen Read. Take a screenshot, or choose an image.", pill:"Screenshot, photo, or saved image", html:`
+     <div class="h">Get text out of any image</div>
+     <div style="display:flex;gap:40px"><div class="photo" style="width:560px;height:470px;background:#fffbea"><div id="ph0" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px" class="muted">🖼️ Choose image</div>
+       <div id="ph" class="hide" style="padding:40px;color:#222;font-size:34px;line-height:1.6;font-family:Georgia,serif"><div style="color:#999;font-size:22px">Notes · 9:41</div><b>Science test Friday</b><br>Chapters 4–5<br>Bring a calculator</div><div class="scan" id="sc"></div></div>
+     <div style="flex:1;padding-top:30px"><span class="btn" id="b0" style="margin-bottom:24px">📸 Take screenshot</span><br><br><span class="btn" id="b1">Read text</span></div></div>`,
+    run: async () => { await cursorTo("#ph0", 900); await click("#ph0"); flash(); q("#ph0").remove(); q("#ph").classList.remove("hide"); await sleep(500); await cursorTo("#b1", 800); await click("#b1"); hideCursor(); q("#sc").classList.add("go"); await sleep(2500); }},
+   {say:"It reads the text for free, right on your device.", pill:"Free reading, right on your device", html:`
+     <div class="h">Text</div><div style="height:12px;background:#2a2a38;border-radius:6px;margin-bottom:30px"><div id="pr" style="height:100%;width:0%;background:linear-gradient(90deg,#fedd12,#0278fe);border-radius:6px;transition:width 1.4s"></div></div>
+     <div class="card" style="font-size:40px;line-height:1.7;min-height:280px">${["Science test Friday","Chapters 4–5","Bring a calculator"].map(x=>`<div class="ln hide">${x}</div>`).join("")}</div>`,
+    run: async () => { await sleep(200); q("#pr").style.width = "100%"; await sleep(1400); await popAll(".ln", 400); await sleep(400); }},
+   {say:"Copy it in one tap, or save it as a text file.", pill:"Copy or save in one tap", html:`
+     <div class="card" style="font-size:40px;line-height:1.7">Science test Friday<br>Chapters 4–5<br>Bring a calculator</div>
+     <div style="margin-top:34px;display:flex;gap:24px"><span class="btn" id="cp">📋 Copy text</span><span class="btn" style="background:#2a2a38">⬇ Save .txt</span></div>
+     <div class="chip hide" id="ok" style="font-size:28px;margin-top:30px">✅ Copied!</div>`,
+    run: async () => { await cursorTo("#cp", 900); await click("#cp"); hideCursor(); q("#ok").classList.remove("hide"); q("#ok").classList.add("popin"); await sleep(1500); }},
+   {say:"Tricky image? Switch to Gemini for even better accuracy.", pill:"Gemini mode for tricky images", html:`
+     <div class="h">Reading mode</div><div style="display:flex;gap:24px"><div class="card" id="m1" style="width:420px;box-shadow:inset 0 0 0 3px #fedd12;transition:box-shadow .3s"><b style="font-size:30px">Free</b><div class="muted" style="font-size:22px">On this device</div></div>
+     <div class="card" id="m2" style="width:420px;transition:box-shadow .3s"><b style="font-size:30px">✨ Gemini</b><div class="muted" style="font-size:22px">More accurate</div></div></div>`,
+    run: async () => { await sleep(400); await cursorTo("#m2", 900); await click("#m2"); q("#m1").style.boxShadow = "none"; q("#m2").style.boxShadow = "inset 0 0 0 3px #0278fe"; hideCursor(); await sleep(1300); }},
+   {say:"Free mode never sends your image anywhere. Gemini only when you choose it.", pill:"Your images stay yours", html:`
+     <div style="text-align:center;padding-top:40px"><div style="font-size:110px">🔒</div><div class="h" style="font-size:46px">Privacy first</div>
+     <div class="chip hide" style="font-size:28px;display:inline-block;margin:10px">📱 Free mode stays on your device</div><br><div class="chip hide" style="font-size:28px;display:inline-block;margin:10px">✨ Gemini only when you pick it</div></div>`,
+    run: async () => { await sleep(300); await popAll(".chip", 600); await sleep(800); }},
+   {end:true, say:"Screen Read. Free on Yathin Loops."}
+  ]},
  plantdoc: { bg:"linear-gradient(135deg,#15803d 0%,#65a30d 35%,#ca8a04 65%,#dc2626 100%)", btn:"linear-gradient(90deg,#16a34a,#ca8a04,#dc2626)",
   icon:"/plantdoc/plantdoc_icon.png", title:"Plant Doc", tag:"Snap your plant. See how it's doing.",
   chips:["100% free","Powered by Gemini","Windows & phones"], foot:"Snap  ·  Health score  ·  Care tips  ·  Track your plants",
