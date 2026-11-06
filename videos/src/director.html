@@ -96,6 +96,12 @@ html.v #end h1{color:#111;text-shadow:none}html.v #end .tag{color:#333}
 html.v #end .chips span{background:#111;color:#fff;box-shadow:none}html.v #end .chips span:first-child{background:#ffd60a;color:#111}
 html.v #end .foot{color:#d90429;font-weight:700}
 html.v #cur{left:900px;top:1700px}
+html.v.vk #end{justify-content:center;padding-bottom:0}
+html.v.vk #end h1{color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.3)}html.v.vk #end .tag{color:rgba(255,255,255,.92)}
+html.v.vk #end .chips span,html.v.vk #end .chips span:first-child{background:rgba(255,255,255,.2);color:#fff}
+html.v.vk #end .foot{color:rgba(255,255,255,.85);font-weight:500}
+html.v.vk #hook .hl:last-child{color:#fff}
+html.v.vk #pill{box-shadow:0 10px 30px rgba(0,0,0,.25)}
 </style></head>
 <body>
 <div id="bg"></div><div id="glow"></div>
@@ -386,9 +392,11 @@ const SCRIPTS = {
    {end:true, say:"ClassView. Free on Yathin Apps."}
   ]}
 };
+for (const [k, g] of [["whattowear","linear-gradient(180deg,#48b1fb 0%,#6667b5 50%,#f02c38 100%)"],["screenread","linear-gradient(180deg,#f2c500 0%,#6fa8a0 50%,#0278fe 100%)"]]) SCRIPTS[k + "-vertical"] = {...SCRIPTS[k], vertical:true, vk:true, bg:g};
 const app = new URLSearchParams(location.search).get("app");
 const S = SCRIPTS[app];
 if (S.vertical) document.documentElement.classList.add("v");
+if (S.vk) document.documentElement.classList.add("vk");
 document.documentElement.style.setProperty("--bg", S.bg);
 document.documentElement.style.setProperty("--btn", S.btn);
 // lines for narration (read by record.py)
