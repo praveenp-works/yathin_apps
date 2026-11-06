@@ -267,6 +267,7 @@
           <form class="x-chat" id="chat">
             <input class="x-field" id="msg" type="text" placeholder="Talk to Finko…" aria-label="Talk to Finko" autocomplete="off" />
             <button class="x-mood" type="submit">Send</button>
+            <button class="x-mood" type="button" id="muteBtn" aria-pressed="false" title="Mute Finko (M)">🔊 Mute</button>
             <label class="x-voice"><span aria-hidden="true">🔊</span> Voice <select class="x-field" id="voiceSel"><option>Boy 1</option><option>Boy 2</option><option>Boy 3</option><option>Girl 1</option><option>Girl 2</option></select></label>
             <input class="x-field" id="key" type="password" placeholder="Gemini API key (optional)" aria-label="Gemini API key" autocomplete="off" />
           </form>
@@ -457,7 +458,7 @@
         const pickVoice = () => { if (SS && SS.getVoices().length) voice = voiceFor(vKey); };
         if (SS) { pickVoice(); SS.addEventListener ? SS.addEventListener("voiceschanged", pickVoice) : (SS.onvoiceschanged = pickVoice); }
         const chirp = () => {
-          if (!actx) return 0; const t0 = actx.currentTime;
+          if (!actx || !voiceOn) return 0; const t0 = actx.currentTime;
           [[900, 0], [1300, 0.08]].forEach(([f, d]) => {
             const o = actx.createOscillator(), g = actx.createGain();
             o.type = "sine"; o.frequency.value = f; g.gain.value = 0.04;
@@ -497,6 +498,11 @@
         const tbub = $("#tbubble"); let tbUntil = 0;
         const tSay = (s, ms) => { tbub.textContent = s; tbub.hidden = false; tbUntil = now() + (ms || Math.max(2500, s.length * 70)); speak(s, 0, 1); };
         $("#voiceSel").addEventListener("change", (e) => { vKey = e.target.value; unlock(); pickVoice(); hush(); lastTxt = ""; speak("Hi, I'm Finko!"); });
+        const muteBtn = $("#muteBtn");
+        const setMute = (m) => { voiceOn = !m; try { localStorage.setItem("finko-muted", m ? "1" : "0"); } catch (e) {} if (m) hush(); muteBtn.textContent = m ? "🔇 Unmute" : "🔊 Mute"; muteBtn.setAttribute("aria-pressed", m ? "true" : "false"); };
+        try { if (localStorage.getItem("finko-muted") === "1") setMute(true); } catch (e) {}
+        muteBtn.addEventListener("click", () => setMute(voiceOn));
+        document.addEventListener("keydown", (e) => { if ((e.key === "m" || e.key === "M") && !e.ctrlKey && !e.metaKey && !e.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) setMute(voiceOn); });
         const say = (s, ms, idle, sc) => { if (job && job.k === "School" && !sc) return; bubble.textContent = s; bubble.hidden = false; talkUntil = now() + Math.min(4000, s.length * 60); bubbleUntil = now() + (ms || Math.max(2500, s.length * 70)); speak(s, idle); };
         const CHAT = ["Beep! Anyone want to play?", "My battery feels great!", "I love this house.", "Want me to cook something?", "Boop boop."];
         const chatter = () => setTimeout(() => { if (!asleep && !job && !busy()) say(CHAT[(Math.random() * CHAT.length) | 0], 0, 1); chatter(); }, 10000 + Math.random() * 10000);
