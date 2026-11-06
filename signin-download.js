@@ -62,7 +62,7 @@
   function ready() {
     var u = get();
     ov.innerHTML = '<div class="ya-box">' + (ICON ? '<img src="' + ICON + '" alt="">' : "") +
-      (NOSI || !u ? "<h2>Get " + APP + "</h2>" : "<h2>Hi " + String(u.name).replace(/[<>&"]/g, "") + "!</h2>")<p>" + APP + " for Windows 10 and 11." + (NEED ? " The first time you open it, paste the same key into its Gemini API key box." : "") + " Windows may say it's from an unknown publisher: click More info, then Run anyway.</p>" +
+      (NOSI || !u ? "<h2>Get " + APP + "</h2>" : "<h2>Hi " + String(u.name).replace(/[<>&"]/g, "") + "!</h2>") + "<p>" + APP + " for Windows 10 and 11." + (NEED ? " The first time you open it, paste the same key into its Gemini API key box." : "") + " Windows may say it's from an unknown publisher: click More info, then Run anyway.</p>" +
       '<a class="ya-btn" id="ya-go" href="' + URL + '">Download for Windows</a>' +
       (AND ? '<a class="ya-btn" href="' + AND + '" style="margin-top:8px">Download for Android (.apk)</a><p style="font-size:12px;opacity:.7">Android: allow "install unknown apps" when asked.</p>' : "") +
       '<button class="ya-x" type="button" id="ya-out"' + (NOSI ? " hidden" : "") + '>Not you? Sign out</button><br><button class="ya-x" type="button" id="ya-c">Close</button></div>';
