@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Screen Read · Grab text from any screenshot</title>
+    <link rel="icon" type="image/png" href="screenread_icon_sq.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root {
+        --x-accent-a: #facc15;
+        --x-accent-b: #2563eb;
+        --x-accent: linear-gradient(90deg, var(--x-accent-a), var(--x-accent-b));
+        --x-accent-ink: light-dark(#2563eb, #6b9bff);
+        --x-glow: 0 0 0 2px var(--x-accent-a);
+      }
+      /* accents: blue with yellow highlights */
+      :focus-visible { outline-color: var(--x-accent-b); }
+      .nav :focus-visible { outline-color: var(--x-accent-a); }
+      a.link { color: var(--x-accent-ink); text-decoration-color: var(--x-accent-a); }
+      a.link:hover { text-decoration-color: currentColor; }
+      /* nav back link */
+      .x-back {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 0 12px 0 6px;
+        border-radius: var(--r-pill);
+        color: var(--text-primary-on);
+        font: var(--type-label);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .x-back { background-color: var(--fill-primary); }
+      .x-back:hover { box-shadow: inset 0 0 0 100px var(--hover-wash-primary-on); }
+      .x-back img { width: 26px; height: 26px; border-radius: 8px; }
+      @media (max-width: 599px) { .x-back { min-height: var(--tap); } }
+      @media (max-width: 420px) { .x-back__label { display: none; } }
+
+      /* hero brand */
+      .x-brand { display: flex; align-items: center; gap: 14px; }
+      .x-brand img { width: 56px; height: 56px; border-radius: var(--r-s); box-shadow: var(--hark-shadow); }
+      .x-grad {
+        background: var(--x-accent);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: var(--x-accent-b);
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* action buttons */
+      .x-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .x-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: var(--tap);
+        padding: 0 16px;
+        border-radius: var(--r-pill);
+        border: 1px solid var(--stroke-primary);
+        background: var(--fill-primary-on);
+        color: var(--text-primary);
+        font: var(--type-label);
+        cursor: pointer;
+        text-decoration: none;
+        transition: box-shadow var(--dur-quick) ease, transform var(--dur-quick) ease;
+      }
+      .x-btn:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-btn:active { transform: scale(0.97); }
+      .x-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+      .x-btn--accent { border: 0; background-color: var(--x-accent-b); color: #ffffff; box-shadow: inset 0 -2px 0 var(--x-accent-a); }
+      .x-btn--accent:hover { box-shadow: inset 0 0 0 100px rgb(255 255 255 / 0.12), var(--x-glow); }
+      .x-btn--accent:active { box-shadow: var(--x-glow), 0 0 12px rgb(250 204 21 / 0.55); }
+      .x-btn--accent:disabled { box-shadow: none; }
+      .x-btn--small { min-height: 32px; padding: 0 12px; font: var(--type-tag); }
+      @media (pointer: coarse) { .x-btn--small { min-height: var(--tap); } }
+
+      /* app layout */
+      .x-app { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 3vw, 40px); align-items: start; }
+      @media (max-width: 860px) { .x-app { grid-template-columns: minmax(0, 1fr); } }
+      .x-col { display: grid; gap: 16px; min-width: 0; }
+      .x-label { font: var(--type-label); color: var(--text-secondary); }
+
+      .x-drop {
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+        text-align: center;
+        padding: 24px 20px;
+        border: 1.5px dashed var(--stroke-primary);
+        border-radius: var(--r-m);
+        transition: border-color var(--dur-quick) ease, background var(--dur-quick) ease;
+      }
+      .x-drop.is-over { border-color: var(--x-accent-b); background: var(--hover-wash); box-shadow: 0 0 0 3px rgb(250 204 21 / 0.4); }
+      .x-drop .x-actions { justify-content: center; }
+      .x-hint { font: var(--type-small); color: var(--text-secondary); }
+      .x-note-soft {
+        padding: 10px 14px;
+        border-radius: var(--r-s);
+        background: var(--fill-tertiary);
+        font: var(--type-small);
+        color: var(--text-primary);
+      }
+      .x-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+      /* preview */
+      .x-preview {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 180px;
+        padding: 16px;
+        border-radius: var(--r-m);
+        background: var(--fill-tertiary);
+      }
+      .x-preview img { max-height: 360px; width: auto; max-width: 100%; border-radius: var(--r-s); }
+      .x-preview__bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .x-tag {
+        padding: 3px 10px;
+        border-radius: var(--r-pill);
+        border: 1px solid var(--stroke-primary);
+        font: var(--type-tag);
+        color: var(--text-secondary);
+      }
+
+      /* example note card */
+      .x-sample {
+        width: min(280px, 100%);
+        padding: 18px 20px 20px;
+        border-radius: var(--r-s);
+        background: var(--fill-primary-on);
+        border: 1px solid var(--stroke-secondary);
+        box-shadow: var(--hark-shadow);
+        display: grid;
+        gap: 8px;
+        text-align: left;
+      }
+      .x-sample__top { display: flex; justify-content: space-between; font: var(--type-caption); color: var(--text-secondary); }
+      .x-sample h4 { margin: 0; font: var(--type-heading); }
+      .x-sample ul { margin: 0; padding-left: 18px; font: var(--type-body); }
+      .x-sample__rule { height: 3px; width: 48px; border-radius: 3px; background: var(--x-accent); }
+
+      /* mode toggle */
+      .x-mode {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px;
+        border-radius: var(--r-pill);
+        background: var(--fill-tertiary);
+        justify-self: start;
+        max-width: 100%;
+      }
+      .x-mode button {
+        min-height: 36px;
+        padding: 0 14px;
+        border: 0;
+        border-radius: var(--r-pill);
+        background: transparent;
+        color: var(--text-secondary);
+        font: var(--type-label);
+        cursor: pointer;
+      }
+      .x-mode button[aria-pressed="true"] { background: var(--x-accent-b); color: #ffffff; box-shadow: var(--x-glow); }
+      @media (pointer: coarse), (max-width: 599px) { .x-mode button { min-height: var(--tap); } }
+
+      /* key box */
+      .x-key {
+        display: grid;
+        gap: 10px;
+        padding: 16px 18px;
+        border-radius: var(--r-m);
+        background: var(--fill-tertiary);
+        font: var(--type-small);
+      }
+      .x-key__row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .x-input {
+        flex: 1 1 200px;
+        min-height: var(--tap);
+        padding: 0 14px;
+        border-radius: var(--r-s);
+        border: 1px solid var(--stroke-primary);
+        background: var(--fill-primary-on);
+        color: var(--text-primary);
+        font: var(--type-body);
+      }
+      .x-msg { font: var(--type-small); color: var(--text-secondary); }
+      .x-msg.is-error { color: light-dark(#b3261e, #f87171); }
+      .x-msg.is-ok { color: var(--text-primary); }
+
+      /* progress */
+      .x-progress { display: grid; gap: 6px; }
+      .x-progress__track { height: 6px; border-radius: var(--r-pill); background: var(--fill-tertiary); overflow: hidden; }
+      .x-progress__bar { height: 100%; width: 0; background: var(--x-accent); border-radius: inherit; transition: width var(--dur-quick) var(--ease-out); }
+
+      /* result */
+      .x-text {
+        width: 100%;
+        min-height: 300px;
+        padding: 14px 16px;
+        border-radius: var(--r-m);
+        border: 1px solid var(--stroke-primary);
+        background: var(--fill-primary-on);
+        color: var(--text-primary);
+        font: var(--type-body);
+        font-size: var(--size-prose);
+        line-height: 1.5;
+        resize: vertical;
+      }
+      .x-text:focus-visible { outline-offset: 0; border-radius: var(--r-m); }
+      .x-result__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+      .x-count { font: var(--type-small); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass">
+        <a class="x-back" href="https://praveenp-works.github.io/yathin_apps/" aria-label="Back to Yathin Looops"
+          ><span aria-hidden="true">←</span><img src="screenread_icon_sq.png" alt="" /><span class="x-back__label">Yathin Looops</span></a
+        >
+        <nav class="seg" aria-label="Sections">
+          <a href="#read">Read</a>
+          <a href="#how">How it works</a>
+        </nav>
+        <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>
+      </header>
+
+      <main class="main">
+        <section class="hero">
+          <img class="hero__img" src="screenread_hero.jpg" alt="A phone screen full of text, ready to be read" />
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Free · No sign-up · Created by Yathin Pedamallu</p>
+            <div class="x-brand">
+              <img src="screenread_icon_sq.png" alt="Screen Read app icon" />
+              <h1><span class="x-grad">Screen Read</span></h1>
+            </div>
+            <p class="hero__sub">Snap your screen or pick an image. Copy the text in one tap.</p>
+          </div>
+          <aside class="callout" aria-label="Get started">
+            <p class="callout__head">Get started</p>
+            <p class="callout__lead"><strong>Get text out of any image, fast.</strong> Screenshot, photo, or a picture you saved.</p>
+            <div class="x-actions">
+              <button class="x-btn x-btn--accent" type="button" data-act="shot">📸 Take screenshot</button>
+              <button class="x-btn" type="button" data-act="pick">🖼️ Choose image</button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="section" id="read" data-nav="Read">
+          <div class="head">
+            <h2>Drop in an image, get the text back.</h2>
+            <p class="head__sub">You can also paste an image anywhere on this page with Ctrl+V or Cmd+V.</p>
+          </div>
+
+          <div class="x-app">
+            <div class="x-col">
+              <div class="x-drop" id="drop">
+                <div class="x-actions">
+                  <button class="x-btn x-btn--accent" type="button" data-act="shot">📸 Take screenshot</button>
+                  <button class="x-btn" type="button" data-act="pick">🖼️ Choose image</button>
+                </div>
+                <p class="x-hint">Pick a screenshot from Downloads or Photos, or drop it here.</p>
+                <input class="x-file" id="file" type="file" accept="image/*" aria-label="Choose image" />
+              </div>
+              <p class="x-note-soft" id="shot-note" role="status" hidden>
+                Screenshots aren't available here. Take one with your device, then choose it.
+              </p>
+
+              <div class="x-preview__bar">
+                <span class="x-label" id="preview-label">Image</span>
+                <span class="x-tag" id="example-tag">Example</span>
+                <button class="x-btn x-btn--small" type="button" id="clear" hidden>Clear</button>
+              </div>
+              <div class="x-preview" id="preview">
+                <div class="x-sample" id="sample" aria-label="Example screenshot of a note">
+                  <div class="x-sample__top"><span>Notes</span><span>9:41</span></div>
+                  <div class="x-sample__rule"></div>
+                  <h4>Science test Friday</h4>
+                  <ul>
+                    <li>Chapters 4–5</li>
+                    <li>Bring a calculator</li>
+                  </ul>
+                </div>
+                <img id="preview-img" alt="Your image" width="1" height="1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" hidden />
+              </div>
+
+              <p class="x-label">Reading mode</p>
+              <div class="x-mode" role="group" aria-label="Reading mode">
+                <button type="button" data-mode="free" aria-pressed="true">Free (on this device)</button>
+                <button type="button" data-mode="gemini" aria-pressed="false">Gemini (more accurate)</button>
+              </div>
+
+              <div class="x-key" id="keybox" hidden>
+                <label for="key-input">Gemini API key (optional, for better accuracy) — get one free at
+                  <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></label>
+                <div class="x-key__row">
+                  <input class="x-input" id="key-input" type="password" autocomplete="off" placeholder="Paste your key" />
+                  <button class="x-btn" type="button" id="key-save">Save</button>
+                </div>
+                <p class="x-msg" id="key-msg" role="status"></p>
+              </div>
+              <p class="x-msg" id="key-set" hidden>Gemini key saved. <button class="x-btn x-btn--small" type="button" id="key-change">Change key</button></p>
+
+              <div class="x-actions">
+                <button class="x-btn x-btn--accent" type="button" id="read-btn" disabled>Read text</button>
+              </div>
+            </div>
+
+            <div class="x-col">
+              <div class="x-result__bar">
+                <label class="x-label" for="out">Text</label>
+                <span class="x-count" id="count" aria-live="polite"></span>
+              </div>
+              <div class="x-progress" id="progress" hidden>
+                <p class="x-msg" id="progress-text" role="status">Reading text… 0%</p>
+                <div class="x-progress__track"><div class="x-progress__bar" id="progress-bar"></div></div>
+              </div>
+              <p class="x-msg" id="status" role="status" hidden></p>
+              <textarea class="x-text" id="out" spellcheck="false">Science test Friday
+Chapters 4–5
+Bring a calculator</textarea>
+              <div class="x-actions">
+                <button class="x-btn x-btn--accent" type="button" id="copy">📋 Copy text</button>
+                <button class="x-btn" type="button" id="save">⬇ Save .txt</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="how" data-nav="How it works">
+          <div class="head"><h2>Three steps, a few seconds.</h2></div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__intro"><p class="step__num">1</p></div>
+              <div>
+                <h3>Grab</h3>
+                <p>Take a screenshot, choose an image, drop or paste it.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">2</p></div>
+              <div>
+                <h3>Read</h3>
+                <p>Free on-device reading, or Gemini for tricky images.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">3</p></div>
+              <div>
+                <h3>Copy</h3>
+                <p>Edit if needed, then copy or save.</p>
+              </div>
+            </article>
+          </div>
+          <p class="fineprint">Free mode reads the image on your device. Gemini mode sends the image to Google only when you choose it.</p>
+        </section>
+      </main>
+
+      <footer class="foot">
+        <p>Screen Read · Part of Yathin Looops · Created by Yathin Pedamallu</p>
+        <nav aria-label="Back to sections" data-auto></nav>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var KEY_NAME = "ya-gemini-key";
+        var PROMPT = "Extract all text in this image exactly as written. Keep line breaks and reading order. Output only the text, nothing else.";
+        var memKey = "";
+        var state = { image: null, mode: "free", busy: false };
+
+        function getKey() {
+          try { var k = localStorage.getItem(KEY_NAME); if (k) return k; } catch (e) {}
+          return memKey;
+        }
+        function setKey(k) {
+          memKey = k;
+          try { localStorage.setItem(KEY_NAME, k); } catch (e) {}
+        }
+
+        var out = $("out"), fileInput = $("file");
+
+        function updateCount() {
+          var t = out.value.trim();
+          var words = t ? t.split(/\s+/).length : 0;
+          $("count").textContent = words + (words === 1 ? " word" : " words") + " · " + out.value.length + (out.value.length === 1 ? " character" : " characters");
+        }
+        out.addEventListener("input", updateCount);
+        updateCount();
+
+        function showStatus(msg, kind) {
+          var s = $("status");
+          if (!msg) { s.hidden = true; return; }
+          s.hidden = false;
+          s.textContent = msg;
+          s.className = "x-msg" + (kind ? " is-" + kind : "");
+        }
+        function progress(pct, label) {
+          if (pct == null) { $("progress").hidden = true; return; }
+          $("progress").hidden = false;
+          $("progress-bar").style.width = pct + "%";
+          $("progress-text").textContent = label || "Reading text… " + pct + "%";
+        }
+
+        /* modes */
+        function renderKeyUI() {
+          var gem = state.mode === "gemini", has = getKey().length >= 20;
+          $("keybox").hidden = !gem || has;
+          $("key-set").hidden = !gem || !has;
+        }
+        [].forEach.call(document.querySelectorAll(".x-mode button"), function (b) {
+          b.addEventListener("click", function () {
+            state.mode = b.getAttribute("data-mode");
+            [].forEach.call(document.querySelectorAll(".x-mode button"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+            renderKeyUI();
+          });
+        });
+        $("key-save").addEventListener("click", function () {
+          var k = $("key-input").value.trim();
+          if (k.length < 20) { $("key-msg").textContent = "That key looks too short."; $("key-msg").className = "x-msg is-error"; return; }
+          setKey(k);
+          $("key-input").value = "";
+          $("key-msg").textContent = "";
+          renderKeyUI();
+        });
+        $("key-change").addEventListener("click", function () {
+          memKey = "";
+          try { localStorage.removeItem(KEY_NAME); } catch (e) {}
+          renderKeyUI();
+          $("key-input").focus();
+        });
+        renderKeyUI();
+
+        /* images */
+        function loadImg(src) {
+          return new Promise(function (res, rej) {
+            var im = new Image();
+            im.onload = function () { res(im); };
+            im.onerror = function () { rej(new Error("Could not open that image.")); };
+            im.src = src;
+          });
+        }
+        function scaled(im, max, type, q) {
+          var w = im.naturalWidth || im.width, h = im.naturalHeight || im.height;
+          var s = Math.min(1, max / Math.max(w, h));
+          var c = document.createElement("canvas");
+          c.width = Math.round(w * s); c.height = Math.round(h * s);
+          var ctx = c.getContext("2d");
+          ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(im, 0, 0, c.width, c.height);
+          return c.toDataURL(type, q);
+        }
+
+        function setImage(dataUrl) {
+          state.image = dataUrl;
+          $("sample").hidden = true;
+          $("example-tag").hidden = true;
+          var img = $("preview-img");
+          img.src = dataUrl;
+          img.hidden = false;
+          $("clear").hidden = false;
+          $("preview-label").textContent = "Your image";
+          $("read-btn").disabled = false;
+          $("shot-note").hidden = true;
+          out.value = "";
+          updateCount();
+          showStatus("");
+          readText();
+        }
+        function fromFile(file) {
+          if (!file || !/^image\//.test(file.type)) { showStatus("That file isn't an image. Try a PNG or JPG.", "error"); return; }
+          var r = new FileReader();
+          r.onload = function () { setImage(r.result); };
+          r.readAsDataURL(file);
+        }
+        $("clear").addEventListener("click", function () {
+          state.image = null;
+          var img = $("preview-img");
+          img.hidden = true; img.src = BLANK;
+          $("sample").hidden = true;
+          $("clear").hidden = true;
+          $("preview-label").textContent = "Image";
+          $("read-btn").disabled = true;
+          out.value = "";
+          updateCount();
+          progress(null);
+          showStatus("Add an image to read its text.");
+        });
+
+        fileInput.addEventListener("change", function () {
+          picking = false;
+          if (fileInput.files && fileInput.files[0]) fromFile(fileInput.files[0]);
+          else clearPickHint();
+          fileInput.value = "";
+        });
+
+        /* picker cancelled: hide the "Pick a screenshot…" hint */
+        var PICK_HINT = "Pick a screenshot from Downloads or Photos…", picking = false;
+        function clearPickHint() {
+          var s = $("status");
+          if (!s.hidden && s.textContent === PICK_HINT) showStatus("");
+        }
+        fileInput.addEventListener("cancel", function () { picking = false; clearPickHint(); });
+        window.addEventListener("focus", function () {
+          if (!picking) return;
+          setTimeout(function () {
+            if (picking && !(fileInput.files && fileInput.files.length)) { picking = false; clearPickHint(); }
+          }, 500);
+        });
+
+        function goToApp() {
+          var r = $("read").getBoundingClientRect();
+          if (r.top > window.innerHeight * 0.5 || r.bottom < 0) $("read").scrollIntoView({ block: "start" });
+        }
+
+        var BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        async function takeShot() {
+          var md = navigator.mediaDevices;
+          goToApp();
+          showStatus("Pick a screen, window or tab to capture…");
+          if (!md || !md.getDisplayMedia) { showStatus(""); $("shot-note").hidden = false; return; }
+          var stream;
+          try {
+            stream = await md.getDisplayMedia({ video: true });
+            var v = document.createElement("video");
+            v.muted = true; v.playsInline = true;
+            v.srcObject = stream;
+            await new Promise(function (res) { v.onloadedmetadata = res; });
+            await v.play();
+            await new Promise(function (res) { setTimeout(res, 250); });
+            var c = document.createElement("canvas");
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            goToApp();
+            setImage(c.toDataURL("image/png"));
+          } catch (e) {
+            if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+            showStatus("");
+            $("shot-note").hidden = false;
+          }
+        }
+
+        [].forEach.call(document.querySelectorAll("[data-act]"), function (b) {
+          b.addEventListener("click", function () {
+            if (b.getAttribute("data-act") === "shot") takeShot();
+            else { goToApp(); showStatus(PICK_HINT); picking = true; fileInput.click(); }
+          });
+        });
+
+        /* drag and drop */
+        var drop = $("drop");
+        ["dragenter", "dragover"].forEach(function (ev) {
+          drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); });
+        });
+        ["dragleave", "drop"].forEach(function (ev) {
+          drop.addEventListener(ev, function () { drop.classList.remove("is-over"); });
+        });
+        drop.addEventListener("drop", function (e) {
+          e.preventDefault();
+          var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) fromFile(f);
+        });
+        window.addEventListener("dragover", function (e) { e.preventDefault(); });
+        window.addEventListener("drop", function (e) {
+          e.preventDefault();
+          if (drop.contains(e.target)) return;
+          var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) { goToApp(); fromFile(f); }
+        });
+
+        /* paste */
+        document.addEventListener("paste", function (e) {
+          var items = (e.clipboardData && e.clipboardData.items) || [];
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].kind === "file" && /^image\//.test(items[i].type)) {
+              e.preventDefault();
+              goToApp();
+              fromFile(items[i].getAsFile());
+              return;
+            }
+          }
+        });
+
+        /* reading */
+        var tessPromise = null;
+        function loadTesseract() {
+          if (window.Tesseract) return Promise.resolve(window.Tesseract);
+          if (tessPromise) return tessPromise;
+          tessPromise = new Promise(function (res, rej) {
+            var s = document.createElement("script");
+            s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+            s.onload = function () { res(window.Tesseract); };
+            s.onerror = function () { tessPromise = null; rej(new Error("Couldn't load the free reader. Check your connection and try again.")); };
+            document.head.appendChild(s);
+          });
+          return tessPromise;
+        }
+
+        async function readFree(im) {
+          progress(0, "Loading reader…");
+          var T = await loadTesseract();
+          var src = scaled(im, 2000, "image/png");
+          var r = await T.recognize(src, "eng", {
+            logger: function (m) {
+              if (m.status === "recognizing text") progress(Math.round((m.progress || 0) * 100));
+              else if (m.status) progress(0, "Getting ready…");
+            }
+          });
+          return (r && r.data && r.data.text) || "";
+        }
+
+        async function readGemini(im) {
+          var key = getKey();
+          if (key.length < 20) { renderKeyUI(); throw new Error("Add your Gemini API key above, or switch to Free mode."); }
+          progress(30, "Asking Gemini…");
+          var data = scaled(im, 1600, "image/jpeg", 0.9).split(",")[1];
+          var res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + encodeURIComponent(key), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ inline_data: { mime_type: "image/jpeg", data: data } }, { text: PROMPT }] }],
+              generationConfig: { thinkingConfig: { thinkingLevel: "minimal" } }
+            })
+          });
+          progress(80, "Reading text… 80%");
+          var j = await res.json().catch(function () { return {}; });
+          if (!res.ok) throw new Error((j.error && j.error.message) || "Gemini returned an error (" + res.status + ").");
+          var parts = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
+          return parts.map(function (p) { return p.text || ""; }).join("");
+        }
+
+        async function readText() {
+          if (!state.image || state.busy) return;
+          state.busy = true;
+          $("read-btn").disabled = true;
+          showStatus("");
+          try {
+            var im = await loadImg(state.image);
+            var text = state.mode === "gemini" ? await readGemini(im) : await readFree(im);
+            text = text.replace(/\s+$/, "");
+            progress(null);
+            out.value = text;
+            updateCount();
+            if (!text.trim()) showStatus("No text found. Try a clearer or bigger image.");
+            else showStatus("Done. Edit below if needed, then copy.", "ok");
+          } catch (e) {
+            progress(null);
+            var msg = (e && e.message) || "Something went wrong.";
+            showStatus(state.mode === "gemini" ? msg + " Try Free mode instead." : msg, "error");
+          } finally {
+            state.busy = false;
+            $("read-btn").disabled = !state.image;
+          }
+        }
+        $("read-btn").addEventListener("click", readText);
+
+        /* copy and save */
+        $("copy").addEventListener("click", async function () {
+          var btn = this, ok = false;
+          try { await navigator.clipboard.writeText(out.value); ok = true; } catch (e) {
+            out.focus(); out.select();
+            try { ok = document.execCommand("copy"); } catch (e2) {}
+          }
+          btn.textContent = ok ? "Copied!" : "Select and copy";
+          setTimeout(function () { btn.textContent = "📋 Copy text"; }, 1500);
+        });
+        $("save").addEventListener("click", function () {
+          var blob = new Blob([out.value], { type: "text/plain;charset=utf-8" });
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "screen-read.txt";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+        });
+      })();
+    </script>
+  <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-screenread/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("sr_seen")){localStorage.setItem("sr_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
+</body>
+</html>
