@@ -286,7 +286,7 @@
         <input class="x-input" id="keyIn" type="password" autocomplete="off" placeholder="Paste your key" />
         <p class="x-error" id="keyErr" role="alert" hidden>Paste your key first.</p>
         <div class="x-row">
-          <button class="x-go" type="submit">Save</button>
+          <button class="x-go" type="button" id="keySave">Save</button>
           <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get a free key</a>
         </div>
         <p class="x-saved" id="keySaved" role="status" hidden>Key saved ✓</p>
@@ -564,8 +564,9 @@
 
         // Gemini key: one dialog, opened from the nav and from the chat
         const store = {
-          get() { try { return localStorage.getItem("ya-gemini-key") || ""; } catch (_) { return ""; } },
-          set(k) { try { localStorage.setItem("ya-gemini-key", k); } catch (_) {} },
+          mem: "",
+          get() { try { return localStorage.getItem("ya-gemini-key") || this.mem; } catch (_) { return this.mem; } },
+          set(k) { this.mem = k; try { localStorage.setItem("ya-gemini-key", k); } catch (_) {} },
         };
         const getKey = () => { let k = ""; try { if (window.yaKey && yaKey.get) k = yaKey.get() || ""; } catch (_) {} return (k || store.get()).trim(); };
         const dlg = $("keyDlg");
@@ -580,8 +581,8 @@
           $("keyIn").focus();
         }
         function closeKey() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
-        $("keyForm").addEventListener("submit", (e) => {
-          e.preventDefault();
+        function saveKey(e) {
+          if (e) e.preventDefault();
           const k = $("keyIn").value.trim();
           if (!k) { $("keyErr").hidden = false; $("keyIn").focus(); return; }
           store.set(k);
@@ -590,7 +591,10 @@
           syncKeyBtn();
           const then = afterKey; afterKey = null;
           keyT = setTimeout(() => { closeKey(); if (then) then(); }, 900);
-        });
+        }
+        $("keySave").addEventListener("click", saveKey);
+        $("keyForm").addEventListener("submit", saveKey);
+        $("keyIn").addEventListener("keydown", (e) => { if (e.key === "Enter") saveKey(e); });
         $("keyClose").onclick = closeKey;
         dlg.addEventListener("click", (e) => { if (e.target === dlg) closeKey(); });
 
