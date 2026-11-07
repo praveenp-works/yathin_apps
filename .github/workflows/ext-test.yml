@@ -1,0 +1,48 @@
+name: Test Screen Read Chrome extension
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["screenread/chrome-extension/**", ".github/workflows/ext-test.yml"]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q playwright pillow && python -m playwright install --with-deps chromium
+      - name: Load extension and read a test image
+        run: |
+          cat > t.py <<'PY'
+          from playwright.sync_api import sync_playwright
+          from PIL import Image, ImageDraw, ImageFont
+          import os, time
+          im = Image.new("RGB", (900, 220), "white"); d = ImageDraw.Draw(im)
+          f = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 44)
+          d.text((30, 40), "Hello from Yathin Looops", font=f, fill="black"); d.text((30, 120), "Screen Read 2026", font=f, fill="black")
+          im.save("test.png")
+          ext = os.path.abspath("screenread/chrome-extension")
+          with sync_playwright() as p:
+              ctx = p.chromium.launch_persistent_context("", headless=False, args=["--headless=new", f"--disable-extensions-except={ext}", f"--load-extension={ext}"])
+              sw = ctx.service_workers[0] if ctx.service_workers else ctx.wait_for_event("serviceworker")
+              eid = sw.url.split("/")[2]; print("extension id", eid)
+              pg = ctx.new_page(); logs = []
+              pg.on("console", lambda m: logs.append(m.text)); pg.on("pageerror", lambda e: logs.append("ERR " + str(e)))
+              pg.goto(f"chrome-extension://{eid}/result.html")
+              pg.set_input_files("#fileIn", "test.png")
+              t0 = time.time(); val = ""
+              while time.time() - t0 < 90:
+                  val = pg.eval_on_selector("#out", "e => e.value")
+                  st = pg.inner_text("#status")
+                  if val.strip() or "Couldn't" in st or "No text" in st: break
+                  time.sleep(1)
+              print("STATUS:", pg.inner_text("#status")); print("TEXT:", repr(val)); print("LOGS:", logs[:20])
+              pg.screenshot(path="result.png", full_page=True)
+              pp = ctx.new_page(); pp.goto(f"chrome-extension://{eid}/popup.html"); pp.set_viewport_size({"width": 320, "height": 330}); pp.screenshot(path="popup.png")
+              ctx.close()
+              assert "Yathin" in val or "Hello" in val, "OCR failed"
+          PY
+          python t.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: ext-shots, path: "*.png" }

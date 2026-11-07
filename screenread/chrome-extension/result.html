@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="ui.css"><title>Screen Read · text</title></head>
+<body class="res">
+  <header class="top wide"><img src="icons/icon48.png" alt=""><div><b>Screen Read</b><small>Text from your screen</small></div>
+    <a class="pill" href="https://praveenp-works.github.io/yathin_apps/" target="_blank">← Yathin Looops</a></header>
+  <main>
+    <section class="card">
+      <div class="drop" id="drop"><p>Drop an image here, paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, or <label class="link">pick a file<input type="file" id="fileIn" accept="image/*" hidden></label>.</p></div>
+      <img id="pic" alt="Your picture" hidden>
+    </section>
+    <section class="card">
+      <div class="bar"><h2>Text</h2><span id="status" class="muted"></span></div>
+      <div class="prog" id="prog" hidden><i id="progBar"></i></div>
+      <textarea id="out" placeholder="The text shows up here." spellcheck="false"></textarea>
+      <div class="row">
+        <button class="go" id="copy" disabled>Copy text</button>
+        <button class="alt" id="gem">✨ Read with Gemini</button>
+        <button class="ghost" id="keyBtn">Gemini key</button>
+        <span id="count" class="muted"></span>
+      </div>
+      <div class="key" id="keyBox" hidden>
+        <p class="muted">Optional. Gemini reads messy or handwritten text better. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>. It stays in this browser.</p>
+        <div class="row"><input id="keyIn" type="password" placeholder="Paste your Gemini key"><button class="go" id="keySave">Save</button></div>
+      </div>
+    </section>
+  </main>
+  <footer>Screen Read · Part of Yathin Looops · Created by Yathin Pedamallu</footer>
+  <script src="lib/tesseract.min.js"></script>
+  <script src="result.js"></script>
+</body></html>
