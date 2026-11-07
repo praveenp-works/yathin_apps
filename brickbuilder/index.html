@@ -635,10 +635,18 @@
         const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2.5-flash-lite", "gemini-2.0-flash"];
         const nap = (ms) => new Promise((ok) => setTimeout(ok, ms));
         async function gemini(key, body) {
-          let r = null;
+          let r = null; const deadline = Date.now() + 70000;
           for (let m = 0; m < MODELS.length; m++) {
             const b = JSON.parse(JSON.stringify(body));
-            const post = () => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS[m]}:generateContent?key=${encodeURIComponent(key)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) });
+            const post = async () => {
+              // Never wait forever: each try gets 25 seconds, and the whole answer at most 70.
+              const left = deadline - Date.now();
+              if (left < 3000) { const e = new Error("Gemini is taking too long right now. Try again in a minute, or ask for something simpler."); e.slow = true; throw e; }
+              const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), Math.min(25000, left));
+              try { return await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS[m]}:generateContent?key=${encodeURIComponent(key)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b), signal: ctl.signal }); }
+              catch (e) { if (e.name === "AbortError") return { ok: false, status: 504, clone() { return this; }, text: async () => "", json: async () => ({}) }; throw e; }
+              finally { clearTimeout(t); }
+            };
             for (let tries = 0; tries < 2; tries++) {
               r = await post();
               if (r.status === 400) {
@@ -646,9 +654,11 @@
                 if (/thinking/i.test(t) && b.generationConfig && b.generationConfig.thinkingConfig) { delete b.generationConfig.thinkingConfig; r = await post(); }
               }
               if (r.ok || ![429, 500, 503, 504].includes(r.status)) break;
+              if (deadline - Date.now() < 8000) break;
               await nap(1200 * (tries + 1));
             }
             if (r.ok) return r;
+            if (deadline - Date.now() < 5000) return r;
             if (r.status === 404 || [429, 500, 503, 504].includes(r.status)) continue; // busy or missing model: try the next one
             return r;
           }
@@ -656,13 +666,13 @@
         }
         // Calls Gemini and returns the parsed JSON reply, or throws a friendly error.
         async function askJSON(key, contents, system, bad) {
-          const res = await gemini(key, { systemInstruction: { parts: [{ text: system }] }, contents, generationConfig: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "low" } } });
+          const res = await gemini(key, { systemInstruction: { parts: [{ text: system }] }, contents, generationConfig: { responseMimeType: "application/json", maxOutputTokens: 8192, thinkingConfig: { thinkingLevel: "minimal" } } });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
             const m = (data.error && data.error.message) || "";
             if ((res.status === 400 && /key/i.test(m)) || res.status === 401 || res.status === 403) { const er = new Error("That API key didn't work. Check it, or get a new one."); er.key = true; throw er; }
             if (res.status === 429) throw new Error("Gemini is busy or your free quota ran out. Wait a minute and try again.");
-            if ([500, 503, 504].includes(res.status)) throw new Error("Gemini is really busy right now. Give it a minute and send again. Your bricks are saved.");
+            if ([500, 503, 504].includes(res.status)) throw new Error("Gemini is really busy or slow right now. Give it a minute and send again. Your bricks are saved.");
             throw new Error("Gemini couldn't do that. " + (m || "Please try again."));
           }
           const text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
