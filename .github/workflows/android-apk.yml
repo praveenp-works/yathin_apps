@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["android/**", "fridgechef/**", "plantdoc/**", ".github/workflows/android-apk.yml"]
+    paths: ["android/**", "fridgechef/**", "plantdoc/**", "brickbuilder/**", ".github/workflows/android-apk.yml"]
 permissions:
   contents: write
 concurrency: android-apk
@@ -28,6 +28,12 @@ jobs:
             id: com.yathinlooops.plantdoc
             icon: plantdoc/plantdoc_icon.png
             start: plantdoc/index.html
+          - app: brickbuilder
+            name: Brick Builder
+            file: BrickBuilder
+            id: com.yathinlooops.brickbuilder
+            icon: brickbuilder/brickbuilder_icon.png
+            start: brickbuilder/index.html
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

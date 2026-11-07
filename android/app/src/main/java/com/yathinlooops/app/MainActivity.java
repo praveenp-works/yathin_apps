@@ -73,6 +73,14 @@ public class MainActivity extends Activity {
                     cam.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cam});
                 } catch (Exception e) { shot = null; }
+                boolean camOnly = false;
+                try { camOnly = p.isCaptureEnabled() && shot != null; } catch (Exception e) {}
+                if (camOnly) {
+                    Intent cam2 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cam2.putExtra(MediaStore.EXTRA_OUTPUT, shot);
+                    cam2.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try { startActivityForResult(cam2, 1); return true; } catch (Exception e) {}
+                }
                 try { startActivityForResult(chooser, 1); } catch (Exception e) { pending = null; return false; }
                 return true;
             }
