@@ -808,7 +808,7 @@ If a photo shows a pile of loose bricks, count them by size into "counts" (count
         document.addEventListener("DOMContentLoaded", () => {
           document.querySelector(".nav .seg")?.insertAdjacentHTML("afterbegin", '<a href="https://praveenp-works.github.io/yathin_apps/">← Yathin Looops</a>');
           const theme = document.querySelector(".nav .theme-btn");
-          const kb = '<a class="x-navkey x-dl" href="https://github.com/praveenp-works/yathin_apps/releases/download/brickbuilder-android/BrickBuilder.apk" download>Android app</a><button class="x-navkey" type="button" id="navKey">API key</button>';
+          const kb = '<a class="x-navkey x-dl" href="https://github.com/praveenp-works/yathin_apps/releases/download/brickbuilder-android/BrickBuilder.apk" download>Android user?</a><button class="x-navkey" type="button" id="navKey">API key</button>';
           if (theme) theme.insertAdjacentHTML("beforebegin", kb); else document.querySelector(".nav")?.insertAdjacentHTML("beforeend", kb);
           const nk = $("navKey");
           if (nk) nk.onclick = () => openKey(retry);
