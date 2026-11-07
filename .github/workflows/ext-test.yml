@@ -38,7 +38,27 @@ jobs:
                   time.sleep(1)
               print("STATUS:", pg.inner_text("#status")); print("TEXT:", repr(val)); print("LOGS:", logs[:20])
               pg.screenshot(path="result.png", full_page=True)
-              pp = ctx.new_page(); pp.goto(f"chrome-extension://{eid}/popup.html"); pp.set_viewport_size({"width": 320, "height": 330}); pp.screenshot(path="popup.png")
+              # Crop mode: a captured picture opens with a drag box (used when a page can't be drawn on)
+              big = Image.new("RGB", (1400, 800), "white"); dd = ImageDraw.Draw(big)
+              dd.text((60, 60), "IGNORE THIS LINE", font=f, fill="black"); dd.text((700, 500), "Crop works 42", font=f, fill="black"); big.save("big.png")
+              import base64
+              durl = "data:image/png;base64," + base64.b64encode(open("big.png","rb").read()).decode()
+              cp = ctx.new_page(); cp.set_viewport_size({"width": 1500, "height": 1000})
+              cp.goto(f"chrome-extension://{eid}/popup.html")
+              cp.evaluate("u => chrome.storage.session.set({shot:{dataUrl:u,rect:null,crop:true,title:'t',url:''}})", durl)
+              cp.goto(f"chrome-extension://{eid}/result.html"); cp.wait_for_selector("#crop:not([hidden])")
+              cp.wait_for_function("document.getElementById('cropImg').complete && document.getElementById('cropImg').naturalWidth > 0")
+              bb = cp.locator("#stage").bounding_box(); k = bb["width"] / 1400
+              cp.screenshot(path="crop.png")
+              cp.mouse.move(bb["x"] + 680*k, bb["y"] + 480*k); cp.mouse.down(); cp.mouse.move(bb["x"] + 1150*k, bb["y"] + 580*k, steps=8); cp.mouse.up()
+              t0 = time.time(); cv = ""
+              while time.time() - t0 < 90:
+                  cv = cp.eval_on_selector("#out", "e => e.value")
+                  if cv.strip() or "Couldn't" in cp.inner_text("#status"): break
+                  time.sleep(1)
+              print("CROP TEXT:", repr(cv)); cp.screenshot(path="crop-result.png", full_page=True)
+              assert "Crop" in cv and "IGNORE" not in cv, "crop failed"
+              pp = ctx.new_page(); pp.goto(f"chrome-extension://{eid}/popup.html"); pp.set_viewport_size({"width": 320, "height": 380}); pp.screenshot(path="popup.png")
               ctx.close()
               assert "Yathin" in val or "Hello" in val, "OCR failed"
           PY

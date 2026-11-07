@@ -5,8 +5,13 @@
     <a class="pill" href="https://praveenp-works.github.io/yathin_apps/" target="_blank">← Yathin Looops</a></header>
   <main>
     <section class="card">
-      <div class="drop" id="drop"><p>Drop an image here, paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, or <label class="link">pick a file<input type="file" id="fileIn" accept="image/*" hidden></label>.</p></div>
+      <div class="drop" id="drop"><p>Drop an image here, paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>, or <button class="ghost inl" id="grab">grab from your screen</button>, or <label class="link">pick a file<input type="file" id="fileIn" accept="image/*" hidden></label>.</p></div>
+      <div class="crop" id="crop" hidden>
+        <div class="row cropbar"><b>Drag a box around the text you want.</b><button class="ghost" id="cropAll">Use the whole picture</button><button class="ghost" id="cropCancel">Cancel</button></div>
+        <div class="stage" id="stage"><img id="cropImg" alt="Your screenshot" draggable="false"><div class="sel" id="sel" hidden></div></div>
+      </div>
       <img id="pic" alt="Your picture" hidden>
+      <div class="row" id="picBar" hidden><button class="ghost" id="recrop">✂️ Pick a smaller area</button><button class="ghost" id="again">🖥️ Grab from my screen</button></div>
     </section>
     <section class="card">
       <div class="bar"><h2>Text</h2><span id="status" class="muted"></span></div>

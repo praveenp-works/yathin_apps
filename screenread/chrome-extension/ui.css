@@ -19,3 +19,9 @@ textarea{width:100%;min-height:220px;border:1px solid #d1d5db;border-radius:14px
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}.row input{flex:1;min-width:200px;border:1px solid #d1d5db;border-radius:999px;padding:10px 14px;font:inherit}
 .prog{height:6px;border-radius:9px;background:#e5e7eb;overflow:hidden;margin-bottom:8px}.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--y),var(--acc));transition:width .2s}
 .res footer{text-align:center;color:var(--mu);font-size:13px;padding:18px}
+
+.crop{margin-top:4px}.cropbar{margin:0 0 10px}.cropbar b{margin-right:auto}
+.stage{position:relative;display:inline-block;max-width:100%;cursor:crosshair;user-select:none;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px #e5e7eb}
+.stage img{display:block;max-width:100%;max-height:70vh}
+.sel{position:absolute;border:2px solid #facc15;background:rgba(250,204,21,.12);box-shadow:0 0 0 9999px rgba(15,23,42,.35);pointer-events:none;border-radius:4px}
+.inl{padding:0;color:var(--acc);text-decoration:underline;font-weight:400}

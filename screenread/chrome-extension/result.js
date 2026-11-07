@@ -65,7 +65,51 @@ $("gem").onclick = async () => {
 $("copy").onclick = async () => { await navigator.clipboard.writeText($("out").value); $("copy").textContent = "Copied ✓"; setTimeout(() => ($("copy").textContent = "Copy text"), 1500); };
 $("out").addEventListener("input", () => setText($("out").value));
 
-async function useBlob(blob) { imgBlob = blob; $("pic").src = URL.createObjectURL(blob); $("pic").hidden = false; await readLocal(); }
+let fullBlob = null;
+async function useBlob(blob) { imgBlob = blob; $("crop").hidden = true; $("pic").src = URL.createObjectURL(blob); $("pic").hidden = false; $("picBar").hidden = false; await readLocal(); }
+
+// Crop mode: show the picture and let the user drag a box on it.
+function startCrop(blob) {
+  fullBlob = blob; $("pic").hidden = true; $("picBar").hidden = true; $("sel").hidden = true;
+  $("cropImg").src = URL.createObjectURL(blob); $("crop").hidden = false; setText(""); status("Drag a box over the text.");
+  $("crop").scrollIntoView({ block: "start" });
+}
+(() => {
+  const st = $("stage"), sel = $("sel"); let down = false, sx = 0, sy = 0, box = null;
+  const pt = (e) => { const r = st.getBoundingClientRect(); return [Math.max(0, Math.min(r.width, e.clientX - r.left)), Math.max(0, Math.min(r.height, e.clientY - r.top))]; };
+  const draw = (e) => { const [x, y] = pt(e); box = { x: Math.min(sx, x), y: Math.min(sy, y), w: Math.abs(x - sx), h: Math.abs(y - sy) }; Object.assign(sel.style, { left: box.x + "px", top: box.y + "px", width: box.w + "px", height: box.h + "px" }); };
+  st.addEventListener("pointerdown", (e) => { e.preventDefault(); st.setPointerCapture(e.pointerId); down = true; [sx, sy] = pt(e); sel.hidden = false; draw(e); });
+  st.addEventListener("pointermove", (e) => { if (down) draw(e); });
+  st.addEventListener("pointerup", async () => {
+    if (!down) return; down = false;
+    if (!box || box.w < 6 || box.h < 6) { sel.hidden = true; return; }
+    const im = $("cropImg"), k = im.naturalWidth / im.clientWidth;
+    const bmp = await createImageBitmap(fullBlob);
+    const w = Math.max(1, Math.round(box.w * k)), h = Math.max(1, Math.round(box.h * k));
+    const c = new OffscreenCanvas(w, h); c.getContext("2d").drawImage(bmp, Math.round(box.x * k), Math.round(box.y * k), w, h, 0, 0, w, h);
+    useBlob(await c.convertToBlob({ type: "image/png" }));
+  });
+  $("cropAll").onclick = () => useBlob(fullBlob);
+  $("cropCancel").onclick = () => { $("crop").hidden = true; if (imgBlob) { $("pic").hidden = false; $("picBar").hidden = false; } status(imgBlob ? "" : "Add a picture to start."); };
+  $("recrop").onclick = () => startCrop(fullBlob || imgBlob);
+})();
+
+// Anywhere on screen: Chrome asks which screen or window to share, we grab one frame, then you drag the box.
+function grabScreen() {
+  status("Pick a screen or window to grab…");
+  chrome.desktopCapture.chooseDesktopMedia(["screen", "window"], async (id) => {
+    if (!id) { status(imgBlob ? "" : "Cancelled. Add a picture to start."); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { mandatory: { chromeMediaSource: "desktop", chromeMediaSourceId: id, maxWidth: 3840, maxHeight: 2160 } } });
+      const v = document.createElement("video"); v.muted = true; v.srcObject = stream; await v.play();
+      await new Promise((ok) => setTimeout(ok, 350));
+      const c = new OffscreenCanvas(v.videoWidth, v.videoHeight); c.getContext("2d").drawImage(v, 0, 0);
+      stream.getTracks().forEach((t) => t.stop());
+      startCrop(await c.convertToBlob({ type: "image/png" }));
+    } catch (e) { status("Couldn't grab the screen: " + (e.message || e)); }
+  });
+}
+$("grab").onclick = grabScreen; $("again").onclick = grabScreen;
 
 async function cropShot(shot) {
   const blob = await (await fetch(shot.dataUrl)).blob();
@@ -77,15 +121,19 @@ async function cropShot(shot) {
   return c.convertToBlob({ type: "image/png" });
 }
 
-$("fileIn").onchange = (e) => { const f = e.target.files[0]; if (f) useBlob(f); };
-document.addEventListener("paste", (e) => { const it = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith("image/")); if (it) { e.preventDefault(); useBlob(it.getAsFile()); } });
+$("fileIn").onchange = (e) => { const f = e.target.files[0]; if (f) { fullBlob = f; useBlob(f); } };
+document.addEventListener("paste", (e) => { const it = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith("image/")); if (it) { e.preventDefault(); fullBlob = it.getAsFile(); useBlob(fullBlob); } });
 const drop = $("drop");
 ["dragover", "dragenter"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("on"); }));
 ["dragleave", "drop"].forEach((t) => drop.addEventListener(t, () => drop.classList.remove("on")));
-drop.addEventListener("drop", (e) => { e.preventDefault(); const f = [...e.dataTransfer.files].find((f) => f.type.startsWith("image/")); if (f) useBlob(f); });
+drop.addEventListener("drop", (e) => { e.preventDefault(); const f = [...e.dataTransfer.files].find((f) => f.type.startsWith("image/")); if (f) { fullBlob = f; useBlob(f); } });
 
 (async () => {
   const { shot } = await chrome.storage.session.get("shot");
-  if (shot) { await chrome.storage.session.remove("shot"); if (shot.title) document.title = "Screen Read · " + shot.title; useBlob(await cropShot(shot)); }
+  if (shot) {
+    await chrome.storage.session.remove("shot"); if (shot.title) document.title = "Screen Read · " + shot.title;
+    fullBlob = await (await fetch(shot.dataUrl)).blob();
+    if (shot.crop) startCrop(fullBlob); else useBlob(await cropShot(shot));
+  } else if (/screen=1/.test(location.search)) grabScreen();
   else status("Add a picture to start.");
 })();
