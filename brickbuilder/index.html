@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brick Builder</title>
+    <meta name="description" content="Tell it your bricks. Get things to build. A free kids' app with step-by-step pictures." />
+    <meta name="theme-color" content="#d946ef" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root { --x-grad: linear-gradient(90deg, #d946ef, #06b6d4); --x-on-grad: #1d1d1f; --sans: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; --mono: "Geist Mono", ui-monospace, monospace; --x-card: light-dark(#fff, #1c1c1e); }
+      /* Shared restyle: charcoal pill nav, rounded hero, light glass card, white content cards. */
+      .nav.glass { background: rgba(29, 29, 31, 0.9); border-color: rgba(255, 255, 255, 0.08); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14); border-radius: var(--r-pill); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+      .nav .seg { background: transparent; }
+      .nav .seg a { color: #d1d1d6; }
+      .nav .seg a:hover { color: #fff; }
+      .nav .seg a[aria-current="true"] { background-color: #d946ef; background-image: var(--x-grad); color: var(--x-on-grad); }
+      .nav .theme-btn { background: rgba(255, 255, 255, 0.12); color: #f5f5f7; }
+      .nav .theme-btn:hover { box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.08); }
+      .nav :focus-visible { outline-color: #f5f5f7; }
+      .hero { border-radius: 36px; }
+      .hero::after { background: linear-gradient(to top right, rgb(22 31 57 / 0.78) 0%, rgb(22 31 57 / 0.35) 45%, transparent 75%); }
+      .x-icon { position: absolute; top: clamp(16px, 2.4vw, 24px); left: clamp(16px, 2.4vw, 24px); width: 88px; height: 88px; border-radius: var(--r-l); background: var(--hero-glass); border: 1px solid var(--hero-glass-stroke); display: grid; place-items: center; }
+      .x-icon img { width: 68px; height: 68px; object-fit: contain; border-radius: 16px; }
+      .hero h1.x-h1 { display: grid; gap: 2px; font-weight: var(--weight-bold); font-size: clamp(44px, 7.5vw, 84px); line-height: 1.02; letter-spacing: -0.02em; }
+      .x-title { color: #d946ef; background: var(--x-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 0.06em; }
+      .hero > .callout { background: rgba(255, 255, 255, 0.96); box-shadow: 0 4px 16px #1d1d1f1f; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 28px; color: #1d1d1f; color-scheme: light; padding: 18px 20px 20px; gap: 12px; }
+      .hero > .callout .callout__head, .hero > .callout .fineprint { color: #636366; }
+      @media (max-width: 760px) { .hero__copy { padding-top: 140px; } }
+      .x-go, .x-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); padding: 8px 18px; border-radius: var(--r-pill); font: var(--type-label); font-weight: var(--weight-medium); cursor: pointer; text-decoration: none; border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); }
+      .x-go { background-color: #d946ef; background-image: var(--x-grad); color: var(--x-on-grad); border-color: transparent; }
+      .x-go:hover, .x-ghost:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-go:disabled, .x-ghost:disabled { opacity: 0.55; cursor: not-allowed; }
+      .x-panel { display: grid; gap: 20px; padding: clamp(18px, 3vw, 28px); background: var(--x-card); border: 1px solid var(--stroke-secondary); border-radius: 24px; contain: content; }
+      .x-label { font: var(--type-label); font-weight: var(--weight-medium); }
+      .x-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .x-bricks { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .x-brick { display: grid; justify-items: center; gap: 8px; padding: 14px 10px; border-radius: var(--r-m); border: 1px solid var(--stroke-secondary); background: var(--fill-primary-on); }
+      .x-brick svg { height: 40px; width: auto; max-width: 100%; }
+      .x-brick b { font: var(--type-label); font-family: var(--mono); }
+      .x-brick.is-on { border-color: #06b6d4; }
+      .x-step { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--stroke-primary); border-radius: var(--r-pill); background: var(--fill-primary-on); padding: 3px; }
+      .x-step button { width: var(--tap); height: var(--tap); border-radius: 50%; border: 0; background: var(--fill-tertiary); color: var(--text-primary); font: var(--type-heading); cursor: pointer; }
+      .x-step output { min-width: 28px; text-align: center; font: var(--type-label); font-weight: var(--weight-medium); }
+      .x-note { font: var(--type-small); color: var(--text-secondary); }
+      .x-results { display: grid; gap: 28px; }
+      .x-results[hidden] { display: none; }
+      .x-results h3 { font: var(--type-heading); margin-bottom: 12px; }
+      .x-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+      .x-build { display: grid; gap: 10px; align-content: start; text-align: left; padding: 18px; border-radius: 24px; background: var(--x-card); border: 1px solid var(--stroke-secondary); color: var(--text-primary); font: var(--type-body); cursor: pointer; contain: content; }
+      .x-build:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-build.x-ok { border-color: #06b6d4; }
+      .x-build svg { width: 100%; height: 150px; }
+      .x-build strong { font: var(--type-heading); }
+      .x-miss { font: var(--type-small); color: light-dark(#a21caf, #f0abfc); }
+      .x-empty { padding: 28px; border-radius: 24px; border: 1px dashed var(--stroke-primary); background: var(--x-card); color: var(--text-secondary); text-align: center; font: var(--type-body); }
+      .x-msg { font: var(--type-label); color: var(--text-secondary); min-height: 1.3em; }
+      /* Step-by-step view */
+      .x-cook { position: fixed; inset: 0; z-index: 50; display: grid; grid-template-rows: auto 1fr auto; gap: 20px; padding: clamp(20px, 5vw, 56px); background: var(--fill-primary-on); color: var(--text-primary); overflow: hidden; }
+      .x-cook[hidden] { display: none; }
+      .x-cook header { display: flex; justify-content: space-between; align-items: center; gap: 12px; font: var(--type-label); color: var(--text-secondary); }
+      .x-cook__body { display: grid; align-content: center; justify-items: center; gap: 18px; min-height: 0; text-align: center; }
+      .x-cook__body svg { width: min(100%, 520px); height: auto; max-height: 46vh; }
+      .x-cook__num { font: var(--type-label); color: var(--text-secondary); }
+      .x-cook__text { max-width: 30ch; font: var(--type-title); font-weight: var(--weight-medium); }
+      .x-cook__done { font-size: clamp(36px, 6vw, 56px); font-weight: var(--weight-bold); color: #d946ef; background: var(--x-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .x-cook footer { display: flex; justify-content: space-between; gap: 12px; }
+      .x-cook footer button { min-width: 120px; font-size: var(--size-heading); min-height: 56px; }
+      .x-picwrap { position: relative; display: grid; justify-items: center; width: 100%; }
+      .x-cheer { position: absolute; bottom: 100%; left: 50%; z-index: 2; margin-bottom: 8px; padding: 10px 20px; border-radius: var(--r-pill); background-color: #d946ef; background-image: var(--x-grad); color: var(--x-on-grad); font: var(--type-heading); font-weight: var(--weight-bold); white-space: nowrap; box-shadow: var(--hark-shadow); transform: translateX(-50%); animation: x-bounce 0.6s var(--ease-out); pointer-events: none; }
+      .x-cheer[hidden] { display: none; }
+      @keyframes x-bounce { 0% { transform: translateX(-50%) scale(0.4); opacity: 0; } 55% { transform: translateX(-50%) scale(1.12); opacity: 1; } 75% { transform: translateX(-50%) scale(0.95); } 100% { transform: translateX(-50%) scale(1); } }
+      @media (prefers-reduced-motion: reduce) { .x-cheer { animation: none; } }
+      .x-filters { display: grid; gap: 10px; }
+      .x-filters .x-row > .x-label { min-width: 80px; }
+      .x-opt { min-height: var(--tap); padding: 6px 16px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-label); cursor: pointer; }
+      .x-opt small { color: var(--text-secondary); font: var(--type-caption); margin-left: 4px; }
+      .x-opt:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-opt[aria-pressed="true"] { background-color: #d946ef; background-image: var(--x-grad); color: var(--x-on-grad); border-color: transparent; font-weight: var(--weight-medium); }
+      .x-opt[aria-pressed="true"] small { color: var(--x-on-grad); }
+      .x-results > div[hidden] { display: none; }
+      .x-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+      .x-confetti i { position: absolute; top: -20px; width: 10px; height: 14px; border-radius: 3px; animation: x-fall 2.4s ease-in forwards; }
+      @keyframes x-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; } }
+      @media (prefers-reduced-motion: reduce) { .x-confetti { display: none; } }
+      /* API key button in the nav, and the one key dialog */
+      .x-navkey { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border: 0; border-radius: var(--r-pill); background: #3a3a3c; color: #f5f5f7; font: var(--type-label); white-space: nowrap; cursor: pointer; }
+      .x-navkey:hover { box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.08); }
+      .x-navkey::before { content: ""; width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor; }
+      .x-navkey.is-set::before { background: var(--fill-system-green); box-shadow: none; }
+      @media (max-width: 599px) { .x-navkey { height: var(--tap); } }
+      .x-keydlg { width: min(420px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--stroke-secondary); border-radius: 24px; background: var(--x-card); color: var(--text-primary); box-shadow: var(--hark-shadow); }
+      .x-keydlg::backdrop { background: rgb(0 0 0 / 0.45); }
+      .x-keydlg form { display: grid; gap: 12px; padding: 22px; }
+      .x-keydlg header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      .x-keydlg h2 { font: var(--type-heading); }
+      .x-keydlg .x-input { max-width: none; width: 100%; }
+      .x-keydlg .x-row { gap: 16px; }
+      .x-saved { font: var(--type-label); font-weight: var(--weight-medium); }
+      .x-saved[hidden], .x-status[hidden], .x-error[hidden] { display: none; }
+      /* Ask Gemini chat */
+      .x-log { display: flex; flex-direction: column; gap: 10px; max-height: min(560px, 65vh); overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
+      .x-bub { display: grid; gap: 8px; justify-items: start; max-width: min(85%, 520px); padding: 10px 14px; border-radius: 18px; font: var(--type-body); }
+      .x-bub--ai { align-self: flex-start; background: var(--fill-tertiary); border-bottom-left-radius: 6px; }
+      .x-bub--me { align-self: flex-end; justify-items: end; background: var(--fill-primary); color: var(--text-primary-on); border-bottom-right-radius: 6px; }
+      .x-bub--photo { padding: 6px; }
+      .x-bub__who { font: var(--type-caption); color: var(--text-secondary); }
+      .x-bub .x-build { width: min(280px, 100%); background: var(--x-card); }
+      .x-bub .x-build svg { height: 130px; }
+      .x-thumb { width: 160px; height: 160px; max-width: 100%; border-radius: var(--r-s); background: center / cover no-repeat; }
+      .x-mini { min-height: var(--tap); padding: 0 8px; border: 0; background: none; color: inherit; font: var(--type-caption); text-decoration: underline; cursor: pointer; }
+      .x-typing { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
+      .x-ring.x-ring--s { width: 20px; height: 20px; -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); }
+      .x-compose { display: flex; gap: 8px; align-items: center; }
+      .x-compose .x-input { flex: 1 1 auto; min-width: 0; max-width: none; border-radius: var(--r-pill); padding: 8px 18px; }
+      .x-photo { position: relative; flex: none; }
+      .x-photo summary { list-style: none; width: var(--tap); padding: 0; }
+      .x-photo summary::-webkit-details-marker { display: none; }
+      .x-photo summary svg { width: 20px; height: 20px; }
+      .x-photo__menu { position: absolute; bottom: calc(100% + 8px); left: 0; z-index: 5; display: grid; gap: 6px; min-width: 190px; padding: 8px; border-radius: var(--r-m); background: var(--x-card); border: 1px solid var(--stroke-secondary); box-shadow: var(--hark-shadow); }
+      .x-photo__menu .x-ghost { justify-content: flex-start; border-color: transparent; }
+      .x-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      #chatHint:empty { display: none; }
+      .x-input { min-height: var(--tap); padding: 8px 14px; border-radius: var(--r-s); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-body); flex: 1 1 220px; max-width: 420px; }
+      .x-status { display: flex; align-items: center; gap: 12px; font: var(--type-body); }
+      .x-ring { width: 32px; height: 32px; border-radius: 50%; background: conic-gradient(#d946ef, #06b6d4, transparent 80%); -webkit-mask: radial-gradient(circle, transparent 10px, #000 11px); mask: radial-gradient(circle, transparent 10px, #000 11px); animation: x-spin 0.9s linear infinite; flex: none; }
+      @keyframes x-spin { to { transform: rotate(1turn); } }
+      .x-error { padding: 12px 16px; border-radius: var(--r-m); border: 1px solid var(--fill-system-red); color: var(--text-primary); font: var(--type-label); }
+      html { scroll-behavior: auto; }
+      .callout, .hero__eyebrow, .hero__credit { -webkit-backdrop-filter: none; backdrop-filter: none; }
+      .hero__eyebrow { background: rgb(22 31 57 / 0.62); }
+      .step { contain: content; }
+    </style>
+    <script>(function(){var h=location.hostname,app=h==="127.0.0.1"||h==="localhost"||h==="appassets.androidplatform.net"||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;if(app)document.documentElement.classList.add("is-app","is-desktop");})();</script>
+    <style>
+      .x-splash{display:none}
+      .is-app .x-splash{display:flex;position:fixed;inset:0;z-index:10000;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#f5f5f7;transition:opacity .5s ease}
+      .x-splash.done{opacity:0;pointer-events:none}
+      .bs-stack{display:grid;justify-items:center;gap:4px}
+      .bs-stack span{display:block;height:26px;border-radius:6px;background:var(--x-grad);opacity:0;transform:translateY(-40px);animation:bs-drop .45s cubic-bezier(.2,.9,.3,1.3) forwards}
+      .bs-stack span:nth-child(1){width:44px;animation-delay:.9s}
+      .bs-stack span:nth-child(2){width:88px;animation-delay:.6s}
+      .bs-stack span:nth-child(3){width:132px;animation-delay:.3s}
+      .x-splash b{font-size:28px;letter-spacing:-.02em;color:#d946ef;background:var(--x-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;opacity:0;animation:bs-fade .6s 1.2s forwards}
+      @keyframes bs-drop{to{opacity:1;transform:none}}
+      @keyframes bs-fade{to{opacity:1}}
+      .x-apphead{display:none}
+      .is-app .x-apphead{display:flex;align-items:center;gap:12px;margin:8px 0 4px}
+      .is-app .x-apphead img{width:44px;height:44px;border-radius:12px}
+      .is-app .x-apphead h1{margin:0;font-size:28px}
+      .is-app .hero,.is-app #how,.is-app .foot nav{display:none!important}
+    </style>
+  <meta property="og:title" content="Brick Builder · Free app">
+<meta property="og:description" content="Count your bricks and get step-by-step builds. Free kids' app.">
+<meta property="og:image" content="https://praveenp-works.github.io/yathin_apps/promo/brick-builder-free-app.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Brick Builder: count your bricks, get step-by-step builds. Free web app.">
+<meta property="og:url" content="https://praveenp-works.github.io/yathin_apps/brickbuilder/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://praveenp-works.github.io/yathin_apps/promo/brick-builder-free-app.jpg">
+<link rel="canonical" href="https://praveenp-works.github.io/yathin_apps/brickbuilder/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Brick Builder","applicationCategory":"EducationalApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"url":"https://praveenp-works.github.io/yathin_apps/brickbuilder/","image":"https://praveenp-works.github.io/yathin_apps/promo/brick-builder-free-app.jpg","author":{"@type":"Person","name":"Yathin Pedamallu"}}</script>
+</head>
+  <body>
+    <div class="x-splash" id="splash" aria-hidden="true"><div class="bs-stack"><span></span><span></span><span></span></div><b>Brick Builder</b></div>
+    <script>(function(){if(!document.documentElement.classList.contains("is-app"))return;var t0=Date.now();function hide(){var s=document.getElementById("splash");if(!s||s.classList.contains("done"))return;setTimeout(function(){s.classList.add("done");setTimeout(function(){s.remove()},600)},Math.max(0,2200-(Date.now()-t0)))}window.addEventListener("load",hide);setTimeout(hide,4500);})();</script>
+
+    <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
+      <main class="main">
+        <div class="x-apphead"><img src="brickbuilder_icon.png" alt="" /><h1>Brick Builder</h1></div>
+        <section class="hero">
+          <img class="hero__img" src="brickbuilder_hero.jpg" alt="A colorful pile of toy bricks with a small build on top" />
+          <div class="x-icon"><img src="brickbuilder_icon.png" alt="Brick Builder app icon" /></div>
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Free · No sign-up · Created by Yathin Pedamallu</p>
+            <h1 class="x-h1"><span class="x-title">Brick Builder</span></h1>
+            <p class="hero__sub">Tell it your bricks. Get things to build.</p>
+          </div>
+          <aside class="callout" aria-label="Get started">
+            <p class="callout__head">Get started</p>
+            <p class="callout__lead"><strong>Count your bricks, see what to build.</strong> 22 builds, small to big, each with step-by-step pictures.</p>
+            <div class="links"><a class="x-go" href="#builder">Start building</a></div>
+            <p class="fineprint">No API key needed. Ask Gemini is optional.</p>
+          </aside>
+        </section>
+
+        <section class="section" id="how" data-nav="How it works">
+          <div class="head"><h2>From brick pile to build in three steps.</h2></div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__intro"><p class="step__num">01</p><p class="step__eyebrow">Count</p></div>
+              <div><h3>Count your bricks</h3><p>Tap + for each brick size you have, or fill in a sample pile.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">02</p><p class="step__eyebrow">Find</p></div>
+              <div><h3>Tap Find builds</h3><p>See what you can build now, and what you're only a few bricks away from.</p></div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">03</p><p class="step__eyebrow">Build</p></div>
+              <div><h3>Follow the steps</h3><p>One layer at a time, with the new bricks lit up in the picture.</p></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="builder" data-nav="Build">
+          <div class="head">
+            <h2>Tell Brick Builder which bricks you have.</h2>
+            <p class="head__sub">Sizes are in studs. Colors don't matter, just sizes.</p>
+          </div>
+          <div class="x-panel">
+            <p class="x-label" id="myBricks">My bricks <span class="pill" id="total">0 bricks</span></p>
+            <div class="x-bricks" id="picker" role="group" aria-labelledby="myBricks"></div>
+            <div class="x-row">
+              <button class="x-ghost" type="button" id="sample">Fill with a sample pile</button>
+              <button class="x-ghost" type="button" id="clear">Clear</button>
+            </div>
+            <div class="x-filters"></div>
+            <div class="x-row">
+              <button class="x-go" type="button" id="find">Find builds</button>
+              <button class="x-ghost" type="button" id="surprise">Surprise me</button>
+            </div>
+            <p class="x-msg" id="msg" aria-live="polite"></p>
+          </div>
+          <div class="x-results" id="results" hidden>
+            <div><h3>You can build these</h3><div class="x-grid" id="can"></div></div>
+            <div><h3>Almost! Missing a few</h3><div class="x-grid" id="almost"></div></div>
+            <div id="moreBox" hidden><h3>Need more bricks</h3><div class="x-grid" id="more"></div></div>
+          </div>
+        </section>
+
+        <section class="section" id="ask" data-nav="Ask Gemini">
+          <div class="head">
+            <h2>Ask Gemini (optional)</h2>
+            <p class="head__sub">Tell Gemini what to build, or send a photo of your bricks or of something to copy. Keep chatting to change the design.</p>
+          </div>
+          <div class="x-panel">
+            <div class="x-filters"></div>
+            <div class="x-log" id="chatLog" role="log" aria-live="polite" aria-label="Chat with Gemini"></div>
+            <div class="x-compose">
+              <details class="x-photo" id="photoMenu">
+                <summary class="x-ghost" aria-label="Add a photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg></summary>
+                <div class="x-photo__menu">
+                  <button class="x-ghost" type="button" id="takeBtn">Take photo</button>
+                  <button class="x-ghost" type="button" id="pickBtn">Upload photo</button>
+                </div>
+              </details>
+              <input class="x-sr" type="file" id="camIn" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true" />
+              <input class="x-sr" type="file" id="fileIn" accept="image/*" tabindex="-1" aria-hidden="true" />
+              <input class="x-input" id="chatIn" type="text" maxlength="300" autocomplete="off" placeholder="Tell Gemini what you want to build…" aria-label="Message to Gemini" />
+              <button class="x-go" type="button" id="sendBtn">Send</button>
+            </div>
+            <p class="x-note" id="chatHint" aria-live="polite"></p>
+            <p class="fineprint">Gemini designs from the bricks in your picker. No bricks counted? It uses a big sample pile. Photos go to Google Gemini only to answer you, and your key stays on this device.</p>
+          </div>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>Brick Builder · Part of Yathin Looops · Created by Yathin Pedamallu<br />Not affiliated with LEGO.</p>
+        <nav aria-label="Back to sections" data-auto></nav>
+        <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
+      </footer>
+    </div>
+
+    <dialog class="x-keydlg" id="keyDlg" aria-labelledby="keyTitle">
+      <form id="keyForm">
+        <header><h2 id="keyTitle">Gemini API key</h2><button class="x-ghost" type="button" id="keyClose">Close</button></header>
+        <p class="x-note">Ask Gemini needs a free key from Google. It stays on this device.</p>
+        <label class="x-label" for="keyIn">Paste your key</label>
+        <input class="x-input" id="keyIn" type="password" autocomplete="off" placeholder="Paste your key" />
+        <p class="x-error" id="keyErr" role="alert" hidden>Paste your key first.</p>
+        <div class="x-row">
+          <button class="x-go" type="submit">Save</button>
+          <a class="link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get a free key</a>
+        </div>
+        <p class="x-saved" id="keySaved" role="status" hidden>Key saved ✓</p>
+      </form>
+    </dialog>
+
+    <div class="x-cook" id="cook" role="dialog" aria-modal="true" aria-labelledby="cookTitle" hidden>
+      <header><span id="cookTitle"></span><button class="x-ghost" type="button" id="cookClose">Close</button></header>
+      <div class="x-cook__body" aria-live="polite">
+        <div class="x-picwrap"><p class="x-cheer" id="cheer" role="status" hidden></p><div id="cookPic"></div></div>
+        <p class="x-cook__num" id="cookNum"></p>
+        <p class="x-cook__text" id="cookText"></p>
+        <p class="x-note" id="cookColor"></p>
+      </div>
+      <footer><button class="x-ghost" type="button" id="cookBack">Back</button><button class="x-go" type="button" id="cookNext">Next</button></footer>
+    </div>
+
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        const $ = (id) => document.getElementById(id);
+        const SIZES = ["1x1", "1x2", "1x4", "2x2", "2x3", "2x4", "2x6"];
+        const COLORS = { F: ["#d946ef", "fuchsia"], C: ["#06b6d4", "cyan"], W: ["#ffffff", "white"], Y: ["#facc15", "yellow"], L: ["#84cc16", "lime"], O: ["#f97316", "orange"] };
+        const PICK_COLORS = ["Y", "F", "C", "L", "O", "F", "C"];
+        const SAMPLE = { "1x1": 6, "1x2": 4, "1x4": 0, "2x2": 4, "2x3": 1, "2x4": 4, "2x6": 2 };
+        const WORDS = ["zero", "one", "two", "three", "four", "five", "six"];
+        const studs = (size) => +size.split("x")[1];
+
+        // Each build: layers from the bottom up; each brick is [size, x offset in studs, color].
+        const RAW = {
+          "Rocket": [[["1x1", 0, "F"], ["2x2", 1, "W"], ["1x1", 3, "F"]], [["2x2", 1, "W"]], [["2x2", 1, "C"]], [["1x2", 1, "F"]]],
+          "House": [[["2x4", 0, "Y"], ["2x4", 4, "Y"]], [["2x3", 0, "Y"], ["1x2", 3, "C"], ["2x3", 5, "Y"]], [["2x4", 0, "Y"], ["2x4", 4, "Y"]], [["2x6", 1, "F"]], [["2x4", 2, "F"]], [["1x2", 3, "F"]]],
+          "Race car": [[["1x1", 1, "W"], ["1x1", 4, "W"]], [["2x6", 0, "F"]], [["2x2", 2, "C"], ["1x1", 5, "Y"]]],
+          "Robot": [[["1x2", 1, "C"], ["1x2", 3, "C"]], [["1x1", 1, "W"], ["1x1", 4, "W"]], [["2x4", 1, "F"]], [["2x6", 0, "F"]], [["2x2", 2, "W"]], [["1x1", 2, "C"], ["1x1", 3, "C"]]],
+          "Duck": [[["2x4", 0, "Y"]], [["2x4", 0, "Y"]], [["2x2", 2, "Y"]], [["2x2", 2, "Y"], ["1x1", 4, "O"]]],
+          "Tree": [[["1x2", 2, "O"]], [["1x2", 2, "O"]], [["2x6", 0, "L"]], [["2x4", 1, "L"]], [["2x2", 2, "L"]]],
+          "Tower": [[["2x4", 0, "W"]], [["2x4", 0, "C"]], [["2x4", 0, "W"]], [["2x4", 0, "C"]], [["1x1", 0, "F"], ["1x1", 3, "F"]]],
+          "Bridge": [[["2x2", 0, "C"], ["2x2", 6, "C"]], [["2x2", 0, "C"], ["2x2", 6, "C"]], [["2x4", 0, "Y"], ["2x4", 4, "Y"]], [["1x1", 0, "W"], ["1x1", 7, "W"]]],
+          "Boat": [[["2x4", 1, "C"]], [["2x6", 0, "C"]], [["1x1", 2, "W"]], [["1x2", 2, "W"]], [["1x1", 2, "F"]]],
+          "Dog": [[["1x1", 0, "O"], ["1x1", 3, "O"]], [["2x4", 0, "O"]], [["1x1", 0, "O"], ["2x2", 3, "O"]], [["1x1", 4, "W"]]],
+          "Flower": [[["2x4", 0, "O"]], [["1x2", 1, "L"]], [["1x2", 1, "L"]], [["2x4", 0, "F"]], [["1x2", 1, "Y"]]],
+          "Space shuttle": [[["2x6", 0, "W"]], [["1x1", 0, "F"], ["2x4", 1, "W"], ["1x1", 5, "F"]], [["2x3", 1, "W"], ["1x1", 4, "C"]], [["1x2", 1, "F"]], [["1x1", 1, "F"]]],
+          "Castle wall": [[["2x4", 0, "W"], ["2x4", 4, "W"]], [["2x2", 0, "W"], ["2x4", 2, "W"], ["2x2", 6, "W"]], [["2x4", 0, "W"], ["2x4", 4, "W"]], [["1x1", 0, "C"], ["1x1", 2, "C"], ["1x1", 5, "C"], ["1x1", 7, "C"]]],
+          "Airplane": [[["1x4", 1, "C"]], [["2x6", 0, "W"]], [["2x2", 0, "F"], ["1x2", 4, "C"]], [["1x1", 0, "F"]]],
+          "Snowman": [[["2x4", 0, "W"]], [["2x4", 0, "W"]], [["2x2", 1, "W"]], [["2x2", 1, "W"], ["1x1", 3, "O"]], [["2x4", 0, "C"]], [["2x2", 1, "C"]]],
+          "Treasure chest": [[["2x6", 0, "O"]], [["2x2", 0, "O"], ["1x2", 2, "Y"], ["2x2", 4, "O"]], [["2x6", 0, "O"]], [["2x6", 0, "F"]]],
+          "Big Duck": [[["2x6", 0, "Y"], ["2x4", 6, "Y"]], [["2x6", 0, "Y"], ["2x4", 6, "Y"]], [["2x4", 0, "Y"], ["2x6", 4, "Y"]], [["1x2", 0, "Y"], ["2x4", 6, "Y"]], [["2x2", 6, "Y"], ["2x2", 8, "Y"]], [["2x4", 6, "Y"], ["1x2", 10, "O"]], [["2x4", 6, "Y"]]],
+          "Big Rocket": [[["1x2", 0, "F"], ["2x4", 2, "W"], ["1x2", 6, "F"]], [["1x2", 0, "F"], ["2x4", 2, "W"], ["1x2", 6, "F"]], [["1x1", 1, "F"], ["2x4", 2, "W"], ["1x1", 6, "F"]], [["2x4", 2, "W"]], [["2x2", 2, "C"], ["2x2", 4, "C"]], [["2x4", 2, "W"]], [["2x4", 2, "W"]], [["2x2", 3, "F"]], [["1x2", 3, "F"]], [["1x1", 3, "F"], ["1x1", 4, "F"]]],
+          "Hard Robot": [[["2x3", 1, "C"], ["2x3", 6, "C"]], [["1x2", 2, "C"], ["1x2", 6, "C"]], [["1x2", 2, "W"], ["1x2", 6, "W"]], [["2x6", 2, "F"]], [["2x6", 2, "F"]], [["1x4", 0, "W"], ["2x2", 4, "F"], ["1x4", 6, "W"]], [["1x2", 0, "W"], ["2x6", 2, "F"], ["1x2", 8, "W"]], [["1x1", 0, "C"], ["2x4", 3, "F"], ["1x1", 9, "C"]], [["2x2", 4, "W"]], [["2x4", 3, "W"]], [["1x1", 3, "C"], ["1x2", 4, "W"], ["1x1", 6, "C"]], [["2x4", 3, "W"]], [["1x1", 5, "F"]]],
+          "Rainbow wall": ["F", "O", "Y", "L", "C", "W", "F"].map((c) => [["2x4", 0, c], ["2x2", 4, c], ["1x2", 6, c], ["2x4", 8, c]]).concat([[0, 2, 4, 6, 8, 10].map((x) => ["1x1", x, "C"])]),
+          "Big Castle": [[["2x4", 0, "W"], ["1x1", 4, "W"], ["1x1", 7, "W"], ["2x4", 8, "W"]], [["2x4", 0, "W"], ["1x1", 4, "W"], ["1x1", 7, "W"], ["2x4", 8, "W"]], [["2x2", 0, "W"], ["2x3", 2, "W"], ["2x3", 7, "W"], ["2x2", 10, "W"]], [["2x6", 0, "W"], ["2x6", 6, "W"]], [["2x4", 0, "C"], ["2x4", 4, "W"], ["2x4", 8, "C"]], [["2x4", 0, "C"], ["1x1", 4, "W"], ["1x1", 7, "W"], ["2x4", 8, "C"]], [["2x4", 0, "C"], ["2x4", 8, "C"]], [["2x4", 0, "C"], ["2x4", 8, "C"]], [["1x1", 0, "F"], ["1x1", 3, "F"], ["1x1", 8, "F"], ["1x1", 11, "F"]], [["1x1", 0, "Y"], ["1x1", 11, "Y"]], [["1x2", 0, "F"], ["1x2", 10, "F"]]],
+          "Pirate ship": [[["2x6", 3, "O"], ["2x2", 9, "O"]], [["2x4", 2, "O"], ["2x6", 6, "O"]], [["2x6", 1, "O"], ["2x6", 7, "O"]], [["1x2", 0, "O"], ["2x4", 2, "O"], ["2x4", 6, "O"], ["2x2", 10, "O"], ["1x2", 12, "O"]], [["1x1", 0, "F"], ["1x2", 3, "W"], ["1x1", 6, "F"], ["1x2", 8, "W"], ["1x1", 11, "F"], ["1x1", 13, "F"]], [["1x1", 3, "W"], ["1x1", 8, "W"], ["1x1", 13, "O"]], [["1x4", 2, "W"], ["2x6", 6, "W"]], [["1x1", 3, "W"], ["1x1", 8, "W"]], [["1x4", 2, "W"], ["2x4", 7, "W"]], [["1x1", 3, "W"], ["1x1", 8, "W"]], [["1x2", 3, "F"], ["1x2", 8, "C"]], [["1x1", 4, "Y"], ["1x1", 9, "Y"]]],
+        };
+        const LEVEL = { "Robot": "Hard", "Space shuttle": "Hard", "House": "Medium", "Bridge": "Medium", "Dog": "Medium", "Castle wall": "Medium", "Snowman": "Medium", "Treasure chest": "Medium", "Big Rocket": "Medium", "Hard Robot": "Hard", "Big Castle": "Medium", "Pirate ship": "Hard" };
+        const sizeOf = (n) => (n <= 12 ? "Small" : n <= 30 ? "Medium" : "Big");
+        const BUILDS = Object.keys(RAW).map((name) => {
+          const layers = RAW[name].map((l) => l.map(([size, x, color]) => ({ size, x, color })));
+          const parts = {};
+          layers.flat().forEach((b) => (parts[b.size] = (parts[b.size] || 0) + 1));
+          const pieces = layers.flat().length;
+          return { name, layers, parts, pieces, level: LEVEL[name] || "Easy", size: sizeOf(pieces) };
+        });
+
+        // Size and difficulty filters, shared by Find builds and Gemini
+        const FILTER = { size: "Any", level: "Any" };
+        const OPTS = { size: [["Small", "≤12"], ["Medium", "13–30"], ["Big", "31+"], ["Any"]], level: [["Easy"], ["Medium"], ["Hard"], ["Any"]] };
+        const fits = (b) => (FILTER.size === "Any" || b.size === FILTER.size) && (FILTER.level === "Any" || b.level === FILTER.level);
+        function syncFilters() {
+          document.querySelectorAll(".x-opt").forEach((o) => o.setAttribute("aria-pressed", FILTER[o.dataset.f] === o.dataset.v));
+        }
+        document.querySelectorAll(".x-filters").forEach((box) => {
+          box.innerHTML = [["size", "Size"], ["level", "Difficulty"]].map(([f, t]) => `<div class="x-row" role="group" aria-label="${t}"><span class="x-label">${t}</span>${OPTS[f].map(([v, s]) => `<button type="button" class="x-opt" data-f="${f}" data-v="${v}">${v}${s ? `<small>${s}</small>` : ""}</button>`).join("")}</div>`).join("");
+          box.addEventListener("click", (e) => {
+            const o = e.target.closest(".x-opt");
+            if (!o) return;
+            FILTER[o.dataset.f] = o.dataset.v;
+            syncFilters();
+            if (!$("results").hidden) find();
+          });
+        });
+        syncFilters();
+
+        // Drawing: bricks as rounded rectangles with studs on top.
+        const U = 20, H = 22, SH = 5, P = 4;
+        function brickShape(x, y, w, color, extra) {
+          const [fill] = COLORS[color] || COLORS.F;
+          const stroke = color === "W" ? "#a1a1aa" : "rgba(0,0,0,.22)";
+          let s = `<g fill="${fill}" stroke="${stroke}" stroke-width="1"${extra || ""}>`;
+          for (let j = 0; j < w; j++) s += `<rect x="${x + j * U + 4}" y="${y - SH + 1}" width="12" height="${SH}" rx="2"/>`;
+          return s + `<rect x="${x + 1}" y="${y}" width="${w * U - 2}" height="${H - 2}" rx="4"/></g>`;
+        }
+        function drawBuild(build, upto, hi, label) {
+          const L = build.layers.length;
+          const W = Math.max(...build.layers.flat().map((b) => b.x + studs(b.size)));
+          const vw = W * U + P * 2, vh = L * H + SH + P * 2;
+          let g = "";
+          build.layers.forEach((layer, i) => {
+            if (upto != null && i > upto) return;
+            const y = P + SH + (L - 1 - i) * H;
+            const faded = hi != null && i !== hi;
+            const extra = hi != null && i === hi ? ' stroke-width="2"' : "";
+            g += `<g${faded ? ' opacity=".28"' : ""}>` + layer.map((b) => brickShape(P + b.x * U, y, studs(b.size), b.color, extra)).join("") + "</g>";
+          });
+          return `<svg viewBox="0 0 ${vw} ${vh}" role="img" aria-label="${label}">${g}</svg>`;
+        }
+
+        // Picker
+        const have = {};
+        SIZES.forEach((s) => (have[s] = 0));
+        $("picker").innerHTML = SIZES.map((s, i) => {
+          const w = studs(s), vw = w * U + 2, svg = `<svg viewBox="0 0 ${vw} ${H + SH + 2}" aria-hidden="true">${brickShape(1, SH + 1, w, PICK_COLORS[i])}</svg>`;
+          return `<div class="x-brick" data-size="${s}">${svg}<b>${s}</b><span class="x-step"><button type="button" data-d="-1" aria-label="One less ${s}">−</button><output aria-live="polite" aria-label="${s} bricks">0</output><button type="button" data-d="1" aria-label="One more ${s}">+</button></span></div>`;
+        }).join("");
+        function syncPicker() {
+          let t = 0;
+          document.querySelectorAll(".x-brick").forEach((el) => {
+            const n = have[el.dataset.size];
+            t += n;
+            el.querySelector("output").textContent = n;
+            el.classList.toggle("is-on", n > 0);
+          });
+          $("total").textContent = t + (t === 1 ? " brick" : " bricks");
+        }
+        $("picker").addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-d]");
+          if (!b) return;
+          const s = b.closest(".x-brick").dataset.size;
+          have[s] = Math.max(0, Math.min(99, have[s] + +b.dataset.d));
+          syncPicker();
+        });
+        $("sample").onclick = () => { Object.assign(have, SAMPLE); syncPicker(); say("Sample pile ready. Tap Find builds."); };
+        $("clear").onclick = () => { SIZES.forEach((s) => (have[s] = 0)); syncPicker(); $("results").hidden = true; say(""); };
+        const say = (t) => ($("msg").textContent = t);
+
+        // Matching
+        function missingFor(b) {
+          const out = [];
+          Object.keys(b.parts).forEach((s) => { const m = b.parts[s] - have[s]; if (m > 0) out.push([s, m]); });
+          return out;
+        }
+        function match() {
+          const can = [], almost = [], more = [], pool = BUILDS.filter(fits);
+          pool.forEach((b) => {
+            const miss = missingFor(b), n = miss.reduce((a, [, m]) => a + m, 0);
+            if (!n) can.push(b);
+            else if (n <= 3) almost.push({ b, miss, n });
+            else more.push({ b, miss, n });
+          });
+          almost.sort((a, c) => a.n - c.n);
+          more.sort((a, c) => a.n - c.n);
+          return { can, almost, more, pool };
+        }
+        const card = (b, miss) => {
+          const missTxt = miss ? `<span class="x-miss">Missing: ${miss.map(([s, m]) => `${m} × ${s}`).join(", ")}</span>` : "";
+          return `<button type="button" class="x-build${miss ? "" : " x-ok"}" data-name="${b.name}">${drawBuild(b, null, null, b.name + " drawing")}<strong>${b.name}</strong><span><span class="pill">${b.size}</span> <span class="pill">${b.level}</span> <span class="pill">${b.pieces} pieces</span></span>${missTxt}</button>`;
+        };
+        function find() {
+          if (!SIZES.some((s) => have[s])) { say("Add some bricks first, or tap Fill with a sample pile."); return null; }
+          const r = match();
+          $("can").innerHTML = r.can.length ? r.can.map((b) => card(b)).join("") : '<p class="x-empty">Nothing complete yet. Check the almost list below.</p>';
+          $("almost").innerHTML = r.almost.length ? r.almost.map((a) => card(a.b, a.miss)).join("") : '<p class="x-empty">No near misses. Add more bricks to unlock builds.</p>';
+          const filtered = FILTER.size !== "Any" || FILTER.level !== "Any";
+          $("more").innerHTML = r.more.map((a) => card(a.b, a.miss)).join("");
+          $("moreBox").hidden = !filtered || !r.more.length;
+          $("results").hidden = false;
+          const which = filtered ? [FILTER.size, FILTER.level].filter((v) => v !== "Any").join(", ") + " builds" : "builds";
+          say(`You can build ${r.can.length} of ${r.pool.length} ${which}. ${r.almost.length} more are close.`);
+          return r;
+        }
+        $("find").onclick = () => { if (find()) $("results").scrollIntoView(); };
+        $("surprise").onclick = () => {
+          const r = find();
+          if (!r) return;
+          if (!r.can.length) { say("Nothing fits yet. Add a few bricks or try the sample pile."); return; }
+          open(r.can[Math.floor(Math.random() * r.can.length)]);
+        };
+        document.querySelector(".x-results").addEventListener("click", (e) => {
+          const c = e.target.closest(".x-build");
+          if (c) open(BUILDS.find((b) => b.name === c.dataset.name));
+        });
+
+        // Step-by-step view
+        function stepText(layer, i) {
+          const row = layer.slice().sort((a, b) => a.x - b.x);
+          let gap = false;
+          for (let k = 1; k < row.length; k++) if (row[k].x > row[k - 1].x + studs(row[k - 1].size)) gap = true;
+          const where = i ? " on top" : "";
+          if (row.length === 1) return i ? `Put one ${row[0].size} brick on top.` : `Start with one ${row[0].size} brick.`;
+          if (row.every((b) => b.size === row[0].size)) return `Put ${WORDS[row.length] || row.length} ${row[0].size} bricks ${gap ? "with a gap between them" : "side by side"}${where}.`;
+          const names = row.map((b) => "a " + b.size);
+          return `Put ${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}${where}, left to right${gap ? " with gaps" : ""}.`;
+        }
+        let cur = null, step = 0, done = false, lastFocus = null, nextCheer = 2, cheerT = 0;
+        const CHEERS = ["Nice work!", "You're a pro builder!", "Looking awesome!", "Great stacking!", "Super steady hands!"];
+        const gap = () => 2 + Math.floor(Math.random() * 2);
+        function hideCheer() { clearTimeout(cheerT); $("cheer").hidden = true; }
+        // Called after moving forward; `step` layers are now finished.
+        function cheer() {
+          const M = cur.layers.length, k = step;
+          const half = M >= 4 && k === Math.floor(M / 2);
+          if (k >= M || (!half && k < nextCheer)) return;
+          nextCheer = k + gap();
+          const pool = M - k <= 2 ? CHEERS.concat("Keep going, almost done!", "Keep going, almost done!") : CHEERS;
+          const el = $("cheer");
+          el.hidden = true;
+          el.textContent = half ? "Halfway there!" : pool[Math.floor(Math.random() * pool.length)];
+          void el.offsetWidth;
+          el.hidden = false;
+          clearTimeout(cheerT);
+          cheerT = setTimeout(hideCheer, 2000);
+        }
+        function open(b) {
+          cur = b; step = 0; done = false; lastFocus = document.activeElement; nextCheer = gap();
+          hideCheer();
+          $("cook").hidden = false;
+          document.body.style.overflow = "hidden";
+          show();
+          $("cookNext").focus();
+        }
+        function close() {
+          $("cook").hidden = true;
+          hideCheer();
+          document.body.style.overflow = "";
+          document.querySelector(".x-confetti")?.remove();
+          lastFocus?.focus();
+        }
+        function show() {
+          const M = cur.layers.length;
+          $("cookTitle").textContent = `${cur.name} · ${cur.pieces} pieces`;
+          $("cookBack").disabled = step === 0 && !done;
+          if (done) {
+            $("cookPic").innerHTML = drawBuild(cur, null, null, "Your finished " + cur.name);
+            $("cookNum").textContent = `All ${M} steps done`;
+            $("cookText").innerHTML = '<span class="x-cook__done">You built it!</span>';
+            $("cookColor").textContent = `Your ${cur.name.toLowerCase()} is finished.`;
+            $("cookNext").textContent = "Done";
+            return;
+          }
+          const layer = cur.layers[step];
+          $("cookPic").innerHTML = drawBuild(cur, step, step, `${cur.name}, step ${step + 1}`);
+          $("cookNum").textContent = `Step ${step + 1} of ${M}`;
+          $("cookText").textContent = stepText(layer, step);
+          $("cookColor").textContent = "Color idea: " + [...new Set(layer.map((b) => COLORS[b.color][1]))].join(", ") + ". Any color works.";
+          $("cookNext").textContent = step === M - 1 ? "Finish" : "Next";
+        }
+        function confetti() {
+          const box = document.createElement("div");
+          box.className = "x-confetti";
+          const cols = ["#d946ef", "#06b6d4", "#facc15", "#84cc16", "#f97316", "#ffffff"];
+          for (let k = 0; k < 70; k++) {
+            const i = document.createElement("i");
+            i.style.left = Math.random() * 100 + "%";
+            i.style.background = cols[k % cols.length];
+            i.style.animationDelay = Math.random() * 0.6 + "s";
+            i.style.animationDuration = 1.8 + Math.random() * 1.4 + "s";
+            box.appendChild(i);
+          }
+          $("cook").appendChild(box);
+          setTimeout(() => box.remove(), 4200);
+        }
+        $("cookNext").onclick = () => {
+          if (done) return close();
+          if (step < cur.layers.length - 1) { step++; show(); cheer(); return; }
+          done = true; hideCheer(); confetti();
+          show();
+        };
+        $("cookBack").onclick = () => { hideCheer(); if (done) done = false; else if (step > 0) step--; show(); };
+        $("cookClose").onclick = close;
+        document.addEventListener("keydown", (e) => {
+          if ($("cook").hidden) return;
+          if (e.key === "Escape") close();
+          if (e.key === "ArrowRight") $("cookNext").click();
+          if (e.key === "ArrowLeft" && !$("cookBack").disabled) $("cookBack").click();
+        });
+
+        // Gemini key: one dialog, opened from the nav and from the chat
+        const store = {
+          get() { try { return localStorage.getItem("ya-gemini-key") || ""; } catch (_) { return ""; } },
+          set(k) { try { localStorage.setItem("ya-gemini-key", k); } catch (_) {} },
+        };
+        const getKey = () => { let k = ""; try { if (window.yaKey && yaKey.get) k = yaKey.get() || ""; } catch (_) {} return (k || store.get()).trim(); };
+        const dlg = $("keyDlg");
+        const syncKeyBtn = () => { const b = $("navKey"); if (b) { b.classList.toggle("is-set", !!getKey()); b.setAttribute("aria-label", getKey() ? "API key, saved" : "API key"); } };
+        let afterKey = null, keyT = 0;
+        function openKey(then) {
+          afterKey = then || null;
+          clearTimeout(keyT);
+          $("keyIn").value = getKey();
+          $("keySaved").hidden = true; $("keyErr").hidden = true;
+          if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
+          $("keyIn").focus();
+        }
+        function closeKey() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+        $("keyForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const k = $("keyIn").value.trim();
+          if (!k) { $("keyErr").hidden = false; $("keyIn").focus(); return; }
+          store.set(k);
+          try { if (window.yaKey && yaKey.set) yaKey.set(k); } catch (_) {}
+          $("keyErr").hidden = true; $("keySaved").hidden = false;
+          syncKeyBtn();
+          const then = afterKey; afterKey = null;
+          keyT = setTimeout(() => { closeKey(); if (then) then(); }, 900);
+        });
+        $("keyClose").onclick = closeKey;
+        dlg.addEventListener("click", (e) => { if (e.target === dlg) closeKey(); });
+
+        // Photos for the chat: take or upload, resized to 1024px JPEG
+        let pending = null, pendingEl = null;
+        function dropPending() { if (pendingEl) pendingEl.remove(); pending = null; pendingEl = null; $("chatHint").textContent = ""; }
+        ["camIn", "fileIn"].forEach((id) => $(id).addEventListener("change", async (e) => {
+          const f = e.target.files && e.target.files[0];
+          e.target.value = "";
+          $("photoMenu").open = false;
+          if (!f) return;
+          try {
+            const url = await resize(f);
+            dropPending();
+            pending = url;
+            pendingEl = bubble("me", `<div class="x-thumb" role="img" aria-label="Your photo" style="background-image:url('${url}')"></div><button type="button" class="x-mini" data-drop>Remove photo</button>`, "x-bub--photo");
+            $("chatHint").textContent = "Photo ready. Add a message, or just tap Send.";
+            $("chatIn").focus();
+          } catch (_) { bubble("ai", "<p>I couldn't open that photo. Try another one.</p>"); }
+        }));
+        $("takeBtn").onclick = () => $("camIn").click();
+        $("pickBtn").onclick = () => $("fileIn").click();
+        document.addEventListener("click", (e) => { if ($("photoMenu").open && !e.target.closest("#photoMenu")) $("photoMenu").open = false; });
+        async function resize(file) {
+          let src;
+          if (window.createImageBitmap) src = await createImageBitmap(file);
+          else src = await new Promise((ok, no) => { const im = document.createElement("img"); im.onload = () => ok(im); im.onerror = no; im.src = URL.createObjectURL(file); });
+          const s = Math.min(1, 1024 / Math.max(src.width, src.height));
+          const c = document.createElement("canvas");
+          c.width = Math.round(src.width * s); c.height = Math.round(src.height * s);
+          c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+          return c.toDataURL("image/jpeg", 0.85);
+        }
+        async function gemini(key, body) {
+          const post = () => fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(key)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+          let r = await post();
+          if (r.status === 400) {
+            const t = await r.clone().text();
+            if (/thinking/i.test(t)) { delete body.generationConfig.thinkingConfig; r = await post(); }
+          }
+          return r;
+        }
+        // Calls Gemini and returns the parsed JSON reply, or throws a friendly error.
+        async function askJSON(key, contents, system, bad) {
+          const res = await gemini(key, { systemInstruction: { parts: [{ text: system }] }, contents, generationConfig: { responseMimeType: "application/json", thinkingConfig: { thinkingLevel: "low" } } });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            const m = (data.error && data.error.message) || "";
+            if ((res.status === 400 && /key/i.test(m)) || res.status === 401 || res.status === 403) { const er = new Error("That API key didn't work. Check it, or get a new one."); er.key = true; throw er; }
+            if (res.status === 429) throw new Error("Gemini is busy or your free quota ran out. Wait a minute and try again.");
+            throw new Error("Gemini couldn't do that. " + (m || "Please try again."));
+          }
+          const text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+          try { return JSON.parse(text.replace(/^```(json)?|```$/g, "").trim()); } catch (_) { throw new Error(bad); }
+        }
+        const friendly = (err) => (err instanceof TypeError ? "Couldn't reach Gemini. Check your connection and try again." : err.message);
+
+        // Optional: Gemini designs a build from an idea
+        const GENEROUS = { "1x1": 12, "1x2": 10, "1x4": 6, "2x2": 10, "2x3": 6, "2x4": 10, "2x6": 6 };
+        const BY_NAME = {};
+        Object.keys(COLORS).forEach((k) => { BY_NAME[k.toLowerCase()] = k; BY_NAME[COLORS[k][1]] = k; });
+        const clean = (s, n) => String(s || "").replace(/[<>&"]/g, "").trim().slice(0, n);
+        function tidy(out, budget, maxLayers) {
+          const left = { ...budget };
+          const layers = [];
+          (Array.isArray(out.layers) ? out.layers : []).slice(0, maxLayers).forEach((layer) => {
+            if (!Array.isArray(layer)) return;
+            const row = layer
+              .map((b) => ({ size: String(b && b.size || "").replace(/\s/g, "").toLowerCase(), x: Math.max(0, Math.min(16, Math.round(+(b && b.x) || 0))), color: BY_NAME[String(b && b.color || "").toLowerCase()] || "F" }))
+              .filter((b) => SIZES.includes(b.size))
+              .sort((a, b) => a.x - b.x);
+            const keep = [];
+            let end = -1;
+            row.forEach((b) => { if (b.x >= end && left[b.size] > 0) { left[b.size]--; keep.push(b); end = b.x + studs(b.size); } });
+            if (keep.length) layers.push(keep);
+          });
+          if (!layers.length) return null;
+          const minX = Math.min(...layers.flat().map((b) => b.x));
+          layers.flat().forEach((b) => (b.x -= minX));
+          const parts = {};
+          layers.flat().forEach((b) => (parts[b.size] = (parts[b.size] || 0) + 1));
+          const pieces = layers.flat().length;
+          const level = FILTER.level !== "Any" ? FILTER.level : ["Easy", "Medium", "Hard"].find((l) => l.toLowerCase() === String(out.difficulty || "").toLowerCase()) || (pieces <= 6 ? "Easy" : "Medium");
+          const tips = (Array.isArray(out.tips) ? out.tips : [out.tips]).map((t) => clean(t, 160)).filter(Boolean).slice(0, 3);
+          return { name: clean(out.name, 40) || "Your design", layers, parts, pieces, level, size: sizeOf(pieces), tips };
+        }
+        // Ask Gemini: a chat that designs and revises builds
+        const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        const log = $("chatLog");
+        function bubble(who, html, extra) {
+          const el = document.createElement("div");
+          el.className = `x-bub x-bub--${who}${extra ? " " + extra : ""}`;
+          el.innerHTML = (who === "ai" ? '<span class="x-bub__who">Gemini</span>' : "") + html;
+          log.appendChild(el);
+          log.scrollTop = log.scrollHeight;
+          return el;
+        }
+        const keyBtn = '<button type="button" class="x-go" data-key>Add API key</button>';
+        const needKey = (msg) => bubble("ai", `<p>${msg}</p>${keyBtn}`);
+        const hist = [], designs = [], counted = [];
+        let aiBuild = null, waiting = null, busy = false;
+        const retry = () => { if (waiting && getKey() && !busy) { const t = waiting; waiting = null; run(t); } };
+        const toJSON = (b) => ({ name: b.name, difficulty: b.level, layers: b.layers.map((l) => l.map((x) => ({ size: x.size, x: x.x, color: COLORS[x.color][1] }))) });
+        function system(budget, mine) {
+          const pile = SIZES.map((s) => `${s}: ${budget[s]}`).join(", ");
+          const maxLayers = FILTER.size === "Big" ? 20 : 12;
+          const range = { Small: "4 to 12 bricks in total", Medium: "13 to 30 bricks in total", Big: "31 to 45 bricks in total", Any: "any number of bricks up to 30" }[FILTER.size];
+          const how = { Easy: "Easy: simple straight stacking, few layers, every brick fully supported, no overhangs.", Medium: "Medium: a few offsets and some gaps, mostly supported bricks.", Hard: "Hard: more layers, offset bricks, overhangs and bricks that bridge gaps, still stable.", Any: "Pick a difficulty that suits the idea, simple enough for a child." }[FILTER.level];
+          return `You are Gemini inside Brick Builder, a toy brick app for kids. Chat in a short, friendly, encouraging way: one or two simple sentences.
+Always reply with JSON only: {"message":"your short reply","design":null or {"name":"short name","difficulty":"Easy|Medium|Hard","layers":[[{"size":"2x4","x":0,"color":"cyan"}]],"tips":["one short tip"]},"counts":null or {"1x1":0,"1x2":0,"1x4":0,"2x2":0,"2x3":0,"2x4":0,"2x6":0}}.
+When the user asks for something to build, return a design. When they ask to change the current design (for example "make it taller" or "add wings"), return the whole revised design, keeping what they did not ask to change. If they only chat, design can be null.
+A design is a flat front view, built in layers from the bottom up. Each brick has a size, an x offset in studs from the left (whole numbers, 0 or more), and a color. A brick's width in studs is the second number of its size (2x4 is 4 wide). Bricks in the same layer must not overlap, and each brick should rest on a brick in the layer below (except the bottom layer). Use only sizes 1x1, 1x2, 1x4, 2x2, 2x3, 2x4, 2x6. Use only colors ${Object.values(COLORS).map((c) => c[1]).join(", ")}. Target size: ${range}. Difficulty: ${how} At most ${maxLayers} layers.
+Bricks available${mine ? "" : " (the user has not counted theirs, so use this sample pile)"}: ${pile}. Never use more bricks of a size than available.
+If a photo shows a pile of loose bricks, count them by size into "counts" (count any other brick as the closest size) and design something from the counted bricks instead of the pile above. If a photo shows an object, design a brick version of it. Otherwise "counts" is null.`;
+        }
+        function contents() {
+          let h = hist.slice(-16);
+          while (h.length && h[0].role !== "user") h = h.slice(1);
+          return h.map((t, i) => {
+            const last = i === h.length - 1;
+            let text = t.text;
+            if (t.photo && !last) text = "(I sent a photo here.) " + text;
+            if (last && aiBuild) text += "\n\nCurrent design JSON (revise this one if I ask for changes): " + JSON.stringify(toJSON(aiBuild));
+            const parts = [{ text }];
+            if (last && t.photo) parts.push({ inline_data: { mime_type: "image/jpeg", data: t.photo.split(",")[1] } });
+            return { role: t.role, parts };
+          });
+        }
+        function readCounts(c) {
+          if (!c || typeof c !== "object") return null;
+          const out = {};
+          SIZES.forEach((s) => (out[s] = Math.max(0, Math.min(99, Math.round(+c[s] || 0)))));
+          return SIZES.some((s) => out[s]) ? out : null;
+        }
+        async function run(turn) {
+          busy = true; $("sendBtn").disabled = true;
+          hist.push({ role: "user", text: turn.text, photo: turn.photo });
+          const typing = bubble("ai", '<span class="x-typing"><span class="x-ring x-ring--s"></span>Thinking…</span>');
+          const mine = SIZES.some((s) => have[s]);
+          const budget = mine ? { ...have } : GENEROUS;
+          const maxLayers = FILTER.size === "Big" ? 20 : 12;
+          try {
+            const out = (await askJSON(getKey(), contents(), system(budget, mine), "Gemini sent back something unexpected. Try again or say it another way.")) || {};
+            typing.remove();
+            const msg = String(out.message || "").trim().slice(0, 400) || "Here you go!";
+            let html = `<p>${esc(msg)}</p>`, note = "";
+            const counts = readCounts(out.counts);
+            if (counts) {
+              const n = SIZES.reduce((a, s) => a + counts[s], 0);
+              counted.push(counts);
+              html += `<p class="x-note">I counted ${n} bricks: ${SIZES.filter((s) => counts[s]).map((s) => `${counts[s]} × ${s}`).join(", ")}.</p><button type="button" class="x-ghost" data-fill="${counted.length - 1}">Fill in my bricks</button>`;
+              note += ` [Counted ${n} bricks]`;
+            }
+            if (out.design && typeof out.design === "object") {
+              const b = tidy(out.design, counts || budget, maxLayers);
+              if (b) {
+                aiBuild = b; designs.push(b);
+                const from = !mine && !counts ? '<span class="x-note">Built from a sample pile, since no bricks are counted.</span>' : "";
+                const tips = b.tips.map((t) => `<span class="x-note">Tip: ${t}</span>`).join("");
+                html += card(b).replace('<button type="button" class="x-build', `<button type="button" data-ai="${designs.length - 1}" class="x-build`).replace(/<\/button>$/, `${from}${tips}<span class="x-note">Tap for step by step</span></button>`);
+                note += ` [Design: ${b.name}, ${b.pieces} pieces]`;
+              } else html += '<p class="x-note">That design didn\'t fit the bricks. Try a simpler idea or add more bricks.</p>';
+            }
+            bubble("ai", html);
+            hist.push({ role: "model", text: msg + note });
+          } catch (err) {
+            typing.remove(); hist.pop();
+            if (err.key) { waiting = turn; needKey(esc(friendly(err))); }
+            else bubble("ai", `<p>${esc(friendly(err))}</p>`);
+          } finally {
+            busy = false; $("sendBtn").disabled = false;
+          }
+        }
+        function send() {
+          if (busy) return;
+          let text = $("chatIn").value.trim();
+          const photo = pending;
+          if (!text && !photo) { $("chatIn").focus(); return; }
+          if (!text) text = "What can I build from this photo?";
+          if (pendingEl) pendingEl.querySelector("[data-drop]")?.remove();
+          pending = null; pendingEl = null; $("chatHint").textContent = "";
+          $("chatIn").value = "";
+          bubble("me", `<p>${esc(text)}</p>`);
+          const turn = { text, photo };
+          if (!getKey()) { waiting = turn; needKey("I need a free Gemini key to answer. It only takes a minute to get one."); return; }
+          run(turn);
+        }
+        $("sendBtn").onclick = send;
+        $("chatIn").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); send(); } });
+        log.addEventListener("click", (e) => {
+          const t = e.target;
+          if (t.closest("[data-drop]")) return dropPending();
+          if (t.closest("[data-key]")) return openKey(retry);
+          const d = t.closest(".x-build[data-ai]");
+          if (d) return open(designs[+d.dataset.ai]);
+          const f = t.closest("[data-fill]");
+          if (f) {
+            const c = counted[+f.dataset.fill];
+            SIZES.forEach((s) => (have[s] = c[s]));
+            syncPicker(); find();
+            say(`Gemini counted ${SIZES.reduce((a, s) => a + c[s], 0)} bricks. ` + $("msg").textContent);
+            f.textContent = "Bricks filled in ✓"; f.disabled = true;
+          }
+        });
+        bubble("ai", "<p>Hi! Tell me what you want to build, or send a photo of your bricks and ask what you can make.</p>" + (getKey() ? "" : `<p class="x-note">First, add your free Gemini key.</p>${keyBtn}`));
+
+        syncPicker();
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelector(".nav .seg")?.insertAdjacentHTML("afterbegin", '<a href="https://praveenp-works.github.io/yathin_apps/">← Yathin Looops</a>');
+          const theme = document.querySelector(".nav .theme-btn");
+          const kb = '<button class="x-navkey" type="button" id="navKey">API key</button>';
+          if (theme) theme.insertAdjacentHTML("beforebegin", kb); else document.querySelector(".nav")?.insertAdjacentHTML("beforeend", kb);
+          const nk = $("navKey");
+          if (nk) nk.onclick = () => openKey(retry);
+          syncKeyBtn();
+        });
+      })();
+    </script>
+  <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-brickbuilder/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("bb_seen")){localStorage.setItem("bb_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
+</body>
+</html>
