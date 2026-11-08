@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Snap Kit · 7 free photo and idea tools in one app</title>
-<meta name="description" content="Snap Kit: count coins, plan your room, turn doodles into stories, settle board game fights, read car dash lights, make stickers and find gift ideas. Free, part of Yathin Looops.">
+<title>Snap Kit · 8 free tools in one app</title>
+<meta name="description" content="Snap Kit: count coins, plan your room, turn doodles into stories, settle board game fights, read car dash lights, make stickers, find gift ideas and remember to drink water. Free, part of Yathin Looops.">
 <link rel="icon" href="snapkit_icon.png"><link rel="apple-touch-icon" href="icon-180.png">
-<meta property="og:title" content="Snap Kit · Free"><meta property="og:description" content="Seven handy tools in one free app."><meta property="og:image" content="https://praveenp-works.github.io/yathin_apps/snapkit/snapkit_icon.png">
+<meta property="og:title" content="Snap Kit · Free"><meta property="og:description" content="Eight handy tools in one free app."><meta property="og:image" content="https://praveenp-works.github.io/yathin_apps/snapkit/snapkit_icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -88,8 +88,8 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
   <section class="hero">
     <img src="snapkit_icon.png" alt="Snap Kit logo" width="104" height="104" style="border-radius:24px;box-shadow:0 10px 24px rgba(0,0,0,.2)">
     <h1>Snap Kit</h1>
-    <p>Seven handy tools in one free app. Snap a photo, draw, or answer a few questions.</p>
-    <span class="chip">Free · 7 tools · Created by Yathin Pedamallu</span>
+    <p>Eight handy tools in one free app. Snap a photo, draw, or answer a few questions.</p>
+    <span class="chip">Free · 8 tools · Created by Yathin Pedamallu</span>
   </section>
 
   <div class="tabs" id="tools">
@@ -100,6 +100,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
     <button data-t="dash"><span>🚗</span>Dash Light</button>
     <button data-t="sticker"><span>✂️</span>Sticker Maker</button>
     <button data-t="gift"><span>🎁</span>Gift Finder</button>
+    <button data-t="water"><span>💧</span>Water Reminder</button>
   </div>
 
   <!-- 1 Coins -->
@@ -168,6 +169,17 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
     <button class="go" data-go="gift">Find gift ideas</button><div class="err"></div><div class="out" id="o-gift"></div>
   </section>
 
+  <!-- 8 Water -->
+  <section class="card tool" id="t-water">
+    <h2>💧 Water Reminder</h2><p class="sub">Track your glasses today and get a nudge to drink. No API key needed.</p>
+    <div style="text-align:center"><div class="big" id="wCount">0 / 8</div><div class="muted">glasses today</div><div class="bar"><i id="wBar" style="width:0"></i></div>
+    <div id="wCups" style="font-size:30px;margin:12px 0;letter-spacing:4px"></div>
+    <button class="go" id="wAdd">+ I drank a glass 💧</button><p><button class="btn2" id="wSub">Undo</button></p></div>
+    <div class="row"><div><label class="f">Daily goal (glasses)</label><input type="number" id="wGoal" min="1" max="20" value="8"></div><div><label class="f">Remind me every</label><select id="wEvery"><option value="0">Off</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="90">90 minutes</option><option value="120">2 hours</option></select></div></div>
+    <div class="box" id="wNext" style="display:none"></div>
+    <p class="muted">Reminders pop up while this page or the app is open. Kids usually need 6 to 8 glasses a day, adults about 8; more when it's hot or you're playing sports.</p>
+  </section>
+
   <section class="card" id="how">
     <h2>How it works</h2>
     <div class="steps">
@@ -175,7 +187,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
       <div><span>📸</span>Snap, draw, or answer a few questions</div>
       <div><span>✨</span>Gemini gives you the answer in seconds</div>
     </div>
-    <p class="muted" style="margin-top:12px">Six tools use your own free Gemini API key, saved only in this browser. Sticker Maker works with no key. Dash Light is a helper, not a mechanic: if a light is red or flashing, stop safely and call for help.</p>
+    <p class="muted" style="margin-top:12px">Six tools use your own free Gemini API key, saved only in this browser. Sticker Maker and Water Reminder work with no key. Dash Light is a helper, not a mechanic: if a light is red or flashing, stop safely and call for help.</p>
   </section>
   <footer>Snap Kit · Part of Yathin Looops · Created by Yathin Pedamallu</footer>
 </main>
@@ -250,6 +262,18 @@ function makeSticker(){var s=Math.min(1,900/Math.max(stImg.width,stImg.height)),
  if($("outline").checked){var t=document.createElement("canvas");t.width=W;t.height=H;var tx=t.getContext("2d");tx.drawImage(c,0,0);tx.globalCompositeOperation="source-in";tx.fillStyle="#fff";tx.fillRect(0,0,W,H);for(var ang=0;ang<360;ang+=20){var r=10;o.drawImage(t,pad2+Math.cos(ang*Math.PI/180)*r,pad2+Math.sin(ang*Math.PI/180)*r)}o.shadowColor="rgba(0,0,0,.18)";}
  o.drawImage(c,pad2,pad2);$("stkWrap").style.display="block";$("stDl").style.display="block"}
 $("stDl").onclick=function(){var a=document.createElement("a");a.download="snapkit-sticker.png";a.href=$("stk").toDataURL("image/png");a.click()};
+
+/* Water Reminder (no key) */
+(function(){var K="sk_water",today=new Date().toDateString(),s={};try{s=JSON.parse(localStorage.getItem(K)||"{}")}catch(e){}if(s.day!==today){s.day=today;s.n=0}s.goal=s.goal||8;s.every=s.every||0;s.last=s.last||Date.now();
+ function save(){localStorage.setItem(K,JSON.stringify(s))}
+ function draw(){var g=s.goal;$("wCount").textContent=s.n+" / "+g;$("wBar").style.width=Math.min(100,s.n/g*100)+"%";var c="";for(var i=0;i<Math.max(g,s.n);i++)c+=i<s.n?"💧":"⚪";$("wCups").textContent=c;$("wGoal").value=g;$("wEvery").value=String(s.every);
+  if(s.every>0){var m=Math.max(0,Math.round((s.last+s.every*60000-Date.now())/60000));$("wNext").style.display="block";$("wNext").textContent=s.n>=g?"Goal reached today! 🎉 Reminders paused until tomorrow.":"Next reminder in about "+m+" min."}else $("wNext").style.display="none"}
+ $("wAdd").onclick=function(){s.n++;s.last=Date.now();save();draw();if(s.n===s.goal){$("wAdd").textContent="Goal reached! 🎉";setTimeout(function(){$("wAdd").textContent="+ I drank a glass 💧"},2500)}};
+ $("wSub").onclick=function(){if(s.n>0)s.n--;save();draw()};
+ $("wGoal").onchange=function(){s.goal=Math.max(1,Math.min(20,+this.value||8));save();draw()};
+ $("wEvery").onchange=function(){s.every=+this.value;s.last=Date.now();save();draw();if(s.every>0&&window.Notification&&Notification.permission==="default")Notification.requestPermission()};
+ function nudge(){if(!s.every||s.n>=s.goal)return;if(Date.now()-s.last>=s.every*60000){s.last=Date.now();save();var msg="Time for a glass of water! 💧 ("+s.n+"/"+s.goal+" today)";if(window.Notification&&Notification.permission==="granted"){try{new Notification("Snap Kit",{body:msg,icon:"snapkit_icon.png"})}catch(e){alert(msg)}}else alert(msg)}draw()}
+ setInterval(function(){var t=new Date().toDateString();if(s.day!==t){s.day=t;s.n=0;save()}nudge()},30000);draw()})();
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-snapkit/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("sk_seen")){localStorage.setItem("sk_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
 </body>
