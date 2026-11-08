@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Snap Kit",
+  "short_name": "Snap Kit",
+  "version": "1.0.0",
+  "description": "8 free tools: coin counter, room planner, doodle stories, game referee, dash lights, stickers, gift ideas and water reminders. By Yathin Looops.",
+  "action": {
+    "default_title": "Open Snap Kit",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "alarms",
+    "notifications",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ]
+}

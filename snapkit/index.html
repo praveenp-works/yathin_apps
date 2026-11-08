@@ -82,6 +82,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
   <a href="../">← Yathin Looops</a>
   <a href="#tools">Tools</a>
   <a href="#how">How</a>
+  <a href="#get">Get app</a>
   <button class="key" id="keyBtn">API key</button>
 </nav>
 <main>
@@ -180,6 +181,14 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
     <p class="muted">Reminders pop up while this page or the app is open. Kids usually need 6 to 8 glasses a day, adults about 8; more when it's hot or you're playing sports.</p>
   </section>
 
+  <section class="card" id="get">
+    <h2>Get Snap Kit</h2>
+    <div class="row">
+      <a class="go" style="text-align:center;text-decoration:none;display:block" href="https://github.com/praveenp-works/yathin_apps/releases/download/snapkit-android/SnapKit.apk">📱 Android phone (.apk)</a>
+      <a class="go" style="text-align:center;text-decoration:none;display:block" href="SnapKit-Chrome.zip" download>🧩 Chrome extension (.zip)</a>
+    </div>
+    <p class="muted"><b>Android:</b> open the .apk and allow "install unknown apps" when asked. <b>Chrome:</b> unzip, open chrome://extensions, turn on Developer mode, click Load unpacked and pick the SnapKit folder. Then click the Snap Kit icon in your toolbar. iPhone: open this page in Safari and tap Share, then Add to Home Screen.</p>
+  </section>
   <section class="card" id="how">
     <h2>How it works</h2>
     <div class="steps">
@@ -194,6 +203,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
 <script src="../ya-key.js"></script>
 <script>
 var $=function(i){return document.getElementById(i)},imgs={};
+if(!/github\.io$/.test(location.hostname)){var _g=$("get");if(_g)_g.remove();var _n=document.querySelector('.nav a[href="#get"]');if(_n)_n.remove()}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){document.querySelectorAll(".tabs button").forEach(function(x){x.classList.toggle("on",x===b)});document.querySelectorAll(".tool").forEach(function(t){t.classList.toggle("on",t.id==="t-"+b.dataset.t)});if(b.dataset.t==="doodle")sizePad();history.replaceState(null,"","#"+b.dataset.t)}});
 (function(){var h=location.hash.slice(1),b=document.querySelector('.tabs button[data-t="'+h+'"]');if(b)setTimeout(function(){b.click()},0)})();

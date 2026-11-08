@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snap Kit · 8 free tools in one app</title>
+<meta name="description" content="Snap Kit: count coins, plan your room, turn doodles into stories, settle board game fights, read car dash lights, make stickers, find gift ideas and remember to drink water. Free, part of Yathin Looops.">
+<link rel="icon" href="snapkit_icon.png"><link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:title" content="Snap Kit · Free"><meta property="og:description" content="Eight handy tools in one free app."><meta property="og:image" content="https://praveenp-works.github.io/yathin_apps/snapkit/snapkit_icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--a1:#10b981;--a2:#0ea5e9;--a3:#f59e0b;--bg:#f5f5f7;--card:#fff;--tx:#1d1d1f;--mut:#6e6e73;--line:#e5e5ea;--soft:#ecfbf6}
+*{box-sizing:border-box}
+body{margin:0;font-family:Geist,system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+.nav{position:sticky;top:12px;z-index:9;margin:12px auto 0;width:fit-content;max-width:calc(100% - 24px);display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;background:rgba(29,29,31,.9);backdrop-filter:blur(12px);box-shadow:0 4px 12px rgba(0,0,0,.14)}
+.nav a,.nav button{color:#fff;text-decoration:none;font:500 14px Geist,sans-serif;padding:8px 14px;border-radius:999px;border:0;background:none;cursor:pointer;white-space:nowrap}
+.nav a:hover,.nav button:hover{background:rgba(255,255,255,.12)}
+.nav .key{background:linear-gradient(90deg,var(--a1),var(--a2))}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+.hero{border-radius:28px;padding:40px 24px;text-align:center;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2) 55%,var(--a3))}
+.hero h1{font-size:44px;font-weight:800;margin:10px 0 6px;letter-spacing:-.02em}
+.hero p{margin:0 auto;max-width:480px;font-size:17px;opacity:.95}
+.chip{display:inline-block;margin-top:14px;background:rgba(255,255,255,.22);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.tabs button{display:flex;align-items:center;gap:10px;padding:14px;border-radius:18px;border:2px solid transparent;background:#fff;font:600 15px Geist,sans-serif;cursor:pointer;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tabs button span{font-size:26px}
+.tabs button.on{border-color:var(--a2);background:#eef8fe}
+.card{background:var(--card);border-radius:22px;padding:22px;margin-top:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tool{display:none}.tool.on{display:block}
+h2{margin:0 0 6px;font-size:22px}
+.sub{color:var(--mut);margin:0 0 14px}
+.drop{display:block;border:2px dashed #d2d2d7;border-radius:18px;padding:26px 16px;text-align:center;cursor:pointer;color:var(--mut)}
+.drop:hover{border-color:var(--a2)}
+.drop b{display:block;color:var(--tx);font-size:17px;margin-bottom:4px}
+.pv{display:none;margin-top:12px;max-width:100%;max-height:320px;border-radius:16px}
+input[type=text],input[type=number],select,textarea{width:100%;margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:12px;font:15px Geist,sans-serif;background:#fff}
+textarea{resize:vertical;min-height:52px}
+label.f{display:block;margin-top:12px;font-weight:600;font-size:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.go{width:100%;margin-top:14px;padding:15px;border:0;border-radius:999px;color:#fff;font:700 17px Geist,sans-serif;cursor:pointer;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3))}
+.go:disabled{opacity:.55;cursor:wait}
+.btn2{padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font:600 14px Geist,sans-serif;cursor:pointer}
+.err{color:#d70015;margin-top:10px;display:none}
+.out{margin-top:16px}
+.big{font-size:40px;font-weight:800;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:15px}
+.bar{height:12px;border-radius:999px;background:#eee;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--a1),var(--a2))}
+.box{padding:14px 16px;border-radius:16px;background:var(--soft);margin-top:12px}
+.warn{background:#fff4e5;color:#8a4b00}
+.stop{background:#ffe9ea;color:#a1000f}
+.layouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:10px}
+.layouts svg{width:100%;background:#fafafa;border-radius:12px;border:1px solid var(--line)}
+#pad{width:100%;height:320px;border:2px solid var(--line);border-radius:16px;touch-action:none;background:#fff;cursor:crosshair;display:block}
+.pens{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.pens i{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.pens i.on{box-shadow:0 0 0 2px var(--tx)}
+.story{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:start}
+.story img{width:100%;border-radius:14px;border:1px solid var(--line)}
+.story p{line-height:1.6;font-size:17px}
+.verdict{font-size:30px;font-weight:800}
+.light{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.dot{width:16px;height:16px;border-radius:50%;flex:none;margin-top:4px}
+.stk{background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/20px 20px;border-radius:16px;padding:12px;text-align:center;margin-top:12px;display:none}
+.stk canvas{max-width:100%;max-height:340px}
+.gifts{display:grid;gap:10px;margin-top:8px}
+.gift{display:flex;gap:12px;padding:14px;border-radius:16px;background:#fafafa}
+.gift .e{font-size:30px}
+.gift b{display:block}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.steps div{background:#fafafa;border-radius:16px;padding:14px 8px;font-size:14px}
+.steps span{display:block;font-size:28px}
+footer{text-align:center;color:var(--mut);font-size:13px;margin-top:28px}
+.muted{color:var(--mut);font-size:14px}
+@media(max-width:560px){.hero h1{font-size:34px}.steps,.row{grid-template-columns:1fr}.story{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="https://praveenp-works.github.io/yathin_apps/" target="_blank">← Yathin Looops</a>
+  <a href="#tools">Tools</a>
+  <a href="#how">How</a>
+  <a href="#get">Get app</a>
+  <button class="key" id="keyBtn">API key</button>
+</nav>
+<main>
+  <section class="hero">
+    <img src="snapkit_icon.png" alt="Snap Kit logo" width="104" height="104" style="border-radius:24px;box-shadow:0 10px 24px rgba(0,0,0,.2)">
+    <h1>Snap Kit</h1>
+    <p>Eight handy tools in one free app. Snap a photo, draw, or answer a few questions.</p>
+    <span class="chip">Free · 8 tools · Created by Yathin Pedamallu</span>
+  </section>
+
+  <div class="tabs" id="tools">
+    <button data-t="coins" class="on"><span>🪙</span>Coin Counter</button>
+    <button data-t="room"><span>🛋️</span>Map My Room</button>
+    <button data-t="doodle"><span>✏️</span>Doodle to Story</button>
+    <button data-t="ref"><span>🎲</span>Game Referee</button>
+    <button data-t="dash"><span>🚗</span>Dash Light</button>
+    <button data-t="sticker"><span>✂️</span>Sticker Maker</button>
+    <button data-t="gift"><span>🎁</span>Gift Finder</button>
+    <button data-t="water"><span>💧</span>Water Reminder</button>
+  </div>
+
+  <!-- 1 Coins -->
+  <section class="card tool on" id="t-coins">
+    <h2>🪙 Coin Counter</h2><p class="sub">Spread your coins out, snap them, and get the total.</p>
+    <label class="drop"><input type="file" accept="image/*" hidden data-img="coins"><b>📷 Add a photo of coins</b>Coins flat, not stacked</label>
+    <img class="pv" id="pv-coins" alt="Coins">
+    <label class="f">Savings goal (optional)</label><input type="number" id="goal" placeholder="e.g. 20" min="0" step="0.01">
+    <button class="go" data-go="coins">Count my coins</button><div class="err"></div><div class="out" id="o-coins"></div>
+  </section>
+
+  <!-- 2 Room -->
+  <section class="card tool" id="t-room">
+    <h2>🛋️ Map My Room</h2><p class="sub">Snap your room and get 3 new furniture layouts as floor plans.</p>
+    <label class="drop"><input type="file" accept="image/*" hidden data-img="room"><b>📷 Add a photo of your room</b>Stand in a corner to fit the most in</label>
+    <img class="pv" id="pv-room" alt="Room">
+    <textarea id="roomWish" placeholder="What do you want? (optional) e.g. more floor space for Lego, desk by the window"></textarea>
+    <button class="go" data-go="room">Plan my room</button><div class="err"></div><div class="out" id="o-room"></div>
+  </section>
+
+  <!-- 3 Doodle -->
+  <section class="card tool" id="t-doodle">
+    <h2>✏️ Doodle to Story</h2><p class="sub">Draw anything. It becomes a short bedtime story starring your doodle.</p>
+    <canvas id="pad"></canvas>
+    <div class="pens" id="pens"><i style="background:#1d1d1f" class="on" data-c="#1d1d1f"></i><i style="background:#ef4444" data-c="#ef4444"></i><i style="background:#f59e0b" data-c="#f59e0b"></i><i style="background:#10b981" data-c="#10b981"></i><i style="background:#0ea5e9" data-c="#0ea5e9"></i><i style="background:#a855f7" data-c="#a855f7"></i><button class="btn2" id="undo">Undo</button><button class="btn2" id="clear">Clear</button></div>
+    <input type="text" id="hero" placeholder="Hero's name (optional) e.g. Sir Wobbles">
+    <button class="go" data-go="doodle">Make my story</button><div class="err"></div><div class="out" id="o-doodle"></div>
+  </section>
+
+  <!-- 4 Referee -->
+  <section class="card tool" id="t-ref">
+    <h2>🎲 Game Referee</h2><p class="sub">Snap the board, ask your rules question, get a fair call.</p>
+    <label class="drop"><input type="file" accept="image/*" hidden data-img="ref"><b>📷 Add a photo of the board</b>Chess, checkers, Monopoly, Uno, and more</label>
+    <img class="pv" id="pv-ref" alt="Board">
+    <input type="text" id="game" placeholder="Game name (optional) e.g. Chess">
+    <textarea id="refQ" placeholder="Your question, e.g. Can my knight move here?"></textarea>
+    <button class="go" data-go="ref">Make the call</button><div class="err"></div><div class="out" id="o-ref"></div>
+  </section>
+
+  <!-- 5 Dash -->
+  <section class="card tool" id="t-dash">
+    <h2>🚗 Dash Light</h2><p class="sub">Snap a warning light on the dashboard. Find out what it means and how urgent it is.</p>
+    <label class="drop"><input type="file" accept="image/*" hidden data-img="dash"><b>📷 Add a photo of the dashboard</b>Only when the car is parked</label>
+    <img class="pv" id="pv-dash" alt="Dashboard">
+    <input type="text" id="car" placeholder="Car make and model (optional) e.g. Toyota Camry 2019">
+    <button class="go" data-go="dash">What does it mean?</button><div class="err"></div><div class="out" id="o-dash"></div>
+  </section>
+
+  <!-- 6 Sticker -->
+  <section class="card tool" id="t-sticker">
+    <h2>✂️ Sticker Maker</h2><p class="sub">Snap something on a plain background. It cuts it out as a sticker. No API key needed.</p>
+    <label class="drop"><input type="file" accept="image/*" hidden id="stFile"><b>📷 Add a photo</b>Plain wall or table behind it works best</label>
+    <label class="f">Cut strength <span class="muted" id="tolV">40</span></label><input type="range" id="tol" min="10" max="120" value="40" style="width:100%">
+    <label class="f"><input type="checkbox" id="outline" checked> White sticker border</label>
+    <div class="stk" id="stkWrap"><canvas id="stk"></canvas></div>
+    <button class="go" id="stDl" style="display:none">Download sticker</button><div class="err" id="stErr"></div>
+  </section>
+
+  <!-- 7 Gift -->
+  <section class="card tool" id="t-gift">
+    <h2>🎁 Gift Finder</h2><p class="sub">Answer 4 quick questions and get 5 gift ideas under your budget.</p>
+    <label class="f">Who is it for?</label><input type="text" id="gWho" placeholder="e.g. my grandma, my best friend">
+    <div class="row"><div><label class="f">Their age</label><input type="number" id="gAge" placeholder="e.g. 10" min="0"></div><div><label class="f">Budget ($)</label><input type="number" id="gBud" placeholder="e.g. 25" min="1"></div></div>
+    <label class="f">What do they love?</label><input type="text" id="gLike" placeholder="e.g. soccer, drawing, cats">
+    <label class="f">Occasion</label><select id="gOcc"><option>Birthday</option><option>Holiday</option><option>Thank you</option><option>Just because</option><option>Get well</option></select>
+    <button class="go" data-go="gift">Find gift ideas</button><div class="err"></div><div class="out" id="o-gift"></div>
+  </section>
+
+  <!-- 8 Water -->
+  <section class="card tool" id="t-water">
+    <h2>💧 Water Reminder</h2><p class="sub">Track your glasses today and get a nudge to drink. No API key needed.</p>
+    <div style="text-align:center"><div class="big" id="wCount">0 / 8</div><div class="muted">glasses today</div><div class="bar"><i id="wBar" style="width:0"></i></div>
+    <div id="wCups" style="font-size:30px;margin:12px 0;letter-spacing:4px"></div>
+    <button class="go" id="wAdd">+ I drank a glass 💧</button><p><button class="btn2" id="wSub">Undo</button></p></div>
+    <div class="row"><div><label class="f">Daily goal (glasses)</label><input type="number" id="wGoal" min="1" max="20" value="8"></div><div><label class="f">Remind me every</label><select id="wEvery"><option value="0">Off</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="90">90 minutes</option><option value="120">2 hours</option></select></div></div>
+    <div class="box" id="wNext" style="display:none"></div>
+    <p class="muted">Reminders pop up even when this tab is closed, as long as Chrome is running. Kids usually need 6 to 8 glasses a day, adults about 8; more when it's hot or you're playing sports.</p>
+  </section>
+
+    <section class="card" id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div><span>👆</span>Pick a tool</div>
+      <div><span>📸</span>Snap, draw, or answer a few questions</div>
+      <div><span>✨</span>Gemini gives you the answer in seconds</div>
+    </div>
+    <p class="muted" style="margin-top:12px">Six tools use your own free Gemini API key, saved only in this browser. Sticker Maker and Water Reminder work with no key. Dash Light is a helper, not a mechanic: if a light is red or flashing, stop safely and call for help.</p>
+  </section>
+  <footer>Snap Kit · Part of Yathin Looops · Created by Yathin Pedamallu</footer>
+</main>
+<script src="ya-key.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

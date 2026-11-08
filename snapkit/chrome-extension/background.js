@@ -1,0 +1,4 @@
+chrome.action.onClicked.addListener(function(){chrome.tabs.create({url:chrome.runtime.getURL("index.html")})});
+chrome.runtime.onInstalled.addListener(function(d){if(d.reason==="install")chrome.tabs.create({url:chrome.runtime.getURL("index.html")})});
+chrome.alarms.onAlarm.addListener(function(a){if(a.name!=="water")return;chrome.storage.local.get("water",function(r){var s=r.water||{};if(!s.every)return;if(s.day===new Date().toDateString()&&s.n>=s.goal)return;var n=s.day===new Date().toDateString()?(s.n||0):0;chrome.notifications.create("water"+Date.now(),{type:"basic",iconUrl:"icons/icon128.png",title:"Time for water 💧",message:"Have a glass of water. "+n+" of "+(s.goal||8)+" today.",priority:1})})});
+chrome.notifications.onClicked.addListener(function(){chrome.tabs.create({url:chrome.runtime.getURL("index.html#water")})});

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["android/**", "fridgechef/**", "plantdoc/**", "brickbuilder/**", ".github/workflows/android-apk.yml"]
+    paths: ["android/**", "fridgechef/**", "plantdoc/**", "brickbuilder/**", "snapkit/index.html", ".github/workflows/android-apk.yml"]
 permissions:
   contents: write
 concurrency: android-apk
@@ -34,6 +34,12 @@ jobs:
             id: com.yathinlooops.brickbuilder
             icon: brickbuilder/brickbuilder_icon.png
             start: brickbuilder/index.html
+          - app: snapkit
+            name: Snap Kit
+            file: SnapKit
+            id: com.yathinlooops.snapkit
+            icon: snapkit/snapkit_icon.png
+            start: snapkit/index.html
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -53,7 +59,7 @@ jobs:
           rm -rf $A/assets && mkdir -p $A/assets/web/${{ matrix.app }}
           cp -r ${{ matrix.app }}/* $A/assets/web/${{ matrix.app }}/
           cp ya-key.js $A/assets/web/ 2>/dev/null || true
-          rm -f $A/assets/web/${{ matrix.app }}/sw.js $A/assets/web/${{ matrix.app }}/*.zip $A/assets/web/${{ matrix.app }}/*.exe
+          rm -rf $A/assets/web/${{ matrix.app }}/chrome-extension; rm -f $A/assets/web/${{ matrix.app }}/sw.js $A/assets/web/${{ matrix.app }}/*.zip $A/assets/web/${{ matrix.app }}/*.exe
           python3 -m pip install -q pillow
           python3 - <<'PY'
           from PIL import Image
