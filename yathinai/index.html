@@ -132,6 +132,13 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 #login .ft b{font-weight:700}
 #login .err{color:#be123c;font-size:13px;margin-top:8px;min-height:16px}
 #login .guest{border:0;background:none;color:#6d28d9;font:500 13px Geist,sans-serif;cursor:pointer;margin-top:4px}
+#login .ages{display:flex;gap:10px;margin-top:14px}
+#login .ages button{flex:1;padding:14px 10px;border:0;border-radius:14px;font:600 15px Geist,sans-serif;cursor:pointer;background:rgba(255,255,255,.85)}
+#login .ages button.k{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff}
+#login .ask{font-size:20px;font-weight:700;margin:6px 0 4px}
+.kidtag{display:none;position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:5;background:#fef3c7;color:#92400e;font:600 12px Geist,sans-serif;padding:5px 12px;border-radius:999px}
+body.kid .kidtag{display:block}
+.parent{margin-top:10px;padding:8px 12px;border-radius:12px;background:#fef3c7;color:#92400e;font-size:13px}
 </style>
 </head>
 <body>
@@ -141,15 +148,22 @@ body.thinking #sky i:nth-child(6){opacity:.45}
   <div class="s" id="s2"><div><h1>Do more with<br><em>Yathin AI+</em></h1><p>A way smarter brain. Bigger limits.</p></div></div>
   <div class="s" id="s3"><div><img src="yathinai_icon.png" alt=""><p>Getting Yathin AI ready</p><div class="load"><i id="ld"></i></div><div class="pct" id="pct">0%</div></div></div>
 </div>
-<div id="login"><div class="box">
+<div id="login"><div class="box" id="ageBox" style="display:none">
+  <div class="hd"><img src="yathinai_icon.png" alt="">Yathin AI</div>
+  <div class="ask">How old are you?</div>
+  <div class="sm" style="color:#555;font-size:14px">Yathin AI is for ages 13 and up. Younger kids get Kids mode, made safe and simple.</div>
+  <div class="ages"><button id="ageK" class="k" type="button">Under 13</button><button id="ageT" type="button">13 or older</button></div>
+  <div class="ft">Secured by <b>Yathin AI</b></div>
+</div><div class="box" id="loginBox">
   <div class="hd"><img src="yathinai_icon.png" alt="">Yathin AI</div>
   <label for="lEmail">Email</label><div class="in"><input id="lEmail" type="email" placeholder="user@domain.com" autocomplete="email"></div>
   <label for="lPass">Password</label><div class="in"><input id="lPass" type="password" placeholder="" autocomplete="current-password"><button class="eye" id="eye" type="button">👁</button></div>
   <div class="err" id="lErr"></div>
-  <div class="acts2"><button class="sq" id="lG" title="Google" type="button"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg></button><button class="sq" id="lA" title="Apple" type="button"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#000" d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.14.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.67-.92 2.66.97.08 1.96-.49 2.56-1.21z"/></svg></button><button class="lg" id="lGo" type="button">Login</button></div>
+  <div class="acts2"><button class="sq" id="lG" title="Google" type="button"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg></button><button class="lg" id="lGo" type="button">Login</button></div>
   <div style="text-align:center"><button class="guest" id="lGuest" type="button">Continue as guest</button></div>
   <div class="ft">Secured by <b>Yathin AI</b></div>
 </div></div>
+<div class="kidtag">🧒 Kids mode · ask a grown-up for help</div>
 <div id="sky"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <a class="home glass" href="../" title="Yathin Looops">⌂</a>
@@ -206,6 +220,10 @@ const SYS={
  code:"You are Yathin AI, an expert coder made by Yathin Pedamallu. When asked for a website, game or app, reply with ONE complete self-contained HTML file (inline CSS and JS) inside a ```html code block, then one short sentence. Make it look modern and colorful.",
  model:"You make 3D printable models. Reply ONLY with JSON, no words: {\"name\":\"...\",\"parts\":[{\"shape\":\"box|cylinder|sphere|cone|torus\",\"size\":[x,y,z],\"pos\":[x,y,z],\"rot\":[x,y,z],\"color\":\"#hex\"}]}. Units are millimeters. size for box=[width,height,depth], cylinder/cone=[radius,height,radius], sphere=[radius,radius,radius], torus=[radius,tube,0]. rot in degrees. Y is up; parts must touch so the model prints in one piece. Use 3 to 15 parts.",
  physics:"You are Yathin AI, a physics tutor. Solve step by step: list what is known, the formula, plug in numbers with units, then give the final answer in bold. Keep it simple for a student."};
+const KID=" The user is a child under 13. Be a kind, kid-friendly helper: use simple words, short answers, no scary, violent, adult, dating, drug, gambling or other grown-up topics. Never ask for or accept personal info like full name, address, school, phone, passwords or photos. Most of the time, remind them to ask a parent, teacher or trusted grown-up to help, especially for anything online, money, health, safety, cooking, tools or feelings. If a topic is not for kids, gently say so and suggest talking to a parent.";
+const isKid=()=>localStorage.getItem("yai-kid")==="1";
+const KIDBAD=/\b(sex|porn|nude|naked|kill|suicide|drug|weed|vape|alcohol|beer|gun|bomb|gambl|casino|dating|boyfriend|girlfriend)/i;
+let kidN=0;
 const EX={chat:["Tell me a fun fact about space","Help me plan my Saturday"],code:["Make a website for a lemonade stand","Make a snake game"],model:["A small rocket","A phone stand","A chess pawn"],physics:["A ball falls from 20 m. How long to land?","Force to push a 10 kg box at 2 m/s²?"]};
 const STEPS={chat:["Thinking","Working","Writing answer"],code:["Thinking","Planning the page","Writing code","Reviewing app code"],model:["Thinking","Shaping parts","Building model"],physics:["Thinking","Solving step by step","Checking units"]};
 const TITLE={chat:"Chat",code:"Code",model:"3D",physics:"Physics"};
@@ -283,10 +301,12 @@ async function send(){
  bubble("u",q);cur.msgs.push({role:"user",content:q});saveP();drawSide();
  think(true);let box=null,out="";
  try{await ensure();
-  for await(const t of stream([{role:"system",content:SYS[mode]},...cur.msgs.slice(-8)])){out+=t;
+  if(isKid()&&KIDBAD.test(q)){think(false);const b=bubble("a","That's a grown-up topic, so I can't help with it in Kids mode. Please talk to a parent or a trusted grown-up about it. 💛");cur.msgs.push({role:"assistant",content:b.textContent});saveP();busy=false;$("#send").disabled=false;return}
+  for await(const t of stream([{role:"system",content:SYS[mode]+(isKid()?KID:"")},...cur.msgs.slice(-8)])){out+=t;
    if(mode==="chat"||mode==="physics"){if(!box){think(false);document.body.classList.add("thinking");box=bubble("a","")}box.innerHTML=fmt(out);$("#chat").scrollTop=1e9}}
   think(false);if(!box)box=bubble("a",out);
-  cur.msgs.push({role:"assistant",content:out});saveP();after(box,out,true)}
+  cur.msgs.push({role:"assistant",content:out});saveP();after(box,out,true);
+  if(isKid()&&(kidN++%4!==3)){const n=document.createElement("div");n.className="parent";n.textContent="👪 Ask a parent or grown-up to help you with this.";box.append(n)}}
  catch(e){think(false);bubble("a","Oops: "+(e.message||e))}
  document.body.classList.remove("thinking");busy=false;$("#send").disabled=false;
 }
@@ -336,12 +356,17 @@ document.getElementById("lGo").onclick=async()=>{const e=document.getElementById
  if(acc[e]&&acc[e]!==h){er.textContent="Wrong password for this email.";return}
  acc[e]=h;localStorage.setItem("yai-accounts",JSON.stringify(acc));localStorage.setItem("yai-user",e);
  if(!localStorage.getItem("yai-name")){const n=e.split("@")[0].replace(/[^a-z]/gi," ").trim();localStorage.setItem("yai-name",n.charAt(0).toUpperCase()+n.slice(1))}
- drawName();document.getElementById("login").classList.remove("on")};
+ drawName();askAge()};
 document.getElementById("lPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("lGo").click()});
-const soon=()=>{document.getElementById("lErr").textContent="Google and Apple sign-in are coming soon. Use email for now."};
-document.getElementById("lG").onclick=soon;document.getElementById("lA").onclick=soon;
-document.getElementById("lGuest").onclick=()=>{localStorage.setItem("yai-user","guest");document.getElementById("login").classList.remove("on")};
-document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
+const soon=()=>{document.getElementById("lErr").textContent="Google sign-in is coming soon. Use email for now."};
+document.getElementById("lG").onclick=soon;
+document.getElementById("lGuest").onclick=()=>{localStorage.setItem("yai-user","guest");askAge()};
+function askAge(){document.getElementById("loginBox").style.display="none";document.getElementById("ageBox").style.display="";document.getElementById("login").classList.add("on")}
+function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");document.body.classList.toggle("kid",kid);document.getElementById("ageBox").style.display="none";document.getElementById("loginBox").style.display="";document.getElementById("login").classList.remove("on")}
+document.getElementById("ageK").onclick=()=>doneAge(true);document.getElementById("ageT").onclick=()=>doneAge(false);
+document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");
+if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setTimeout(askAge,0);
+document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");localStorage.removeItem("yai-kid");document.body.classList.remove("kid");document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
 if(localStorage.getItem("yai-intro"))openLogin();
 
 /* ---- intro (first visit only, plays once) ---- */
