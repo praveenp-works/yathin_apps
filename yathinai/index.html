@@ -139,6 +139,24 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 .kidtag{display:none;position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:5;background:#fef3c7;color:#92400e;font:600 12px Geist,sans-serif;padding:5px 12px;border-radius:999px}
 body.kid .kidtag{display:block}
 .parent{margin-top:10px;padding:8px 12px;border-radius:12px;background:#fef3c7;color:#92400e;font-size:13px}
+/* ---- rename ---- */
+.side .it{position:relative}.side .ren{position:absolute;right:6px;top:8px;width:28px!important;padding:2px!important;opacity:0;text-align:center!important;font-size:14px!important}
+.side .it:hover .ren{opacity:.7}.side input.rn{width:100%;border:0;border-radius:12px;padding:10px 12px;font:600 16px Geist,sans-serif;background:#fff;outline:2px solid #a78bfa}
+/* ---- home panels ---- */
+#homeV{position:fixed;inset:0;z-index:3;display:none;overflow:auto;padding:100px 40px 80px 300px}
+body.home-on #homeV{display:block}body.home-on #wrap{display:none}
+#homeV h1{margin:0 0 4px;font-size:34px}#homeV .sub{color:#6e6e73;margin-bottom:22px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.pnl{position:relative;border-radius:24px;padding:18px;min-height:170px;background:rgba(255,255,255,.62);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.7)}
+.pnl h4{margin:0 0 8px;font-size:13px;color:#6e6e73;font-weight:600;letter-spacing:.02em}
+.pnl .x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:18px;cursor:pointer;opacity:.45}.pnl .x:hover{opacity:1}
+.pnl .big{font-size:44px;font-weight:700;line-height:1.1}.pnl iframe{width:100%;height:190px;border:0;border-radius:14px;background:#fff}
+.pnl input{width:100%;border:1px solid #ddd;border-radius:10px;padding:8px 10px;font:14px Geist,sans-serif;margin-top:6px}
+.pnl.add{display:flex;flex-direction:column;gap:8px;border:2px dashed rgba(124,58,237,.35);background:rgba(255,255,255,.35)}
+.pnl.add button,.pnl .b{border:0;border-radius:999px;padding:8px 12px;background:#fff;font:500 14px Geist,sans-serif;cursor:pointer;text-align:left}
+.pnl.add .gen{background:linear-gradient(135deg,#6366f1,#ec4899);color:#fff;text-align:center}
+.todo label{display:block;font-size:15px;margin:4px 0}
+@media(max-width:900px){#homeV{padding:90px 14px 60px}}
 </style>
 </head>
 <body>
@@ -168,7 +186,7 @@ body.kid .kidtag{display:block}
 
 <a class="home glass" href="../" title="Yathin Looops">⌂</a>
 <div class="modes glass">
-  <button data-m="chat" class="on">Chat</button><button data-m="code">Code</button><button data-m="model">3D</button><button data-m="physics">Physics</button>
+  <button data-m="home">Home</button><button data-m="chat" class="on">Chat</button><button data-m="code">Code</button><button data-m="model">3D</button><button data-m="physics">Physics</button>
 </div>
 <button class="me-btn" id="meBtn" title="Profile">Y</button>
 <div id="prof" class="glass">
@@ -194,6 +212,7 @@ body.kid .kidtag{display:block}
 </div>
 
 <nav class="side" id="side"></nav>
+<div id="homeV"><h1 id="hHi">Home</h1><div class="sub">Your panels. Remove any, or make a new one.</div><div class="pgrid" id="pgrid"></div></div>
 
 <div id="wrap">
   <div id="chat"></div>
@@ -233,8 +252,12 @@ let mode="chat",engine=null,loaded="",busy=false,lastFile=null;
 let P=JSON.parse(localStorage.getItem("yai-projects")||"[]"),cur=null;
 const saveP=()=>localStorage.setItem("yai-projects",JSON.stringify(P.slice(0,40)));
 function newProject(){cur=null;render()}
-function drawSide(){const s=$("#side");s.innerHTML="";const n=document.createElement("button");n.className="new";n.textContent="＋ New chat";n.onclick=newProject;s.append(n);
- P.forEach(p=>{const b=document.createElement("button");if(cur&&cur.id===p.id)b.className="on";b.innerHTML=esc(p.title)+`<small>${TITLE[p.mode]}</small>`;b.onclick=()=>{cur=p;setMode(p.mode,true);render()};s.append(b)})}
+function drawSide(){const s=$("#side");s.innerHTML="";const n=document.createElement("button");n.className="new";n.textContent=mode==="chat"||mode==="home"?"＋ New chat":"＋ New project";n.onclick=()=>{if(mode==="home")setMode("chat");newProject()};s.append(n);$("#addBtn").title=mode==="chat"?"New chat":"New project";
+ P.forEach(p=>{const w=document.createElement("div");w.className="it";const b=document.createElement("button");if(cur&&cur.id===p.id)b.className="on";b.innerHTML=esc(p.title)+`<small>${TITLE[p.mode]}</small>`;b.onclick=()=>{cur=p;setMode(p.mode,true);render()};b.ondblclick=()=>ren(p,w);
+  const r=document.createElement("button");r.className="ren";r.title="Rename";r.textContent="✎";r.onclick=e=>{e.stopPropagation();ren(p,w)};w.append(b,r);s.append(w)})}
+function ren(p,w){const i=document.createElement("input");i.className="rn";i.value=p.title;w.replaceChildren(i);i.focus();i.select();
+ const done=ok=>{if(ok&&i.value.trim())p.title=i.value.trim().slice(0,60);saveP();drawSide()};
+ i.onkeydown=e=>{if(e.key==="Enter")done(true);if(e.key==="Escape")done(false)};i.onblur=()=>done(true)}
 
 /* ---- daily limits ---- */
 const LIM={chat:20*3600,code:14*3600},today=()=>new Date().toLocaleDateString("en-CA");
@@ -258,7 +281,7 @@ $("#olModel").value=localStorage.getItem("yai-olm")||"llama3.2";$("#olModel").on
 function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
 function fmt(t){return esc(t).replace(/```(\w*)\n?([\s\S]*?)(```|$)/g,(_,l,c)=>`<pre>${c}</pre>`).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}
 function bubble(cls,t){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=cls==="a"?fmt(t):esc(t);$("#chat").append(d);$("#chat").scrollTop=1e9;return d}
-function setMode(m,keep){mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}}
+function setMode(m,keep){document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function render(){const c=$("#chat");c.innerHTML="";
  if(!cur||!cur.msgs.length){c.innerHTML=`<div class="hello"><img src="yathinai_icon.png" alt=""><h1>${{chat:"What's on your mind?",code:"What should we build?",model:"What should we 3D print?",physics:"Ask me any physics question"}[mode]}</h1><p>Free and private. Runs right in your browser.</p><div class="ex"></div></div>`;
@@ -391,6 +414,44 @@ document.getElementById("invBtn").onclick=async()=>{const link=location.origin+l
  await navigator.clipboard.writeText(link);document.getElementById("invBtn").textContent="Link copied!";setTimeout(()=>document.getElementById("invBtn").textContent="Copy my invite link",2000)};
 drawInv();
 if(localStorage.getItem("yai-plus")==="1")document.getElementById("planTxt").textContent="Yathin AI+ ✨";
+/* ---- home panels ---- */
+let PN=JSON.parse(localStorage.getItem("yai-panels")||'[{"t":"weather"},{"t":"clock"},{"t":"fact"}]');
+const saveN=()=>localStorage.setItem("yai-panels",JSON.stringify(PN));
+const KINDS={weather:"🌤 Weather",clock:"🕒 Clock",fact:"💡 Fun fact",todo:"✅ To-do",count:"⏳ Countdown"};
+const FACTS=["Octopuses have three hearts.","Honey never spoils.","A day on Venus is longer than its year.","Bananas are berries, but strawberries aren't.","Sharks are older than trees.","Your brain uses about 20% of your energy.","There are more stars than grains of sand on Earth's beaches.","A group of flamingos is called a flamboyance."];
+const WMO=c=>c===0?["☀️","Clear"]:c<=3?["⛅","Partly cloudy"]:c<=48?["🌫","Foggy"]:c<=67?["🌧","Rain"]:c<=77?["❄️","Snow"]:c<=82?["🌦","Showers"]:["⛈","Storms"];
+let clockT;
+function drawHome(){const n=localStorage.getItem("yai-name");$("#hHi").textContent=n?`Hi, ${n}`:"Home";const g=$("#pgrid");g.innerHTML="";clearInterval(clockT);
+ PN.forEach((p,i)=>{const d=document.createElement("div");d.className="pnl";d.innerHTML=`<button class="x" title="Remove">×</button><h4>${esc(p.t==="ai"?"✨ "+p.name:KINDS[p.t])}</h4><div class="c"></div>`;
+  d.querySelector(".x").onclick=()=>{PN.splice(i,1);saveN();drawHome()};fill(p,d.querySelector(".c"));g.append(d)});
+ const a=document.createElement("div");a.className="pnl add";a.innerHTML="<h4>＋ NEW PANEL</h4>";
+ Object.keys(KINDS).forEach(k=>{const b=document.createElement("button");b.textContent=KINDS[k];b.onclick=()=>{PN.push({t:k});saveN();drawHome()};a.append(b)});
+ const gi=document.createElement("input");gi.placeholder="Or describe one: a dice roller…";const gb=document.createElement("button");gb.className="gen";gb.textContent="✨ Generate with AI";gb.onclick=()=>genPanel(gi.value.trim(),gb);a.append(gi,gb);g.append(a)}
+function fill(p,c){
+ if(p.t==="clock"){const f=()=>{const d=new Date();c.innerHTML=`<div class="big">${d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}</div><div>${d.toLocaleDateString([],{weekday:"long",month:"long",day:"numeric"})}</div>`};f();clockT=setInterval(f,10000)}
+ else if(p.t==="fact"){c.innerHTML=`<div style="font-size:18px;line-height:1.4">${FACTS[Math.floor(Date.now()/864e5)%FACTS.length]}</div>`}
+ else if(p.t==="todo"){p.items=p.items||[];c.className="todo";c.innerHTML=p.items.map((t,j)=>`<label><input type="checkbox" data-j="${j}" ${t.d?"checked":""} style="width:auto;margin:0 6px 0 0">${esc(t.x)}</label>`).join("")+`<input placeholder="Add a task, press Enter">`;
+  c.querySelectorAll("input[type=checkbox]").forEach(x=>x.onchange=()=>{p.items[x.dataset.j].d=x.checked;saveN()});c.querySelector("input:not([type])").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim()){p.items.push({x:e.target.value.trim()});saveN();fill(p,c)}}}
+ else if(p.t==="count"){if(!p.date){c.innerHTML=`<div>Count down to:</div><input type="date">`;c.querySelector("input").onchange=e=>{p.date=e.target.value;saveN();fill(p,c)};return}
+  const days=Math.ceil((new Date(p.date+"T00:00")-new Date())/864e5);c.innerHTML=`<div class="big">${days}</div><div>days until ${new Date(p.date+"T00:00").toLocaleDateString([],{month:"long",day:"numeric",year:"numeric"})}</div>`}
+ else if(p.t==="weather")weather(p,c);
+ else if(p.t==="ai"){const f=document.createElement("iframe");f.sandbox="allow-scripts";f.srcdoc=p.html;c.append(f)}}
+async function weather(p,c){
+ if(!p.lat){c.innerHTML=`<button class="b">📍 Use my location</button><input placeholder="Or type a city, press Enter">`;
+  c.querySelector(".b").onclick=()=>navigator.geolocation.getCurrentPosition(g=>{p.lat=g.coords.latitude;p.lon=g.coords.longitude;p.place="Your location";saveN();weather(p,c)},()=>{c.querySelector(".b").textContent="Location blocked. Type a city."});
+  c.querySelector("input").onkeydown=async e=>{if(e.key!=="Enter")return;const r=await (await fetch("https://geocoding-api.open-meteo.com/v1/search?count=1&name="+encodeURIComponent(e.target.value))).json();const x=r.results&&r.results[0];if(!x){e.target.value="";e.target.placeholder="City not found";return}p.lat=x.latitude;p.lon=x.longitude;p.place=x.name;saveN();weather(p,c)};return}
+ c.textContent="Loading…";
+ try{const r=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=1`)).json();
+  const [ic,tx]=WMO(r.current.weather_code);c.innerHTML=`<div class="big">${ic} ${Math.round(r.current.temperature_2m)}°</div><div>${tx} · High ${Math.round(r.daily.temperature_2m_max[0])}° Low ${Math.round(r.daily.temperature_2m_min[0])}°</div><div style="color:#6e6e73;font-size:13px;margin-top:6px">${esc(p.place)} · <a href="#" style="color:#7c3aed">change</a></div>`;
+  c.querySelector("a").onclick=e=>{e.preventDefault();delete p.lat;saveN();weather(p,c)}}
+ catch(e){c.textContent="Couldn't load weather."}}
+async function genPanel(what,btn){if(!what||busy)return;busy=true;btn.textContent="Making your panel…";const was=mode;
+ try{mode="code";await ensure();let out="";
+  for await(const t of stream([{role:"system",content:"You make tiny dashboard widgets. Reply with ONE complete self-contained HTML file (inline CSS and JS, no external files, no network) inside a ```html code block. It must fit a 260x190 box, look clean and colorful, and work by itself."+(isKid()?" Keep it kid-friendly.":"")},{role:"user",content:"Make a widget: "+what}]))out+=t;
+  const h=getHtml(out);if(!h)throw new Error("no html");PN.push({t:"ai",name:what.slice(0,30),html:h});saveN()}
+ catch(e){alert("Couldn't make that panel: "+(e.message||e))}
+ mode=was;busy=false;drawHome()}
+
 drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
