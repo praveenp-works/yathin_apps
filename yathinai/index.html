@@ -136,6 +136,7 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 </head>
 <body>
 <div id="intro" style="display:none">
+  <div class="s" id="s0"><div><h1><em>Yathin AI</em></h1><p id="by" style="color:#6b7280;opacity:0;transition:opacity .7s">by Yathin Pedamallu</p></div><div style="position:absolute;bottom:34px;left:0;right:0;color:#9ca3af;font-size:16px">A part of Yathin Looops</div></div>
   <div class="s" id="s1"><div><img src="yathinai_icon.png" alt=""><h1>Hello,<br>Welcome to <em>Yathin AI</em></h1></div></div>
   <div class="s" id="s2"><div><h1>Do more with<br><em>Yathin AI+</em></h1><p>A way smarter brain. Bigger limits.</p></div></div>
   <div class="s" id="s3"><div><img src="yathinai_icon.png" alt=""><p>Getting Yathin AI ready</p><div class="load"><i id="ld"></i></div><div class="pct" id="pct">0%</div></div></div>
@@ -346,11 +347,12 @@ if(localStorage.getItem("yai-intro"))openLogin();
 /* ---- intro (first visit only, plays once) ---- */
 (function(){if(localStorage.getItem("yai-intro"))return;const I=document.getElementById("intro");I.style.display="grid";
  const show=id=>{document.querySelectorAll("#intro .s").forEach(x=>x.classList.toggle("on",x.id===id))};
- show("s1");
- setTimeout(()=>show("s2"),3000);
+ show("s0");setTimeout(()=>{document.getElementById("by").style.opacity="1"},1200);
+ setTimeout(()=>show("s1"),3000);
+ setTimeout(()=>show("s2"),6000);
  setTimeout(()=>{show("s3");const ld=document.getElementById("ld"),pc=document.getElementById("pct"),t0=performance.now();requestAnimationFrame(()=>ld.classList.add("go"));
-  (function tick(){const k=Math.min(1,(performance.now()-t0)/5690);pc.textContent=Math.round(k*100)+"%";if(k<1)requestAnimationFrame(tick)})()},7000);
- setTimeout(()=>{I.classList.add("out");localStorage.setItem("yai-intro","1");setTimeout(()=>I.remove(),700);openLogin()},12690);
+  (function tick(){const k=Math.min(1,(performance.now()-t0)/5690);pc.textContent=Math.round(k*100)+"%";if(k<1)requestAnimationFrame(tick)})()},10000);
+ setTimeout(()=>{I.classList.add("out");localStorage.setItem("yai-intro","1");setTimeout(()=>I.remove(),700);openLogin()},15690);
 })();
 /* ---- invite 5 friends ---- */
 const REF="https://abacus.jasoncameron.dev/";
