@@ -115,7 +115,7 @@ body.thinking #sky i:nth-child(6){opacity:.45}
   <div id="chat"></div>
   <div class="ask glass">
     <textarea id="q" placeholder="Message Yathin AI"></textarea>
-    <button class="add" id="addBtn" title="New project">+</button>
+    <button class="add" id="addBtn" title="New chat">+</button>
     <button class="send" id="send" title="Send">↑</button>
   </div>
 </div>
@@ -145,7 +145,7 @@ let mode="chat",engine=null,loaded="",busy=false,lastFile=null;
 let P=JSON.parse(localStorage.getItem("yai-projects")||"[]"),cur=null;
 const saveP=()=>localStorage.setItem("yai-projects",JSON.stringify(P.slice(0,40)));
 function newProject(){cur=null;render()}
-function drawSide(){const s=$("#side");s.innerHTML="";const n=document.createElement("button");n.className="new";n.textContent="New project";n.onclick=newProject;s.append(n);
+function drawSide(){const s=$("#side");s.innerHTML="";const n=document.createElement("button");n.className="new";n.textContent="＋ New chat";n.onclick=newProject;s.append(n);
  P.forEach(p=>{const b=document.createElement("button");if(cur&&cur.id===p.id)b.className="on";b.innerHTML=esc(p.title)+`<small>${TITLE[p.mode]}</small>`;b.onclick=()=>{cur=p;setMode(p.mode,true);render()};s.append(b)})}
 
 /* ---- daily limits ---- */
