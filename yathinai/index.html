@@ -108,8 +108,10 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 @font-face{font-family:Fredoka;font-weight:700;src:url(fredoka.ttf) format("truetype");font-display:block}
 #plusIntro{position:fixed;inset:0;z-index:60;overflow:hidden;background:radial-gradient(circle at 50% 50%,#fff7d6,#fde68a 55%,#f59e0b);transition:opacity .5s}
 #plusIntro.out{opacity:0;pointer-events:none}
-#plusIntro .pitr{display:block;margin:0;padding:0;background:none;border:0;box-shadow:none;height:auto;width:auto;position:absolute;top:50%;left:0;transform:translate(100vw,-50%);white-space:nowrap;font:700 clamp(90px,16vw,230px) Fredoka,'Baloo 2',sans-serif;letter-spacing:.01em;color:#fff;-webkit-text-stroke:.07em #111;paint-order:stroke fill;text-shadow:0 .06em 0 rgba(0,0,0,.18);transition:transform 2.2s cubic-bezier(.25,.1,.2,1)}
-#plusIntro .pia,#plusIntro .pip{font:inherit;font-size:1em;line-height:1;background:none;padding:0}#plusIntro .pip{font-weight:900;display:inline-block;margin-left:.08em;color:#facc15;-webkit-text-stroke:.07em #111;paint-order:stroke fill;transform:scale(0);opacity:0;transition:transform .45s cubic-bezier(.2,1.6,.4,1),opacity .2s}
+#plusIntro .pitr{display:block;margin:0;padding:0;background:none;border:0;box-shadow:none;height:auto;width:auto;position:absolute;top:50%;left:0;white-space:nowrap;font:700 clamp(90px,16vw,230px) Fredoka,'Baloo 2',sans-serif;letter-spacing:.01em;color:#111;transition:transform .12s linear}
+#plusIntro .pia,#plusIntro .pip{font:inherit;font-size:1em;line-height:1.1;padding:0;display:inline-block;background:linear-gradient(90deg,#7c3aed,#ec4899,#06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+#plusIntro .piii,#plusIntro .pitl{all:unset;font:inherit;color:inherit;white-space:nowrap}#plusIntro .pitl{display:none}#plusIntro .pitl.on{display:inline}
+#plusIntro .pip{margin-left:.06em;transform:scale(0);opacity:0;transition:transform .45s cubic-bezier(.2,1.6,.4,1),opacity .2s}
 #plusIntro .pip.on{transform:scale(1);opacity:1}
 #intro{position:fixed;inset:0;z-index:50;display:grid;place-items:center;text-align:center;background:linear-gradient(135deg,#fbcfe8,#c7d2fe 50%,#a5f3fc);transition:opacity .6s}
 #intro.out{opacity:0;pointer-events:none}
@@ -492,13 +494,15 @@ document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-use
 if(localStorage.getItem("yai-intro"))openLogin();
 
 
-/* ---- AI+ intro: "Yathiii…in AI" slides in sideways, then a gold + (once per visit) ---- */
+/* ---- AI+ intro: "Yath" then i's grow sideways, "in AI" (logo colors), + 0.2 s later (once per visit) ---- */
 (function(){if(localStorage.getItem("yai-plus")!=="1"||!localStorage.getItem("yai-user")||sessionStorage.getItem("yai-plusintro"))return;sessionStorage.setItem("yai-plusintro","1");
- const go=()=>{const d=document.createElement("div");d.id="plusIntro";d.innerHTML='<div class="pitr">Yath'+"i".repeat(46)+'n <b class="pia">AI</b><b class="pip">+</b></div>';document.body.append(d);
- const tr=d.querySelector(".pitr"),t=d.querySelector(".pia"),pl=d.querySelector(".pip");
- requestAnimationFrame(()=>{const tail=t.offsetWidth+pl.offsetWidth;void tr.offsetWidth;tr.style.transform=`translate(${innerWidth/2-(t.offsetLeft+tail/2)}px,-50%)`;
-  setTimeout(()=>pl.classList.add("on"),2200+200);
-  setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),600)},2200+200+1300)})};
+ const go=()=>{const d=document.createElement("div");d.id="plusIntro";d.innerHTML='<div class="pitr">Yath<span class="piii"></span><span class="pitl">in <b class="pia">AI</b><b class="pip">+</b></span></div>';document.body.append(d);
+ const tr=d.querySelector(".pitr"),ii=d.querySelector(".piii"),tail=d.querySelector(".pitl"),pl=d.querySelector(".pip"),W=innerWidth;
+ const place=()=>{const w=tr.offsetWidth,x=w<W*.7?(W-w)/2:W*.85-w;tr.style.transform=`translate(${x}px,-50%)`};
+ tr.style.transition="none";place();void tr.offsetWidth;tr.style.transition="";
+ let n=0;const N=40;setTimeout(function add(){ii.textContent+="i";place();if(++n<N)setTimeout(add,45);else{tail.classList.add("on");place();
+  setTimeout(()=>pl.classList.add("on"),200);
+  setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),600)},200+1400)}},500)};
  Promise.race([document.fonts.load('700 100px Fredoka'),new Promise(r=>setTimeout(r,1200))]).then(go,go)})();
 /* ---- intro (first visit only, plays once) ---- */
 (function(){if(localStorage.getItem("yai-intro"))return;const I=document.getElementById("intro");I.style.display="grid";
