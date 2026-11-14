@@ -392,8 +392,11 @@ async function send(){
   if(isKid()&&KIDBAD.test(q)){think(false);const b=bubble("a","That's a grown-up topic, so I can't help with it in Kids mode. Please talk to a parent or a trusted grown-up about it. 💛");cur.msgs.push({role:"assistant",content:b.textContent});saveP();busy=false;$("#send").disabled=false;return}
   if(isKid()&&KIDBAD.test(q)){think(false);const b=bubble("a","That's a grown-up topic, so I can't help with it in Kids mode. Please talk to a parent or a trusted grown-up about it. 💛");cur.msgs.push({role:"assistant",content:b.textContent});saveP();busy=false;$("#send").disabled=false;return}
   if(mode==="code"&&isSite(q)){const r=await makeSite(q);think(false);box=bubble("a",r.text);cur.msgs.push({role:"assistant",content:r.store});saveP();after(box,r.store,true);throw "done"}
-  for await(const t of stream([{role:"system",content:SYS[mode]+(isKid()?KID:"")},...cur.msgs.slice(-8)])){out+=t;
+  const M=[{role:"system",content:SYS[mode]+(isKid()?KID:"")},...cur.msgs.slice(-8)];if(mode==="model")M.json=true;
+  for(let tr=0;tr<(mode==="model"?2:1);tr++){if(tr){out="";if(getJson(out))break}
+  for await(const t of stream(M)){out+=t;
    if(mode==="chat"||mode==="physics"){if(!box){think(false);document.body.classList.add("thinking");box=bubble("a","")}box.innerHTML=fmt(out);$("#chat").scrollTop=1e9}}
+   if(mode!=="model"||((j=>j&&j.parts)(getJson(out))))break}
   think(false);if(!box)box=bubble("a",out);
   cur.msgs.push({role:"assistant",content:out});saveP();after(box,out,true);
   if(isKid()&&(kidN++%4!==3)){const n=document.createElement("div");n.className="parent";n.textContent="👪 Ask a parent or grown-up to help you with this.";box.append(n)}}
