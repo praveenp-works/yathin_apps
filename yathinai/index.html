@@ -180,6 +180,44 @@ body.plus::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2
 @keyframes goldglow{50%{opacity:.75}}
 body.plus #meBtn{box-shadow:0 0 0 3px #f5c518,0 0 18px rgba(245,197,24,.7)!important}
 body.kid .modes button[data-m="physics"]{display:none}
+.modes .kzOnly{display:none}body.kid .modes .kzOnly{display:inline-block}
+#kz{position:fixed;inset:0;z-index:3;display:none;overflow:auto;padding:110px max(24px,calc(50vw - 520px)) 90px;font-family:Fredoka,Geist,sans-serif}
+body.kz-on #kz{display:block}body.kz-on #wrap,body.kz-on .side,body.kz-on .foot,body.kz-on #homeV{display:none}
+.kzTop{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}.kzTop h1{margin:0;font-size:30px;flex:1;color:#1f2937}
+.kzStars{background:#fef3c7;color:#92400e;font-weight:700;padding:8px 14px;border-radius:999px;font-size:17px}.kzStars.pop{animation:kzPop .4s}
+@keyframes kzPop{50%{transform:scale(1.3)}}
+.kzBack,.kzBtn{border:0;border-radius:999px;padding:11px 20px;font:600 16px Fredoka,Geist,sans-serif;cursor:pointer;background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.kzBack,.kzBtn.ghost{background:#fff;color:#374151;border:2px solid #e5e7eb;box-shadow:none}
+.kzBtn:active,.kzTile:active{transform:translateY(2px)}
+.kzSub{color:#4b5563;font-size:18px;margin:6px 0 14px}
+.kzGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.kzTile{border:0;border-radius:22px;padding:20px 14px;background:rgba(255,255,255,.88);box-shadow:0 6px 0 rgba(0,0,0,.08);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-family:inherit;transition:transform .15s}
+.kzTile:hover{transform:translateY(-4px) rotate(-1deg)}.kzTile span{font-size:40px}.kzTile b{font-size:18px;color:#1f2937}.kzTile small{color:#6b7280;font-size:13px}
+.kzCard{background:rgba(255,255,255,.92);border-radius:24px;padding:22px;margin-bottom:14px;box-shadow:0 6px 0 rgba(0,0,0,.06);font-size:18px;color:#1f2937}
+.kzLoad{text-align:center;animation:kzBob 1s infinite alternate}@keyframes kzBob{to{transform:translateY(-6px)}}
+.kzLesson{text-align:center}.kzBig{font-size:64px}.kzLesson h2{margin:6px 0}.kzLesson p{font-size:20px;line-height:1.5}
+.kzDots{display:flex;gap:6px;justify-content:center;margin:12px 0}.kzDots i{width:12px;height:12px;border-radius:50%;background:#e5e7eb}.kzDots i.on{background:#f472b6}
+.kzRow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.kzBar{height:14px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}.kzBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#34d399,#60a5fa);transition:width .4s}
+.kzScore{font-size:20px;font-weight:700;text-align:center;margin:8px 0;color:#374151}
+.kzQn{color:#9ca3af;font-size:14px}.kzQ h3{margin:4px 0 12px;font-size:20px}
+.kzCh{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kzCh button{border:2px solid #e5e7eb;background:#fff;border-radius:16px;padding:12px;font:500 17px Fredoka,Geist,sans-serif;cursor:pointer;text-align:left}
+.kzCh button.ok{background:#d1fae5;border-color:#10b981}.kzCh button.no{background:#fee2e2;border-color:#f87171;opacity:.7}
+.kzQ.shake{animation:kzShake .35s}@keyframes kzShake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.kzLearn{margin-top:12px;border:0;background:#ede9fe;color:#6d28d9;border-radius:999px;padding:8px 14px;font:600 15px Fredoka,Geist,sans-serif;cursor:pointer}
+.kzHow{margin-top:8px;font-size:17px}.kzHow ol{margin:6px 0;padding-left:22px;line-height:1.6}.kzTip{background:#fef9c3;border-radius:12px;padding:8px 12px}
+.kzPiano{display:flex;gap:6px;justify-content:center;margin:16px 0}.kzPiano button{width:min(11vw,70px);height:190px;border:2px solid #d1d5db;border-radius:0 0 14px 14px;background:#fff;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font:700 18px Fredoka,sans-serif;color:#6b7280}
+.kzPiano button.glow{background:linear-gradient(#fff,#fde68a);border-color:#f59e0b;animation:kzBob .5s infinite alternate}.kzPiano button.hit{background:#bfdbfe}
+.kzDrumWrap{position:relative;width:200px;height:200px;margin:20px auto}.kzDrum{position:absolute;inset:30px;border-radius:50%;border:0;font-size:80px;background:#fff;box-shadow:0 8px 0 rgba(0,0,0,.1);cursor:pointer}
+.kzPulse{position:absolute;inset:0;border-radius:50%;border:6px solid #f472b6;opacity:0}.kzPulse.on{animation:kzPulse .5s}@keyframes kzPulse{0%{opacity:1;transform:scale(.8)}100%{opacity:0;transform:scale(1.1)}}
+.kzMem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:440px;margin:0 auto}.kzCardF{aspect-ratio:1;border:0;border-radius:16px;background:linear-gradient(135deg,#a78bfa,#f472b6);cursor:pointer;font-size:40px}
+.kzCardF span{visibility:hidden}.kzCardF.up{background:#fff}.kzCardF.up span{visibility:visible}
+.kzEq{font-size:40px;font-weight:700;text-align:center;margin:10px 0 16px;letter-spacing:2px}.kzAns button{text-align:center;font-size:26px}
+.kzTTT{display:grid;grid-template-columns:repeat(3,96px);gap:8px;justify-content:center}.kzTTT button{height:96px;border:0;border-radius:18px;background:#fff;font-size:44px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.08)}
+.kzIn{display:flex;gap:8px;justify-content:center}.kzIn input{font:500 20px Fredoka,sans-serif;padding:10px 16px;border-radius:999px;border:2px solid #e5e7eb;min-width:0;flex:1;max-width:280px}
+.kzSimon{display:grid;grid-template-columns:repeat(2,130px);gap:12px;justify-content:center;margin:12px 0}.kzSimon button{height:130px;border:0;border-radius:26px;opacity:.55;cursor:pointer}.kzSimon button.lit{opacity:1;transform:scale(1.05)}
+.kzConf{position:fixed;inset:0;pointer-events:none;z-index:50}.kzConf i{position:absolute;top:-10px;width:10px;height:14px;border-radius:3px;animation:kzFall 1.8s ease-in forwards}@keyframes kzFall{to{transform:translateY(105vh) rotate(540deg)}}
+@media(max-width:700px){#kz{padding:96px 12px 70px}.kzCh{grid-template-columns:1fr}.kzTTT{grid-template-columns:repeat(3,84px)}.kzTTT button{height:84px}}
 </style>
 </head>
 <body>
@@ -224,7 +262,7 @@ body.kid .modes button[data-m="physics"]{display:none}
 
 <header><a class="home glass" href="../" title="Yathin Looops" aria-label="Back to Yathin Looops">⌂</a>
 <div class="modes glass" role="navigation" aria-label="Modes">
-  <button data-m="home">Home</button><button data-m="chat" class="on">Chat</button><button data-m="code">Code</button><button data-m="model">3D</button><button data-m="physics">Physics</button>
+  <button data-m="home">Home</button><button data-m="chat" class="on">Chat</button><button data-m="code">Code</button><button data-m="model">3D</button><button data-m="physics">Physics</button><button data-m="learn" class="kzOnly">📚 Learn</button><button data-m="games" class="kzOnly">🎮 Games</button>
 </div></header>
 <button class="me-btn" id="meBtn" title="Profile">Y</button>
 <div id="prof" class="glass">
@@ -258,6 +296,7 @@ body.kid .modes button[data-m="physics"]{display:none}
 </div>
 
 <nav class="side" id="side"></nav>
+<div id="kz"></div>
 <div id="homeV"><h1 id="hHi">Home</h1><div class="sub">Your panels. Remove any, or make a new one.</div><div class="pgrid" id="pgrid"></div></div>
 
 <main id="wrap">
@@ -279,7 +318,8 @@ body.kid .modes button[data-m="physics"]{display:none}
 let webllm=null;
 const $=s=>document.querySelector(s);
 const MODELS={chat:"Qwen2.5-1.5B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-3B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-Math-1.5B-Instruct-q4f16_1-MLC"};
-const PLUS={chat:"Qwen2.5-7B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-7B-Instruct-q4f16_1-MLC"};/* Yathin AI+ brains, used when plus is on */
+const PLUS={chat:"Qwen2.5-7B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-7B-Instruct-q4f16_1-MLC"};
+MODELS.learn=MODELS.games=MODELS.chat;PLUS.learn=PLUS.games=PLUS.chat;/* Yathin AI+ brains, used when plus is on */
 const FALLBACK="Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
 const SYS={
  chat:"You are Yathin AI, a friendly, helpful assistant made by Yathin Pedamallu. Keep answers clear and short.",
@@ -329,7 +369,7 @@ $("#olModel").value=localStorage.getItem("yai-olm")||"llama3.2";$("#olModel").on
 function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
 function fmt(t){return esc(t).replace(/```(\w*)\n?([\s\S]*?)(```|$)/g,(_,l,c)=>`<pre>${c}</pre>`).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}
 function bubble(cls,t){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=cls==="a"?fmt(t):esc(t);$("#chat").append(d);$("#chat").scrollTop=1e9;return d}
-function setMode(m,keep){if(isKid()&&m==="physics")m="chat";document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website, game or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
+function setMode(m,keep){if(isKid()&&m==="physics")m="chat";if(!isKid()&&(m==="learn"||m==="games"))m="chat";document.body.classList.toggle("kz-on",m==="learn"||m==="games");if(m==="learn"||m==="games"){mode=m;document.body.classList.remove("home-on");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));window.KZ&&KZ.show(m);return}document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website, game or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function render(){const c=$("#chat");c.innerHTML="";
  if(!cur||!cur.msgs.length){c.innerHTML=`<div class="hello"><img src="yathinai_icon.png" alt=""><h1>${{chat:"What's on your mind?",code:"What should we build?",model:"What should we 3D print?",physics:"Ask me any physics question"}[mode]}</h1><p>${cloudOn()?"Free. No key, no download.":"Free and private. Runs right in your browser."}</p><div class="ex"></div></div>`;
@@ -396,14 +436,15 @@ async function send(){
   const M=[{role:"system",content:SYS[mode]+(isKid()?KID:"")},...cur.msgs.slice(-8)];if(mode==="model")M.json=true;
   for(let tr=0;tr<(mode==="model"?2:1);tr++){if(tr){out="";if(getJson(out))break}
   for await(const t of stream(M)){out+=t;
-   if(mode==="chat"||mode==="physics"){if(!box){think(false);document.body.classList.add("thinking");box=bubble("a","")}box.innerHTML=fmt(out);$("#chat").scrollTop=1e9}}
+   if((mode==="chat"||mode==="physics")&&!isKid()){if(!box){think(false);document.body.classList.add("thinking");box=bubble("a","")}box.innerHTML=fmt(out);$("#chat").scrollTop=1e9}}
    if(mode!=="model"||((j=>j&&j.parts)(getJson(out))))break}
-  think(false);if(!box)box=bubble("a",out);
+  think(false);if(isKid()&&window.KZ&&!KZ.safe(out)){out="Let's talk about something else! If you have a question about this, please ask a parent or a trusted grown-up. 💛";if(box)box.innerHTML=fmt(out)}if(!box)box=bubble("a",out);
   cur.msgs.push({role:"assistant",content:out});saveP();after(box,out,true);
   if(isKid()&&(kidN++%4!==3)){const n=document.createElement("div");n.className="parent";n.textContent="👪 Ask a parent or grown-up to help you with this.";box.append(n)}}
  catch(e){if(e!=="done"){think(false);{const m=String(e.message||e);bubble("a",/fetch|network|import|load/i.test(m)?"I couldn't reach my brain just now. Check your internet and try again in a moment.":"Oops: "+m)}}}
  document.body.classList.remove("thinking");busy=false;$("#send").disabled=false;
 }
+window.YAI={ask:async(sys,user)=>{await ensure();const M=[{role:"system",content:sys+KID}, {role:"user",content:user}];M.json=true;let o="";for await(const t of stream(M))o+=t;return o},getJson:o=>getJson(o)};
 $("#send").onclick=send;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 
 /* ---- previews ---- */
@@ -480,7 +521,7 @@ document.getElementById("lG").onclick=()=>{if(!window.google)document.getElement
 {const sc=document.createElement("script");sc.src="https://accounts.google.com/gsi/client";sc.async=true;sc.onload=gInit;document.head.append(sc)}
 document.getElementById("lGuest").onclick=()=>{localStorage.setItem("yai-user","guest");askAge()};
 function askAge(){document.getElementById("loginBox").style.display="none";document.getElementById("ageBox").style.display="";document.getElementById("login").classList.add("on")}
-function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");{const u=localStorage.getItem("yai-user");if(u&&u!=="guest"){const m=JSON.parse(localStorage.getItem("yai-agefor")||"{}");m[u]=kid?1:0;localStorage.setItem("yai-agefor",JSON.stringify(m))}}document.body.classList.toggle("kid",kid);if(kid&&mode==="physics")setMode("chat");drawLim();box("loginBox");document.getElementById("login").classList.remove("on")}
+function doneAge(kid){if(!kid&&(mode==="learn"||mode==="games"))setTimeout(()=>setMode("chat"),0);localStorage.setItem("yai-kid",kid?"1":"0");{const u=localStorage.getItem("yai-user");if(u&&u!=="guest"){const m=JSON.parse(localStorage.getItem("yai-agefor")||"{}");m[u]=kid?1:0;localStorage.setItem("yai-agefor",JSON.stringify(m))}}document.body.classList.toggle("kid",kid);if(kid&&mode==="physics")setMode("chat");drawLim();box("loginBox");document.getElementById("login").classList.remove("on")}
 document.getElementById("ageK").onclick=()=>doneAge(true);
 const EJ={s:"service_pqelqat",t:"template_fi4tlhp",k:"wWMmhZFuMnJ9VDYJF"};let pCodeH="",pMail="",pTries=0,adm=false,reT=null;const ADMIN_H="16a37f4fbdfd00cfc7fc57d8891be5572af8992f03380858413f861c07f915d7";
 const box=id=>["ageBox","parBox","loginBox"].forEach(b=>document.getElementById(b).style.display=b===id?"":"none");
@@ -586,5 +627,6 @@ async function genPanel(what,btn){if(!what||busy)return;busy=true;btn.textConten
 drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
+<script src="kidzone.js?v=1"></script>
 </body>
 </html>
