@@ -273,7 +273,6 @@ body.kz-on #kz{display:block}body.kz-on #wrap,body.kz-on .side,body.kz-on .foot,
   <div class="lim">👨‍💻 Code today <small id="lk"></small><div class="bar"><i id="bk"></i></div></div>
   <div class="plus"><span>COMING SOON</span><b>Yathin AI+</b><br>Way smarter: a brain about 5 times bigger for chat, code, 3D and physics. 140 hours of chat and 130 hours of code a month. No daily limits.</div>
   <div class="inv"><b>🎁 Invite 5 friends, get Yathin AI+</b><div class="dots" id="invDots"><i></i><i></i><i></i><i></i><i></i></div><div class="sm" id="invTxt" style="margin-bottom:8px">0 of 5 friends joined</div><button id="invBtn">Copy my invite link</button></div>
-  <button class="btn2" id="admPlus" style="display:none;margin-top:12px;width:100%;padding:9px;border-radius:999px;border:0;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#3b2300;cursor:pointer;font:700 13px Geist,sans-serif">✨ Preview AI+ (admin)</button>
   <button class="btn2" onclick="yaiParent()" style="margin-top:12px;width:100%;padding:9px;border-radius:999px;border:1px solid #ddd;background:#fff;cursor:pointer;font:600 13px Geist,sans-serif">👪 Parent controls</button>
   <button class="btn2" id="signOut" style="margin-top:12px;width:100%;padding:9px;border-radius:999px;border:1px solid #ddd;background:#fff;cursor:pointer;font:600 13px Geist,sans-serif">Sign out</button>
   <div class="lim">🎨 Theme</div>
@@ -314,7 +313,7 @@ body.kz-on #kz{display:block}body.kz-on #wrap,body.kz-on .side,body.kz-on .foot,
 <div id="view" class="glass"><iframe id="site" sandbox="allow-scripts"></iframe><div id="three"></div>
   <div class="bar2"><button id="dl">Download</button><button id="closeV">Close</button></div></div>
 
-<script>function syncPlus(){try{const u=localStorage.getItem("yai-user"),m=JSON.parse(localStorage.getItem("yai-plusfor")||"{}");if(localStorage.getItem("yai-plus")==="1"&&u&&!(u in m)&&!localStorage.getItem("yai-plusmig")){m[u]=1;localStorage.setItem("yai-plusfor",JSON.stringify(m))}localStorage.setItem("yai-plusmig","1");if(u&&m[u])localStorage.setItem("yai-plus","1");else localStorage.removeItem("yai-plus")}catch(e){}}syncPlus()</script>
+<script>function syncPlus(){try{const u=localStorage.getItem("yai-user"),m=JSON.parse(localStorage.getItem("yai-plusfor")||"{}");if(localStorage.getItem("yai-plus")==="1"&&u&&!(u in m)&&!localStorage.getItem("yai-plusmig")){m[u]=1;localStorage.setItem("yai-plusfor",JSON.stringify(m))}localStorage.setItem("yai-plusmig","1");if(/[?&]preview=plus/.test(location.search))sessionStorage.setItem("yai-prev","1");if(sessionStorage.getItem("yai-prev")==="1"||(u&&m[u]))localStorage.setItem("yai-plus","1");else localStorage.removeItem("yai-plus")}catch(e){}}syncPlus()</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="sitegen.js?v=2"></script>
 <script type="module">
@@ -568,7 +567,6 @@ window.yaiParent=async()=>{const h=localStorage.getItem("yai-pin");if(!h){docume
  if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const was=isKid();if(!confirm(was?"Kids mode is ON.\nSwitch to Grown-up mode (13+)?":"Grown-up mode is ON.\nSwitch to Kids mode (under 13)?"))return;doneAge(!was)};
 document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");document.body.classList.toggle("plus",localStorage.getItem("yai-plus")==="1");if(localStorage.getItem("yai-plus")==="1"){const gi=()=>document.querySelectorAll('img[src="yathinai_icon.png"]').forEach(i=>i.src="yathinai_icon_gold.png");gi();new MutationObserver(gi).observe(document.body,{childList:true,subtree:true})}
 if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setTimeout(askAge,0);
-{const ab=document.getElementById("admPlus");if(localStorage.getItem("yai-admin")==="1"&&localStorage.getItem("yai-user")){ab.style.display="block";const on=localStorage.getItem("yai-plus")==="1";ab.textContent=on?"Turn off AI+ preview (admin)":"✨ Preview AI+ (admin)";ab.onclick=()=>{const u=localStorage.getItem("yai-user"),m=JSON.parse(localStorage.getItem("yai-plusfor")||"{}");if(on)delete m[u];else m[u]=1;localStorage.setItem("yai-plusfor",JSON.stringify(m));sessionStorage.removeItem("yai-plusintro");location.reload()}}}
 document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");syncPlus();if(!localStorage.getItem("yai-pin")){localStorage.removeItem("yai-kid");document.body.classList.remove("kid")}document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
 if(localStorage.getItem("yai-intro"))openLogin();
 
@@ -647,5 +645,6 @@ drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
 <script src="kidzone.js?v=4"></script>
+<script>if(sessionStorage.getItem("yai-prev")==="1"){const d=document.createElement("div");d.textContent="✨ AI+ preview · nothing is saved · close the tab to end";d.style.cssText="position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:99;padding:7px 14px;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#3b2300;font:700 12px Geist,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.15);pointer-events:none";document.body.append(d)}</script>
 </body>
 </html>
