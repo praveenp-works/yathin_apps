@@ -247,10 +247,11 @@ body.home-on #homeV{display:block}body.home-on #wrap,body.home-on .side,body.hom
   <div class="bar2"><button id="dl">Download</button><button id="closeV">Close</button></div></div>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="sitegen.js?v=1"></script>
 <script type="module">
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 const $=s=>document.querySelector(s);
-const MODELS={chat:"Qwen2.5-1.5B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-Math-1.5B-Instruct-q4f16_1-MLC"};
+const MODELS={chat:"Qwen2.5-1.5B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-3B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-Math-1.5B-Instruct-q4f16_1-MLC"};
 const PLUS={chat:"Qwen2.5-7B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-7B-Instruct-q4f16_1-MLC"};/* Yathin AI+ brains, used when plus is on */
 const FALLBACK="Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
 const SYS={
@@ -300,7 +301,7 @@ $("#olModel").value=localStorage.getItem("yai-olm")||"llama3.2";$("#olModel").on
 function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
 function fmt(t){return esc(t).replace(/```(\w*)\n?([\s\S]*?)(```|$)/g,(_,l,c)=>`<pre>${c}</pre>`).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}
 function bubble(cls,t){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=cls==="a"?fmt(t):esc(t);$("#chat").append(d);$("#chat").scrollTop=1e9;return d}
-function setMode(m,keep){document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
+function setMode(m,keep){document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website, game or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function render(){const c=$("#chat");c.innerHTML="";
  if(!cur||!cur.msgs.length){c.innerHTML=`<div class="hello"><img src="yathinai_icon.png" alt=""><h1>${{chat:"What's on your mind?",code:"What should we build?",model:"What should we 3D print?",physics:"Ask me any physics question"}[mode]}</h1><p>Free and private. Runs right in your browser.</p><div class="ex"></div></div>`;
@@ -344,12 +345,13 @@ async function send(){
  think(true);let box=null,out="";
  try{await ensure();
   if(isKid()&&KIDBAD.test(q)){think(false);const b=bubble("a","That's a grown-up topic, so I can't help with it in Kids mode. Please talk to a parent or a trusted grown-up about it. 💛");cur.msgs.push({role:"assistant",content:b.textContent});saveP();busy=false;$("#send").disabled=false;return}
+  if(mode==="code"&&isSite(q)){const r=await makeSite(q);think(false);box=bubble("a",r.text);cur.msgs.push({role:"assistant",content:r.store});saveP();after(box,r.store,true);throw "done"}
   for await(const t of stream([{role:"system",content:SYS[mode]+(isKid()?KID:"")},...cur.msgs.slice(-8)])){out+=t;
    if(mode==="chat"||mode==="physics"){if(!box){think(false);document.body.classList.add("thinking");box=bubble("a","")}box.innerHTML=fmt(out);$("#chat").scrollTop=1e9}}
   think(false);if(!box)box=bubble("a",out);
   cur.msgs.push({role:"assistant",content:out});saveP();after(box,out,true);
   if(isKid()&&(kidN++%4!==3)){const n=document.createElement("div");n.className="parent";n.textContent="👪 Ask a parent or grown-up to help you with this.";box.append(n)}}
- catch(e){think(false);bubble("a","Oops: "+(e.message||e))}
+ catch(e){if(e!=="done"){think(false);bubble("a","Oops: "+(e.message||e))}}
  document.body.classList.remove("thinking");busy=false;$("#send").disabled=false;
 }
 $("#send").onclick=send;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
@@ -357,13 +359,22 @@ $("#send").onclick=send;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter
 /* ---- previews ---- */
 function getHtml(out){const m=out.match(/```html\s*([\s\S]*?)```/i)||out.match(/(<!doctype[\s\S]*<\/html>)/i);return m&&m[1]}
 function getJson(out){try{return JSON.parse(out.slice(out.indexOf("{"),out.lastIndexOf("}")+1))}catch(e){return null}}
+function isSite(q){if(/\b(website|web site|site|landing|homepage|home page|portfolio|business|shop|store|restaurant|bakery|cafe|company|brand|agency|club|school|blog)\b/i.test(q))return true;if(/\b(game|play|calculator|timer|quiz|todo|to-do|clock|draw|paint|converter|counter|stopwatch|app|tool)\b/i.test(q))return false;return !!(cur&&cur.spec)||true}
+async function makeSite(q){
+ const msgs=[{role:"system",content:YSite.SYS+(isKid()?KID:"")}];
+ if(cur&&cur.spec)msgs.push({role:"user",content:"Current website JSON:\n"+JSON.stringify(cur.spec)+"\n\nChange it like this: "+q+"\nKeep everything not mentioned. Reply with the full updated JSON."});
+ else msgs.push({role:"user",content:"Website request: "+q});
+ let j=null;for(let tries=0;tries<2&&!j;tries++){let out="";for await(const t of stream(msgs))out+=t;j=getJson(out);if(j&&!j.name)j=null}
+ if(!j)throw new Error("The plan didn't come out right. Try asking a little differently.");
+ cur.spec=j;const html=YSite.render(j);
+ return{text:"",store:`Here's **${j.name}**: ${j.tagline||""}\n\`\`\`html\n${html}\n\`\`\``}}
 function after(box,out,open){
  const m=cur?cur.mode:mode;
- if(m==="code"){const h=getHtml(out);if(h){box.innerHTML=fmt(out.replace(/```html[\s\S]*?```/i,"").trim()||"Your website is ready.");const b=document.createElement("button");b.className="btn";b.textContent="▶ Open website";b.onclick=()=>showSite(h);box.append(b);if(open||true){const f=document.createElement("button");f.className="btn";f.textContent="✨ Make it fancier";f.style.marginLeft="8px";f.onclick=()=>{$("#q").value="Make this website much fancier: more sections, richer colors, animations and real content. Return the full HTML file.";send()};box.append(f)}if(open)showSite(h)}else box.innerHTML=fmt(out)}
+ if(m==="code"){const h=getHtml(out);if(h){box.innerHTML=fmt(out.replace(/```html[\s\S]*?```/i,"").trim()||"Your website is ready.");const b=document.createElement("button");b.className="btn";b.textContent="▶ Open website";b.onclick=()=>showSite(h);box.append(b);if(open||true){const f=document.createElement("button");f.className="btn";f.textContent="✨ Make it fancier";f.style.marginLeft="8px";f.onclick=()=>{$("#q").value=cur&&cur.spec?"Make it more exciting: pick a different palette and style, punchier headlines, more creative features and reviews.":"Make this much fancier: richer colors, animations, more features. Return the full HTML file.";send()};box.append(f)}if(open)showSite(h)}else box.innerHTML=fmt(out)}
  if(m==="model"){const j=getJson(out);if(j&&j.parts){box.innerHTML=`<b>${esc(j.name||"Your model")}</b> · ${j.parts.length} parts. Spin it, then download the STL for your 3D printer.`;const b=document.createElement("button");b.className="btn";b.textContent="🧊 Open model";b.onclick=()=>show3D(j);box.append(b);if(open)show3D(j)}else box.textContent="That model didn't come out right. Try asking a little differently."}
 }
 const KIT=`<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Poppins,system-ui,sans-serif;line-height:1.6;color:#1e1b2e}img{max-width:100%;border-radius:16px}h1,h2,h3{line-height:1.15}section,.section{padding:72px 6vw}.hero{padding:110px 6vw;text-align:center;background:linear-gradient(135deg,#6366f1,#ec4899,#f59e0b);color:#fff}.hero h1{font-size:clamp(36px,6vw,64px);margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px}.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(40,20,90,.1);transition:transform .25s,box-shadow .25s}.card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(40,20,90,.18)}.btn,button{display:inline-block;border:0;border-radius:999px;padding:12px 26px;font:600 15px Poppins,sans-serif;cursor:pointer;background:#1e1b2e;color:#fff;text-decoration:none;transition:transform .2s}.btn:hover,button:hover{transform:scale(1.05)}input,textarea,select{font:inherit;padding:10px 14px;border-radius:12px;border:1px solid #ddd}</style>`;
-function kit(h){return /<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+KIT):KIT+h}
+function kit(h){if(h.includes("Made with Yathin AI"))return h;return /<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+KIT):KIT+h}
 function showSite(html){html=kit(html);$("#view").classList.add("on");$("#three").style.display="none";$("#site").style.display="block";$("#site").srcdoc=html;lastFile={name:"yathin-ai-site.html",blob:new Blob([html],{type:"text/html"})};$("#dl").textContent="Download website"}
 $("#closeV").onclick=()=>$("#view").classList.remove("on");
 $("#dl").onclick=()=>{if(!lastFile)return;const a=document.createElement("a");a.href=URL.createObjectURL(lastFile.blob);a.download=lastFile.name;a.click()};
