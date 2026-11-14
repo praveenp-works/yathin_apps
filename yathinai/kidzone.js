@@ -81,11 +81,25 @@ async function paper(){const b=shell("📝 "+st.topic,topicHub);b.innerHTML=`<di
  catch(e){b.innerHTML=`<div class="kzCard">I couldn't make the paper just now. <button class="kzBtn" id="kzRetry">Try again</button></div>`;b.querySelector("#kzRetry").onclick=paper}}
 function piano(el,onKey){el.innerHTML=`<div class="kzPiano">${NOTES.map(n=>`<button data-n="${n[0]}"><span>${n[0].replace("2","")}</span></button>`).join("")}</div>`;
  el.querySelectorAll("button").forEach(k=>k.onclick=()=>{beep(+freq(k.dataset.n),.5,"triangle");k.classList.add("hit");setTimeout(()=>k.classList.remove("hit"),180);onKey&&onKey(k.dataset.n)})}
-function playAlong(){const b=shell("🎹 Play along",topicHub);b.insertAdjacentHTML("beforeend",`<p class="kzSub">Pick a song. Press the glowing key!</p>`);
- tiles(b,SONGS.map((s,i)=>[i,"🎶",s[0]]),i=>{const s=SONGS[i],seq=s[1].split(" ");let p=0;const bb=shell("🎶 "+s[0],playAlong);
-  bb.innerHTML=`<div class="kzScore" id="kzSong">Note 1 of ${seq.length}</div><div class="kzBar"><i id="kzProg"></i></div><div id="kzKeys"></div><p class="kzSub">Tip: the letters are the note names. On a real piano, C is the white key just left of the two black keys.</p>`;
+function playSong(t,seq,back){let p=0;const bb=shell("🎶 "+t,back);
+  bb.innerHTML=`<div class="kzScore" id="kzSong">Note 1 of ${seq.length}</div><div class="kzBar"><i id="kzProg"></i></div><div id="kzKeys"></div><div class="kzRow"><button class="kzBtn ghost" id="kzHear">🔊 Hear it</button><button class="kzBtn ghost" id="kzRestart">↺ Start over</button></div><p class="kzSub">Tip: the letters are the note names. On a real piano, C is the white key just left of the two black keys.</p>`;
   const glow=()=>{bb.querySelectorAll(".kzPiano button").forEach(k=>k.classList.toggle("glow",k.dataset.n===seq[p]))};
-  piano(bb.querySelector("#kzKeys"),n=>{if(p>=seq.length)return;if(n===seq[p]){p++;bb.querySelector("#kzProg").style.width=(p/seq.length*100)+"%";bb.querySelector("#kzSong").textContent=p<seq.length?`Note ${p+1} of ${seq.length}`:"🎉 You played the whole song!";if(p>=seq.length){addStar(3);confetti()}}glow()});glow()})}
+  const upd=()=>{bb.querySelector("#kzProg").style.width=(p/seq.length*100)+"%";bb.querySelector("#kzSong").textContent=p<seq.length?`Note ${p+1} of ${seq.length}`:"🎉 You played the whole song!"};
+  piano(bb.querySelector("#kzKeys"),n=>{if(p>=seq.length)return;if(n===seq[p]){p++;upd();if(p>=seq.length){addStar(3);confetti()}}glow()});glow();
+  bb.querySelector("#kzHear").onclick=()=>seq.forEach((n,k)=>setTimeout(()=>beep(freq(n),.35,"triangle"),k*380));
+  bb.querySelector("#kzRestart").onclick=()=>{p=0;upd();glow()}}
+function aiSong(){const b=shell("✨ AI song for you",playAlong);const g=st.grade||"3";
+ b.innerHTML=`<div class="kzCard"><p class="kzSub" style="margin-top:0">Yathin AI picks a song that fits ${who()}. Want a theme? (optional)</p><div class="kzIn"><input id="kzSt" placeholder="e.g. rain, animals, birthday" maxlength="60"><button class="kzBtn" id="kzSg">Get a song</button></div><div class="kzSub" id="kzSm"></div></div>`;
+ const m=b.querySelector("#kzSm");let busy=false;
+ const go=async()=>{if(busy)return;const theme=b.querySelector("#kzSt").value.trim();if(theme&&!safe(theme)){m.textContent=SAFE_MSG;return}busy=true;m.textContent="Finding a song… 🎵";
+  const len=/^(K|1)$/.test(g)?"8 to 16":/^(2|3|4)$/.test(g)?"14 to 28":"24 to 44";
+  try{let j=null;for(let t=0;t<3&&!j;t++){const o=await ask(`You pick piano play-along songs for ${who()}. Use a traditional, folk, nursery or public-domain melody, or write a simple new one. Never a modern copyrighted pop song. The piano has only these keys: C D E F G A B C2 (C2 is high C). Reply ONLY JSON: {"title":"song name","about":"one friendly sentence about the song","notes":["C","D",...]} with ${len} notes, only from those keys. Make it easier for younger grades.`,theme?"Theme: "+theme:"Any good song for this grade");
+    const x=window.YAI.getJson(o);const ok=["C","D","E","F","G","A","B","C2"];if(x&&Array.isArray(x.notes)){x.notes=x.notes.map(n=>String(n).trim().toUpperCase().replace(/^HIGH ?C$|^C5$/,"C2").replace(/^([A-G])4$/,"$1")).filter(n=>ok.includes(n));if(x.notes.length>=6&&x.title&&safe(x.title+" "+(x.about||"")))j=x}}
+   if(!j)throw 0;busy=false;m.textContent="";playSong(j.title,j.notes.slice(0,60),aiSong);const s=$("#kzSong");if(s&&j.about)s.insertAdjacentHTML("afterend",`<p class="kzSub">${String(j.about).replace(/[<>&]/g,"")}</p>`)}
+  catch(e){busy=false;m.textContent="I couldn't find a song just now. Try again!"}};
+ b.querySelector("#kzSg").onclick=go;b.querySelector("#kzSt").onkeydown=e=>{if(e.key==="Enter")go()}}
+function playAlong(){const b=shell("🎹 Play along",topicHub);b.insertAdjacentHTML("beforeend",`<p class="kzSub">Pick a song. Press the glowing key!</p>`);
+ tiles(b,[["ai","✨","Ask AI for a song","Picked for "+who()],...SONGS.map((s,i)=>[i,"🎶",s[0]])],i=>i==="ai"?aiSong():playSong(SONGS[i][0],SONGS[i][1].split(" "),playAlong))}
 function rhythm(){const b=shell("🥁 Rhythm game",topicHub);let beat=0,hits=0,tries=0,t0=0,timer=null;
  b.innerHTML=`<p class="kzSub">Tap the drum when the circle flashes. 8 beats!</p><div class="kzDrumWrap"><div class="kzPulse" id="kzPulse"></div><button class="kzDrum" id="kzDrum">🥁</button></div><div class="kzScore" id="kzR">Press Start</div><div class="kzRow"><button class="kzBtn" id="kzGo">Start</button></div>`;
  const P=b.querySelector("#kzPulse");
