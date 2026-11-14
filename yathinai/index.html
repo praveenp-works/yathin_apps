@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>/* guests: nothing is kept after a refresh, and the intro plays again */
-(function(){var L=localStorage,u=L.getItem("yai-user");if(!u||u==="guest"){["yai-user","yai-intro","yai-projects","yai-panels","yai-name","yai-theme"].forEach(function(k){L.removeItem(k)});if(!L.getItem("yai-pin"))L.removeItem("yai-kid")}})();
+(function(){var L=localStorage,u=L.getItem("yai-user");if(!u||u==="guest"){["yai-user","yai-intro","yai-projects","yai-panels","yai-name","yai-theme","yai-bg"].forEach(function(k){L.removeItem(k)});if(!L.getItem("yai-pin"))L.removeItem("yai-kid")}})();
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,6 +17,9 @@
 html,body{height:100%;margin:0}
 body{font-family:Geist,system-ui,sans-serif;color:#1d1d1f;overflow:hidden;background:#b9cce0}
 /* ---- smoke sky ---- */
+body[data-theme=photo] #sky{background:#ddd center/cover no-repeat}body[data-theme=photo] #sky i{display:none}body[data-theme=photo] #sky::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.28)}
+.themes .tb{display:grid;place-items:center;font-size:16px}#genRow{display:none;gap:6px;margin-top:8px}#genRow.on{display:flex}#genRow input{flex:1;min-width:0;padding:8px 10px;border-radius:999px;border:1px solid #ddd;font:13px Geist,sans-serif}#genRow button{padding:8px 12px;border-radius:999px;border:0;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;font:600 13px Geist,sans-serif;cursor:pointer}#genMsg{font-size:12px;opacity:.7;margin-top:4px}
+body.plus div.plus,body.plus div.inv{display:none!important}
 #sky{position:fixed;inset:0;z-index:0;overflow:hidden;background:#fbf6ff;transition:background 2s}
 #sky i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55;transition:background 2.5s,opacity 2.5s;animation:drift 26s ease-in-out infinite alternate}
 #sky i:nth-child(1){width:50vw;height:50vh;left:-12vw;top:-15vh;background:#f9a8d4}
@@ -230,7 +233,12 @@ body.kid .modes button[data-m="physics"]{display:none}
     <button data-t="sunset" title="Sunset" style="background:linear-gradient(135deg,#fb923c,#f472b6,#facc15)"></button>
     <button data-t="forest" title="Forest" style="background:linear-gradient(135deg,#4ade80,#a3e635)"></button>
     <button data-t="night" title="Night" style="background:linear-gradient(135deg,#0f172a,#2563eb,#db2777)"></button>
+    <button class="tb" id="upBg" title="Upload a photo" style="background:#fff">📷</button>
+    <button class="tb" id="genBg" title="Make a picture with AI" style="background:#fff">✨</button>
+    <input type="file" id="bgFile" accept="image/*" hidden>
   </div>
+  <div id="genRow"><input id="genTxt" placeholder="e.g. cozy space station at sunset"><button id="genGo">Make it</button></div>
+  <div id="genMsg"></div>
   <label class="row"><input type="checkbox" id="useCloud"> Smart brain (free, no key, runs online)</label>
   <div class="sm" style="margin:-2px 0 8px">Off = smaller brain that runs fully on your computer.</div>
   <label class="row"><input type="checkbox" id="useOl"> Use my Ollama</label>
@@ -292,8 +300,9 @@ function ren(p,w){const i=document.createElement("input");i.className="rn";i.val
 const LIM={chat:20*3600,code:14*3600},lim=b=>b==="code"&&isKid()?(localStorage.getItem("yai-plus")==="1"?5:1)*3600:LIM[b],today=()=>new Date().toLocaleDateString("en-CA");
 function U(){let u=JSON.parse(localStorage.getItem("yai-use")||"{}");if(u.d!==today())u={d:today(),chat:0,code:0};return u}
 const bucket=m=>m==="code"||m==="model"?"code":"chat";
-let lastAct=Date.now();["keydown","pointerdown","wheel"].forEach(e=>addEventListener(e,()=>lastAct=Date.now()));
-setInterval(()=>{if(document.hidden||(Date.now()-lastAct>90000&&!busy))return;const u=U();u[bucket(mode)]+=5;localStorage.setItem("yai-use",JSON.stringify(u));drawLim()},5000);
+/* only real chatting counts: typing in the message box (last 60 s) or the AI answering */
+let lastAct=0;$("#q").addEventListener("input",()=>lastAct=Date.now());
+setInterval(()=>{if(mode==="home"||document.hidden||(Date.now()-lastAct>60000&&!busy))return;const u=U();u[bucket(mode)]+=5;localStorage.setItem("yai-use",JSON.stringify(u));drawLim()},5000);
 const hrs=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}m`:`${m}m`};
 function drawLim(){const u=U();$("#lc").textContent=`${hrs(u.chat)} of 20 h`;$("#lk").textContent=`${hrs(u.code)} of ${lim("code")/3600} h`;$("#bc").style.width=Math.min(100,u.chat/LIM.chat*100)+"%";$("#bk").style.width=Math.min(100,u.code/lim("code")*100)+"%"}
 const over=()=>{const b=bucket(mode);return U()[b]>=lim(b)};
@@ -418,8 +427,14 @@ async function show3D(j){
  (function loop(){oc.update();r.render(sc,cam);requestAnimationFrame(loop)})();
  const stl=new STLExporter().parse(g,{binary:true});lastFile={name:(j.name||"model").replace(/\W+/g,"-").toLowerCase()+".stl",blob:new Blob([stl],{type:"model/stl"})};$("#dl").textContent="Download STL";
 }
-function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("yai-theme",t);document.querySelectorAll("#themes button").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
-document.querySelectorAll("#themes button").forEach(b=>b.onclick=()=>setTheme(b.dataset.t));setTheme(localStorage.getItem("yai-theme")||"aurora");
+function setTheme(t){const bg=localStorage.getItem("yai-bg");if(t==="photo"&&!bg)t="aurora";document.body.dataset.theme=t;localStorage.setItem("yai-theme",t);$("#sky").style.backgroundImage=t==="photo"?`url("${bg}")`:"";document.querySelectorAll("#themes button").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
+function useBg(u){localStorage.setItem("yai-bg",u);setTheme("photo")}
+$("#upBg").onclick=()=>$("#bgFile").click();
+$("#bgFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const k=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=img.width*k;c.height=img.height*k;c.getContext("2d").drawImage(img,0,0,c.width,c.height);try{useBg(c.toDataURL("image/jpeg",.82));$("#genMsg").textContent="Photo set ✓"}catch(_){$("#genMsg").textContent="That photo is too big, try a smaller one."}URL.revokeObjectURL(img.src)};img.src=URL.createObjectURL(f);e.target.value=""};
+$("#genBg").onclick=()=>{$("#genRow").classList.toggle("on");$("#genTxt").focus()};
+const genGo=()=>{let t=$("#genTxt").value.trim();if(!t)return;if(isKid()&&KIDBAD.test(t)){$("#genMsg").textContent="Let's pick a different picture idea.";return}const u="https://image.pollinations.ai/prompt/"+encodeURIComponent(t+", wallpaper, soft, beautiful")+"?width=1920&height=1080&nologo=true&safe=true&seed="+Math.floor(Math.random()*1e6);$("#genMsg").textContent="Painting your picture… (about 10–30 s)";$("#genGo").disabled=true;const img=new Image();img.onload=()=>{useBg(u);$("#genMsg").textContent="Picture set ✓";$("#genGo").disabled=false;$("#genRow").classList.remove("on")};img.onerror=()=>{$("#genMsg").textContent="The free picture maker is busy (1 picture a minute). Try again in a minute.";$("#genGo").disabled=false};img.src=u};
+$("#genGo").onclick=genGo;$("#genTxt").onkeydown=e=>{if(e.key==="Enter")genGo()};
+document.querySelectorAll("#themes button[data-t]").forEach(b=>b.onclick=()=>setTheme(b.dataset.t));setTheme(localStorage.getItem("yai-theme")||"aurora");
 
 
 
