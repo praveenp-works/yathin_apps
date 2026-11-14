@@ -105,6 +105,11 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 @media(max-width:900px){.side{display:none}#view{left:12px;right:12px;width:auto}.modes button{padding:9px 12px;font-size:14px}.home{width:46px;height:46px}.me-btn{width:46px;height:46px}}
 .side{width:300px!important}.side button{font-size:30px!important;line-height:1.2!important}
 .side .new{font-size:30px!important}.side small{font-size:14px!important}
+#plusIntro{position:fixed;inset:0;z-index:60;overflow:hidden;background:radial-gradient(circle at 50% 50%,#fff7d6,#fde68a 55%,#f59e0b);transition:opacity .5s}
+#plusIntro.out{opacity:0;pointer-events:none}
+#plusIntro .pitr{display:block;margin:0;padding:0;background:none;border:0;box-shadow:none;height:auto;width:auto;position:absolute;top:50%;left:0;transform:translate(100vw,-50%);white-space:nowrap;font:800 clamp(48px,9vw,120px) Geist,sans-serif;letter-spacing:-.02em;color:#111;transition:transform 2.2s cubic-bezier(.25,.1,.2,1)}
+#plusIntro .pia,#plusIntro .pip{font:inherit;font-size:1em;line-height:1;background:none;padding:0}#plusIntro .pip{font-weight:900;display:inline-block;margin-left:.08em;color:#facc15;-webkit-text-stroke:3px #111;transform:scale(0);opacity:0;transition:transform .45s cubic-bezier(.2,1.6,.4,1),opacity .2s}
+#plusIntro .pip.on{transform:scale(1);opacity:1}
 #intro{position:fixed;inset:0;z-index:50;display:grid;place-items:center;text-align:center;background:linear-gradient(135deg,#fbcfe8,#c7d2fe 50%,#a5f3fc);transition:opacity .6s}
 #intro.out{opacity:0;pointer-events:none}
 #intro .s{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .6s}
@@ -485,6 +490,14 @@ if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setT
 document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");if(!localStorage.getItem("yai-pin")){localStorage.removeItem("yai-kid");document.body.classList.remove("kid")}document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
 if(localStorage.getItem("yai-intro"))openLogin();
 
+
+/* ---- AI+ intro: "Yathiii…in AI" slides in sideways, then a gold + (once per visit) ---- */
+(function(){if(localStorage.getItem("yai-plus")!=="1"||!localStorage.getItem("yai-user")||sessionStorage.getItem("yai-plusintro"))return;sessionStorage.setItem("yai-plusintro","1");
+ const d=document.createElement("div");d.id="plusIntro";d.innerHTML='<div class="pitr">Yath'+"i".repeat(46)+'n <b class="pia">AI</b><b class="pip">+</b></div>';document.body.append(d);
+ const tr=d.querySelector(".pitr"),t=d.querySelector(".pia"),pl=d.querySelector(".pip");
+ requestAnimationFrame(()=>{const tail=t.offsetWidth+pl.offsetWidth;void tr.offsetWidth;tr.style.transform=`translate(${innerWidth/2-(t.offsetLeft+tail/2)}px,-50%)`;
+  setTimeout(()=>pl.classList.add("on"),2200+200);
+  setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),600)},2200+200+1300)})})();
 /* ---- intro (first visit only, plays once) ---- */
 (function(){if(localStorage.getItem("yai-intro"))return;const I=document.getElementById("intro");I.style.display="grid";
  const show=id=>{document.querySelectorAll("#intro .s").forEach(x=>x.classList.toggle("on",x.id===id))};
