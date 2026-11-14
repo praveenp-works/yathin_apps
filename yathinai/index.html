@@ -97,9 +97,33 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 #view .bar2 button{flex:1;padding:11px;border-radius:999px;border:0;font:600 14px Geist,sans-serif;cursor:pointer;background:#1d1d1f;color:#fff}
 #view .bar2 button+button{background:#fff;color:#333;border:1px solid #ddd}
 @media(max-width:900px){.side{display:none}#view{left:12px;right:12px;width:auto}.modes button{padding:9px 12px;font-size:14px}.home{width:46px;height:46px}.me-btn{width:46px;height:46px}}
+.side button{font-size:22px!important}
+.side .new{font-size:22px!important}
+#intro{position:fixed;inset:0;z-index:50;display:grid;place-items:center;text-align:center;background:linear-gradient(135deg,#fbcfe8,#c7d2fe 50%,#a5f3fc);transition:opacity .6s}
+#intro.out{opacity:0;pointer-events:none}
+#intro .s{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .6s}
+#intro .s.on{opacity:1}
+#intro h1{font-size:clamp(40px,7vw,84px);margin:0;font-weight:700;letter-spacing:-.02em;color:#2e1065}
+#intro h1 em{font-style:normal;background:linear-gradient(90deg,#7c3aed,#ec4899,#06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+#intro p{font-size:22px;color:#4c1d95;opacity:.75;margin:10px 0 0}
+#intro img{width:110px;border-radius:28px;box-shadow:0 14px 34px rgba(124,58,237,.35);animation:pop .8s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+#intro .load{width:min(420px,70vw);height:12px;border-radius:9px;background:rgba(255,255,255,.6);margin:26px auto 0;overflow:hidden}
+#intro .load i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#7c3aed,#ec4899,#06b6d4)}
+#intro .load i.go{width:100%;transition:width 5.09s cubic-bezier(.45,.05,.35,1)}
+#intro .pct{font:600 18px Geist,sans-serif;color:#4c1d95;margin-top:10px}
+.inv{margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.7);font-size:13px}
+.inv b{font-size:14px}.inv .dots{display:flex;gap:6px;margin:8px 0}
+.inv .dots i{width:22px;height:22px;border-radius:50%;background:#e5e7eb}.inv .dots i.on{background:linear-gradient(135deg,#7c3aed,#ec4899)}
+.inv button{width:100%;padding:10px;border:0;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;font:600 14px Geist,sans-serif;cursor:pointer}
 </style>
 </head>
 <body>
+<div id="intro" style="display:none">
+  <div class="s" id="s1"><div><img src="yathinai_icon.png" alt=""><h1>Hello,<br>Welcome to <em>Yathin AI</em></h1></div></div>
+  <div class="s" id="s2"><div><h1>Do more with<br><em>Yathin AI+</em></h1><p>A way smarter brain. Bigger limits.</p></div></div>
+  <div class="s" id="s3"><div><img src="yathinai_icon.png" alt=""><p>Getting Yathin AI ready</p><div class="load"><i id="ld"></i></div><div class="pct" id="pct">0%</div></div></div>
+</div>
 <div id="sky"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <a class="home glass" href="../" title="Yathin Looops">⌂</a>
@@ -108,11 +132,12 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 </div>
 <button class="me-btn" id="meBtn" title="Profile">Y</button>
 <div id="prof" class="glass">
-  <h3 id="pName">You</h3><div class="sm">Yathin AI · Free plan</div>
+  <h3 id="pName">You</h3><div class="sm" id="planTxt">Yathin AI · Free plan</div>
   <input type="text" id="nameIn" placeholder="Your name">
   <div class="lim">💬 Chat today <small id="lc"></small><div class="bar"><i id="bc"></i></div></div>
   <div class="lim">👨‍💻 Code today <small id="lk"></small><div class="bar"><i id="bk"></i></div></div>
   <div class="plus"><span>COMING SOON</span><b>Yathin AI+</b><br>Way smarter: a brain about 5 times bigger for chat, code, 3D and physics. 140 hours of chat and 130 hours of code a month. No daily limits.</div>
+  <div class="inv"><b>🎁 Invite 5 friends, get Yathin AI+</b><div class="dots" id="invDots"><i></i><i></i><i></i><i></i><i></i></div><div class="sm" id="invTxt" style="margin-bottom:8px">0 of 5 friends joined</div><button id="invBtn">Copy my invite link</button></div>
   <div class="lim">🎨 Theme</div>
   <div class="themes" id="themes">
     <button data-t="aurora" title="Aurora" style="background:linear-gradient(135deg,#f9a8d4,#a5b4fc,#67e8f9)"></button>
@@ -269,6 +294,28 @@ async function show3D(j){
 }
 function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("yai-theme",t);document.querySelectorAll("#themes button").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
 document.querySelectorAll("#themes button").forEach(b=>b.onclick=()=>setTheme(b.dataset.t));setTheme(localStorage.getItem("yai-theme")||"aurora");
+
+/* ---- intro (first visit only, plays once) ---- */
+(function(){if(localStorage.getItem("yai-intro"))return;const I=document.getElementById("intro");I.style.display="grid";
+ const show=id=>{document.querySelectorAll("#intro .s").forEach(x=>x.classList.toggle("on",x.id===id))};
+ show("s1");
+ setTimeout(()=>show("s2"),3000);
+ setTimeout(()=>{show("s3");const ld=document.getElementById("ld"),pc=document.getElementById("pct"),t0=performance.now();requestAnimationFrame(()=>ld.classList.add("go"));
+  (function tick(){const k=Math.min(1,(performance.now()-t0)/5690);pc.textContent=Math.round(k*100)+"%";if(k<1)requestAnimationFrame(tick)})()},7000);
+ setTimeout(()=>{I.classList.add("out");localStorage.setItem("yai-intro","1");setTimeout(()=>I.remove(),700)},12690);
+})();
+/* ---- invite 5 friends ---- */
+const REF="https://abacus.jasoncameron.dev/";
+let myId=localStorage.getItem("yai-id");if(!myId){myId=Math.random().toString(36).slice(2,10);localStorage.setItem("yai-id",myId)}
+(function(){const r=new URLSearchParams(location.search).get("ref");if(r&&/^[a-z0-9]{8}$/.test(r)&&r!==myId&&!localStorage.getItem("yai-reffed")){localStorage.setItem("yai-reffed","1");fetch(REF+"hit/praveenp-yathinai-ref/"+r).catch(()=>{})}})();
+async function drawInv(){try{const j=await (await fetch(REF+"get/praveenp-yathinai-ref/"+myId)).json();const n=Math.min(5,j.value||0);
+ document.querySelectorAll("#invDots i").forEach((d,i)=>d.classList.toggle("on",i<n));document.getElementById("invTxt").textContent=n>=5?"You unlocked Yathin AI+! 🎉":`${n} of 5 friends joined`;
+ if(n>=5)localStorage.setItem("yai-plus","1")}catch(e){}}
+document.getElementById("invBtn").onclick=async()=>{const link=location.origin+location.pathname+"?ref="+myId;
+ if(navigator.share){try{await navigator.share({title:"Yathin AI",text:"Try Yathin AI, a free AI that runs in your browser!",url:link});return}catch(e){}}
+ await navigator.clipboard.writeText(link);document.getElementById("invBtn").textContent="Link copied!";setTimeout(()=>document.getElementById("invBtn").textContent="Copy my invite link",2000)};
+drawInv();
+if(localStorage.getItem("yai-plus")==="1")document.getElementById("planTxt").textContent="Yathin AI+ ✨";
 drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
