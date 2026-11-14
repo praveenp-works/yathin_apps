@@ -426,7 +426,7 @@ window.__marks = [];
 window.start = async function(durs){
   const t0 = performance.now(); let gridHTML = "";
   $("tbIcon").src = S.icon; $("tbTitle").textContent = S.title;
-  $("endIcon").src = S.icon; if (S.icons) $("endIcon").outerHTML = `<div style="display:flex;gap:${S.vertical?24:30}px">${S.icons.map(i=>`<img class="icon" style="width:170px;height:170px;border-radius:40px;object-fit:cover;box-shadow:0 30px 80px rgba(0,0,0,.45)" src="${i}">`).join("")}</div>`; $("endTitle").textContent = S.title; $("endTag").textContent = S.tag;
+  $("endIcon").src = S.icon; if (S.icons) {const W=S.vertical?1080:1920,g=S.vertical?20:26,n=S.icons.length,sz=Math.min(170,Math.floor((W-200-g*(n-1))/n));window._sz=sz;window._g=g; $("endIcon").outerHTML = `<div style="display:flex;justify-content:center;gap:${_g}px;max-width:${(S.vertical?1080:1920)-200}px;margin:0 auto">${S.icons.map(i=>`<img class="icon" style="width:${_sz}px;height:${_sz}px;flex:none;border-radius:${Math.round(_sz*.235)}px;object-fit:cover;box-shadow:0 30px 80px rgba(0,0,0,.45)" src="${i}">`).join("")}</div>`;} $("endTitle").textContent = S.title; $("endTag").textContent = S.tag;
   $("endChips").innerHTML = S.chips.map(c => `<span>${c}</span>`).join(""); $("endFoot").textContent = S.foot;
   for (let i = 0; i < S.scenes.length; i++){
     const sc = S.scenes[i], need = (durs[i] || 0) * 1000 + 500;
