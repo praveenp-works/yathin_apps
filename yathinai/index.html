@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>/* guests: nothing is kept after a refresh, and the intro plays again */
+(function(){var L=localStorage,u=L.getItem("yai-user");if(!u||u==="guest"){["yai-user","yai-intro","yai-projects","yai-panels","yai-name","yai-theme"].forEach(function(k){L.removeItem(k)});if(!L.getItem("yai-pin"))L.removeItem("yai-kid")}})();
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yathin AI · Free AI that runs in your browser</title>
@@ -161,6 +164,10 @@ body.home-on #homeV{display:block}body.home-on #wrap,body.home-on .side,body.hom
 #login .code{letter-spacing:10px;text-align:center;font-size:22px!important}
 #login .note{font-size:13px;color:#555;margin-top:8px}
 #login .lnk{border:0;background:none;color:#6d28d9;font:500 13px Geist,sans-serif;cursor:pointer;padding:0;margin-top:8px}
+body.plus::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(circle at 12% 8%,rgba(255,200,0,.6),transparent 42%),radial-gradient(circle at 88% 92%,rgba(255,185,0,.55),transparent 46%),radial-gradient(circle at 70% 20%,rgba(255,220,90,.45),transparent 35%);mix-blend-mode:multiply;animation:goldglow 8s ease-in-out infinite}
+@keyframes goldglow{50%{opacity:.75}}
+body.plus #me,body.plus .avatar{box-shadow:0 0 0 3px #f5c518,0 0 18px rgba(245,197,24,.7)!important}
+body.kid .modes button[data-m="physics"]{display:none}
 </style>
 </head>
 <body>
@@ -224,6 +231,8 @@ body.home-on #homeV{display:block}body.home-on #wrap,body.home-on .side,body.hom
     <button data-t="forest" title="Forest" style="background:linear-gradient(135deg,#4ade80,#a3e635)"></button>
     <button data-t="night" title="Night" style="background:linear-gradient(135deg,#0f172a,#2563eb,#db2777)"></button>
   </div>
+  <label class="row"><input type="checkbox" id="useCloud"> Smart brain (free, no key, runs online)</label>
+  <div class="sm" style="margin:-2px 0 8px">Off = smaller brain that runs fully on your computer.</div>
   <label class="row"><input type="checkbox" id="useOl"> Use my Ollama</label>
   <input type="text" id="olModel" value="llama3.2" placeholder="Ollama model">
   <div class="sm" style="margin-top:6px">Start Ollama with OLLAMA_ORIGINS=* first. Without it, Yathin AI runs fully in your browser.</div>
@@ -247,9 +256,9 @@ body.home-on #homeV{display:block}body.home-on #wrap,body.home-on .side,body.hom
   <div class="bar2"><button id="dl">Download</button><button id="closeV">Close</button></div></div>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script src="sitegen.js?v=1"></script>
+<script src="sitegen.js?v=2"></script>
 <script type="module">
-import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+let webllm=null;
 const $=s=>document.querySelector(s);
 const MODELS={chat:"Qwen2.5-1.5B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-3B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-Math-1.5B-Instruct-q4f16_1-MLC"};
 const PLUS={chat:"Qwen2.5-7B-Instruct-q4f16_1-MLC",code:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",model:"Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",physics:"Qwen2.5-7B-Instruct-q4f16_1-MLC"};/* Yathin AI+ brains, used when plus is on */
@@ -280,31 +289,31 @@ function ren(p,w){const i=document.createElement("input");i.className="rn";i.val
  i.onkeydown=e=>{if(e.key==="Enter")done(true);if(e.key==="Escape")done(false)};i.onblur=()=>done(true)}
 
 /* ---- daily limits ---- */
-const LIM={chat:20*3600,code:14*3600},today=()=>new Date().toLocaleDateString("en-CA");
+const LIM={chat:20*3600,code:14*3600},lim=b=>b==="code"&&isKid()?(localStorage.getItem("yai-plus")==="1"?5:1)*3600:LIM[b],today=()=>new Date().toLocaleDateString("en-CA");
 function U(){let u=JSON.parse(localStorage.getItem("yai-use")||"{}");if(u.d!==today())u={d:today(),chat:0,code:0};return u}
 const bucket=m=>m==="code"||m==="model"?"code":"chat";
 let lastAct=Date.now();["keydown","pointerdown","wheel"].forEach(e=>addEventListener(e,()=>lastAct=Date.now()));
 setInterval(()=>{if(document.hidden||(Date.now()-lastAct>90000&&!busy))return;const u=U();u[bucket(mode)]+=5;localStorage.setItem("yai-use",JSON.stringify(u));drawLim()},5000);
 const hrs=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}m`:`${m}m`};
-function drawLim(){const u=U();$("#lc").textContent=`${hrs(u.chat)} of 20 h`;$("#lk").textContent=`${hrs(u.code)} of 14 h`;$("#bc").style.width=Math.min(100,u.chat/LIM.chat*100)+"%";$("#bk").style.width=Math.min(100,u.code/LIM.code*100)+"%"}
-const over=()=>{const b=bucket(mode);return U()[b]>=LIM[b]};
+function drawLim(){const u=U();$("#lc").textContent=`${hrs(u.chat)} of 20 h`;$("#lk").textContent=`${hrs(u.code)} of ${lim("code")/3600} h`;$("#bc").style.width=Math.min(100,u.chat/LIM.chat*100)+"%";$("#bk").style.width=Math.min(100,u.code/lim("code")*100)+"%"}
+const over=()=>{const b=bucket(mode);return U()[b]>=lim(b)};
 
 /* ---- profile ---- */
 function drawName(){const n=localStorage.getItem("yai-name")||"";$("#pName").textContent=n||"You";$("#meBtn").textContent=(n[0]||"Y").toUpperCase();$("#nameIn").value=n}
 $("#nameIn").oninput=e=>{localStorage.setItem("yai-name",e.target.value.trim());drawName()};
 $("#meBtn").onclick=e=>{e.stopPropagation();$("#prof").classList.toggle("on")};
 document.addEventListener("click",e=>{if(!$("#prof").contains(e.target)&&e.target!==$("#meBtn"))$("#prof").classList.remove("on")});
-$("#useOl").checked=localStorage.getItem("yai-ol")==="1";$("#useOl").onchange=e=>localStorage.setItem("yai-ol",e.target.checked?"1":"0");
+$("#useOl").checked=localStorage.getItem("yai-ol")==="1";$("#useCloud").checked=localStorage.getItem("yai-cloud")!=="0";$("#useCloud").onchange=e=>{localStorage.setItem("yai-cloud",e.target.checked?"1":"0");cloudFail=0};$("#useOl").onchange=e=>localStorage.setItem("yai-ol",e.target.checked?"1":"0");
 $("#olModel").value=localStorage.getItem("yai-olm")||"llama3.2";$("#olModel").oninput=e=>localStorage.setItem("yai-olm",e.target.value);
 
 /* ---- ui ---- */
 function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
 function fmt(t){return esc(t).replace(/```(\w*)\n?([\s\S]*?)(```|$)/g,(_,l,c)=>`<pre>${c}</pre>`).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}
 function bubble(cls,t){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=cls==="a"?fmt(t):esc(t);$("#chat").append(d);$("#chat").scrollTop=1e9;return d}
-function setMode(m,keep){document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website, game or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
+function setMode(m,keep){if(isKid()&&m==="physics")m="chat";document.body.classList.toggle("home-on",m==="home");document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));if(m==="home"){mode="home";drawHome();drawSide();return}mode=m;document.querySelectorAll(".modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$("#q").placeholder={chat:"Message Yathin AI",code:"Describe a website, game or app",model:"Describe something to 3D print",physics:"Ask a physics question"}[m];if(!keep){cur=null;render()}else drawSide()}
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function render(){const c=$("#chat");c.innerHTML="";
- if(!cur||!cur.msgs.length){c.innerHTML=`<div class="hello"><img src="yathinai_icon.png" alt=""><h1>${{chat:"What's on your mind?",code:"What should we build?",model:"What should we 3D print?",physics:"Ask me any physics question"}[mode]}</h1><p>Free and private. Runs right in your browser.</p><div class="ex"></div></div>`;
+ if(!cur||!cur.msgs.length){c.innerHTML=`<div class="hello"><img src="yathinai_icon.png" alt=""><h1>${{chat:"What's on your mind?",code:"What should we build?",model:"What should we 3D print?",physics:"Ask me any physics question"}[mode]}</h1><p>${cloudOn()?"Free. No key, no download.":"Free and private. Runs right in your browser."}</p><div class="ex"></div></div>`;
   EX[mode].forEach(t=>{const b=document.createElement("button");b.className="glass";b.textContent=t;b.onclick=()=>{$("#q").value=t;send()};c.querySelector(".ex").append(b)})}
  else cur.msgs.forEach(x=>{const d=bubble(x.role==="user"?"u":"a",x.content);if(x.role!=="user")after(d,x.content,false)});
  drawSide()}
@@ -317,16 +326,30 @@ function think(on){document.body.classList.toggle("thinking",on);clearInterval(s
 const pill=t=>{if(stEl){stEl.dataset.lock=t?"1":"";if(t)stEl.textContent=t}};
 
 /* ---- brains ---- */
+const cloudOn=()=>localStorage.getItem("yai-cloud")!=="0"&&!$("#useOl").checked;let cloudFail=0;
 async function ensure(){
  if($("#useOl").checked)return;
+ if(cloudOn()&&Date.now()>cloudFail){$("#brainInfo").textContent="Brain: Smart (GPT-OSS 20B, online)";return}
  const want=(localStorage.getItem("yai-plus")==="1"?PLUS:MODELS)[mode];if(loaded===want)return;
- if(!navigator.gpu)throw new Error("This browser can't run Yathin AI yet. Try the newest Chrome or Edge on a computer, or turn on Ollama in your profile.");
+ if(!navigator.gpu)throw new Error("Your computer can't run the on-device brain. Turn on Smart brain in your profile.");
+ if(!webllm){pill("Getting the on-device brain");webllm=await import("https://esm.run/@mlc-ai/web-llm")}
  const cb=r=>pill("Loading brain "+Math.round((r.progress||0)*100)+"%");
  try{if(engine)await engine.reload(want);else engine=await webllm.CreateMLCEngine(want,{initProgressCallback:cb});loaded=want}
- catch(e){pill("Trying a smaller brain");if(engine)await engine.reload(FALLBACK);else engine=await webllm.CreateMLCEngine(FALLBACK,{initProgressCallback:cb});loaded=FALLBACK}
+ catch(e){pill("Trying a smaller brain");try{if(engine)await engine.reload(FALLBACK);else engine=await webllm.CreateMLCEngine(FALLBACK,{initProgressCallback:cb});loaded=FALLBACK}catch(x){throw new Error(/GPU/i.test(x.message||"")?"Your computer can't run the on-device brain. Turn on Smart brain in your profile.":x.message)}}
  pill("");$("#brainInfo").textContent="Brain: "+loaded.split("-q4")[0];
 }
+async function* cloud(msgs){
+ const r=await fetch("https://text.pollinations.ai/openai",{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({model:"openai",messages:msgs,stream:true,referrer:"yathinai"})});
+ if(!r.ok)throw new Error("cloud "+r.status);
+ const rd=r.body.getReader(),dec=new TextDecoder();let buf="",n=0;pill("Thinking hard");
+ for(;;){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+  while((i=buf.indexOf("\n"))>=0){const l=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!l.startsWith("data:"))continue;const d=l.slice(5).trim();if(d==="[DONE]")return;
+   try{const c=JSON.parse(d).choices?.[0]?.delta?.content;if(c){n++;yield c}}catch(e){}}}
+ if(!n)throw new Error("cloud empty")}
 async function* stream(msgs){
+ if(cloudOn()&&Date.now()>cloudFail){let got=false;
+  try{for await(const t of cloud(msgs)){got=true;yield t}return}
+  catch(e){if(got)return;cloudFail=Date.now()+5*60e3;if(!navigator.gpu)throw new Error("The smart brain is busy right now. Wait a minute and try again.");pill("Switching to the on-device brain");await ensure()}}
  if($("#useOl").checked){
   const r=await fetch("http://localhost:11434/api/chat",{method:"POST",body:JSON.stringify({model:$("#olModel").value.trim()||"llama3.2",messages:msgs,stream:true})});
   if(!r.ok)throw new Error("Ollama said no. Is the model pulled?");
@@ -344,6 +367,7 @@ async function send(){
  bubble("u",q);cur.msgs.push({role:"user",content:q});saveP();drawSide();
  think(true);let box=null,out="";
  try{await ensure();
+  if(isKid()&&KIDBAD.test(q)){think(false);const b=bubble("a","That's a grown-up topic, so I can't help with it in Kids mode. Please talk to a parent or a trusted grown-up about it. 💛");cur.msgs.push({role:"assistant",content:b.textContent});saveP();busy=false;$("#send").disabled=false;return}
   if(isKid()&&KIDBAD.test(q)){think(false);const b=bubble("a","That's a grown-up topic, so I can't help with it in Kids mode. Please talk to a parent or a trusted grown-up about it. 💛");cur.msgs.push({role:"assistant",content:b.textContent});saveP();busy=false;$("#send").disabled=false;return}
   if(mode==="code"&&isSite(q)){const r=await makeSite(q);think(false);box=bubble("a",r.text);cur.msgs.push({role:"assistant",content:r.store});saveP();after(box,r.store,true);throw "done"}
   for await(const t of stream([{role:"system",content:SYS[mode]+(isKid()?KID:"")},...cur.msgs.slice(-8)])){out+=t;
@@ -366,7 +390,7 @@ async function makeSite(q){
  else msgs.push({role:"user",content:"Website request: "+q});
  let j=null;for(let tries=0;tries<2&&!j;tries++){let out="";for await(const t of stream(msgs))out+=t;j=getJson(out);if(j&&!j.name)j=null}
  if(!j)throw new Error("The plan didn't come out right. Try asking a little differently.");
- cur.spec=j;const html=YSite.render(j);
+ j.kid=isKid();cur.spec=j;const html=YSite.render(j);
  return{text:"",store:`Here's **${j.name}**: ${j.tagline||""}\n\`\`\`html\n${html}\n\`\`\``}}
 function after(box,out,open){
  const m=cur?cur.mode:mode;
@@ -417,7 +441,7 @@ const soon=()=>{document.getElementById("lErr").textContent="Google sign-in is c
 document.getElementById("lG").onclick=soon;
 document.getElementById("lGuest").onclick=()=>{localStorage.setItem("yai-user","guest");askAge()};
 function askAge(){document.getElementById("loginBox").style.display="none";document.getElementById("ageBox").style.display="";document.getElementById("login").classList.add("on")}
-function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");document.body.classList.toggle("kid",kid);box("loginBox");document.getElementById("login").classList.remove("on")}
+function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");document.body.classList.toggle("kid",kid);if(kid&&mode==="physics")setMode("chat");drawLim();box("loginBox");document.getElementById("login").classList.remove("on")}
 document.getElementById("ageK").onclick=()=>doneAge(true);
 const EJ={s:"service_pqelqat",t:"template_fi4tlhp",k:"wWMmhZFuMnJ9VDYJF"};let pCodeH="",pMail="",pTries=0;
 const box=id=>["ageBox","parBox","loginBox"].forEach(b=>document.getElementById(b).style.display=b===id?"":"none");
@@ -440,8 +464,8 @@ async function parentPick(kid){const pin=document.getElementById("pPin").value.t
  localStorage.setItem("yai-pin",await sha("pin|"+pin));localStorage.setItem("yai-parent",pMail);box("loginBox");doneAge(kid)}
 document.getElementById("pKid").onclick=()=>parentPick(true);document.getElementById("pAdult").onclick=()=>parentPick(false);
 window.yaiParent=async()=>{const h=localStorage.getItem("yai-pin");if(!h){document.getElementById("prof").classList.remove("on");document.getElementById("login").classList.add("on");box("parBox");step(1);setTimeout(()=>document.getElementById("pEmail").focus(),50);return}const p=prompt("Parent PIN:");if(!p)return;
- if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const on=confirm("Turn Kids mode ON?\nOK = Kids mode on, Cancel = off (13 or older)");localStorage.setItem("yai-kid",on?"1":"0");document.body.classList.toggle("kid",on)};
-document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");
+ if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const on=confirm("Turn Kids mode ON?\nOK = Kids mode on, Cancel = off (13 or older)");localStorage.setItem("yai-kid",on?"1":"0");document.body.classList.toggle("kid",on);if(on&&mode==="physics")setMode("chat");drawLim()};
+document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");document.body.classList.toggle("plus",localStorage.getItem("yai-plus")==="1");
 if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setTimeout(askAge,0);
 document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");if(!localStorage.getItem("yai-pin")){localStorage.removeItem("yai-kid");document.body.classList.remove("kid")}document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
 if(localStorage.getItem("yai-intro"))openLogin();
