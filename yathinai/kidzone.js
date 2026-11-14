@@ -93,8 +93,27 @@ function rhythm(){const b=shell("🥁 Rhythm game",topicHub);let beat=0,hits=0,t
  b.querySelector("#kzGo").onclick=()=>{clearInterval(timer);beat=0;hits=0;t0=Date.now();timer=setInterval(()=>{beat++;beep(1000,.05);P.classList.remove("on");void P.offsetWidth;P.classList.add("on");if(beat>=8){clearInterval(timer);setTimeout(()=>{timer=null;b.querySelector("#kzR").textContent=`Done! ${hits} on-beat taps. ${hits>=6?"Rock star! 🌟":"Try again to get 6!"}`;if(hits>=6){addStar(2);confetti()}},700)}},750)}}
 
 /* ---------- GAMES ---------- */
-const GAMES=[["memory","🧠","Memory Match","Find the pairs"],["math","➕","Math Race","60 seconds, go!"],["ttt","❌","Tic-Tac-Toe","Beat Yathin"],["words","🔤","Word Scramble","Fix the word"],["simon","🎨","Color Copy","Copy the colors"]];
-function gamesHome(){const b=shell("🎮 Games");tiles(b,GAMES,g=>({memory,math:mathRace,ttt,words,simon})[g]())}
+const GAMES=[["make","✨","Make a game with AI","Tell it your idea"],["memory","🧠","Memory Match","Find the pairs"],["math","➕","Math Race","60 seconds, go!"],["ttt","❌","Tic-Tac-Toe","Beat Yathin"],["words","🔤","Word Scramble","Fix the word"],["simon","🎨","Color Copy","Copy the colors"]];
+function gamesHome(){const b=shell("🎮 Games");tiles(b,GAMES,g=>({make:makeGame,memory,math:mathRace,ttt,words,simon})[g]())}
+
+function makeGame(){const b=shell("✨ Make a game",gamesHome);const IDEAS=["A space shooter with stars","Catch the falling fruit","A maze with a cat","Pop the balloons","A math racing game","Feed the hungry dinosaur"];
+ b.innerHTML=`<div class="kzCard"><p class="kzSub" style="margin-top:0">What game should Yathin AI make?</p><div class="kzIn"><input id="kzIdea" placeholder="e.g. a frog that jumps over logs" maxlength="140"><button class="kzBtn" id="kzMake">Make it!</button></div><div class="kzRow" id="kzIdeas"></div><div class="kzSub" id="kzMm"></div></div><div id="kzGame"></div>`;
+ const box=b.querySelector("#kzIdeas");IDEAS.forEach(t=>{const x=document.createElement("button");x.className="kzBtn ghost";x.textContent=t;x.onclick=()=>{b.querySelector("#kzIdea").value=t;go()};box.append(x)});
+ const msg=b.querySelector("#kzMm"),out=b.querySelector("#kzGame");let busy=false;
+ const go=async()=>{const idea=b.querySelector("#kzIdea").value.trim();if(!idea||busy)return;
+  if(!safe(idea)||window.YAI.bad&&window.YAI.bad(idea)){msg.textContent="Let's pick a different game idea! 💛";return}
+  busy=true;msg.textContent="Building your game… this takes about 30 seconds 🛠️";out.innerHTML="";
+  try{let h=null;for(let t=0;t<2&&!h;t++){const o=await ask(`You make fun, simple browser games for kids under 13. Reply with ONE complete self-contained HTML file inside a \`\`\`html code block and nothing else. Rules: plain HTML, CSS and JavaScript only, no external files, no links, no images from the internet (use emoji, shapes or canvas), no text input asking for personal info, no chat. Bright, friendly colors, big buttons, works with mouse, touch and keyboard. Show the score, simple instructions at the top, and a Play again button. No violence, blood, weapons, scary or grown-up content: if the idea needs that, make a gentle version (for example, pop bubbles instead of shooting). Keep it under 250 lines.`,"Game idea: "+idea,"code");
+    const m=o.match(/```html\s*([\s\S]*?)```/i)||o.match(/(<!doctype[\s\S]*<\/html>)/i)||o.match(/(<html[\s\S]*<\/html>)/i);h=m&&m[1]}
+   if(!h)throw 0;const text=h.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>/g," ");
+   if(!safe(text)){msg.textContent="That game didn't come out kid-friendly. Try another idea! 💛";busy=false;return}
+   h=h.replace(/<a\b[^>]*href=[^>]*>/gi,"<span>").replace(/<\/a>/gi,"</span>");
+   msg.textContent="🎉 Your game is ready!";addStar();
+   out.innerHTML=`<div class="kzCard" style="padding:10px"><iframe class="kzFrame" sandbox="allow-scripts" title="Your game"></iframe><div class="kzRow"><button class="kzBtn ghost" id="kzBig">⛶ Full screen</button><button class="kzBtn" id="kzAgain">🔄 Make it again</button></div></div>`;
+   const f=out.querySelector("iframe");f.srcdoc="<script>try{localStorage.length}catch(e){const d={};Object.defineProperty(window,'localStorage',{value:{getItem:k=>k in d?d[k]:null,setItem:(k,v)=>{d[k]=String(v)},removeItem:k=>{delete d[k]},clear:()=>{}}})}<\/script>"+h;out.querySelector("#kzAgain").onclick=go;out.querySelector("#kzBig").onclick=()=>{(f.requestFullscreen||f.webkitRequestFullscreen||(()=>{})).call(f)};f.scrollIntoView({behavior:"smooth"})}
+  catch(e){msg.textContent="I couldn't build it just now. Try again in a moment."}
+  busy=false};
+ b.querySelector("#kzMake").onclick=go;b.querySelector("#kzIdea").onkeydown=e=>{if(e.key==="Enter")go()}}
 function memory(){const b=shell("🧠 Memory Match",gamesHome);const E=["🐶","🐱","🦊","🐼","🐸","🦁","🐵","🐧"];let cards=[...E,...E].sort(()=>Math.random()-.5),open=[],found=0,moves=0;
  b.innerHTML=`<div class="kzScore" id="kzM">Moves: 0</div><div class="kzMem"></div>`;const g=b.querySelector(".kzMem");
  cards.forEach((e,i)=>{const c=document.createElement("button");c.className="kzCardF";c.innerHTML=`<span>${e}</span>`;c.onclick=()=>{if(c.classList.contains("up")||open.length>1)return;c.classList.add("up");beep(500,.06);open.push([c,e]);

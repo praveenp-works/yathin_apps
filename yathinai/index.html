@@ -216,6 +216,7 @@ body.kz-on #kz{display:block}body.kz-on #wrap,body.kz-on .side,body.kz-on .foot,
 .kzTTT{display:grid;grid-template-columns:repeat(3,96px);gap:8px;justify-content:center}.kzTTT button{height:96px;border:0;border-radius:18px;background:#fff;font-size:44px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.08)}
 .kzIn{display:flex;gap:8px;justify-content:center}.kzIn input{font:500 20px Fredoka,sans-serif;padding:10px 16px;border-radius:999px;border:2px solid #e5e7eb;min-width:0;flex:1;max-width:280px}
 .kzSimon{display:grid;grid-template-columns:repeat(2,130px);gap:12px;justify-content:center;margin:12px 0}.kzSimon button{height:130px;border:0;border-radius:26px;opacity:.55;cursor:pointer}.kzSimon button.lit{opacity:1;transform:scale(1.05)}
+.kzFrame{width:100%;height:min(70vh,620px);border:0;border-radius:18px;background:#fff}
 .kzConf{position:fixed;inset:0;pointer-events:none;z-index:50}.kzConf i{position:absolute;top:-10px;width:10px;height:14px;border-radius:3px;animation:kzFall 1.8s ease-in forwards}@keyframes kzFall{to{transform:translateY(105vh) rotate(540deg)}}
 @media(max-width:700px){#kz{padding:96px 12px 70px}.kzCh{grid-template-columns:1fr}.kzTTT{grid-template-columns:repeat(3,84px)}.kzTTT button{height:84px}}
 </style>
@@ -444,7 +445,7 @@ async function send(){
  catch(e){if(e!=="done"){think(false);{const m=String(e.message||e);bubble("a",/fetch|network|import|load/i.test(m)?"I couldn't reach my brain just now. Check your internet and try again in a moment.":"Oops: "+m)}}}
  document.body.classList.remove("thinking");busy=false;$("#send").disabled=false;
 }
-window.YAI={ask:async(sys,user)=>{await ensure();const M=[{role:"system",content:sys+KID}, {role:"user",content:user}];M.json=true;let o="";for await(const t of stream(M))o+=t;return o},getJson:o=>getJson(o)};
+window.YAI={ask:async(sys,user,as)=>{const was=mode;if(as)mode=as;try{await ensure();const M=[{role:"system",content:sys+KID}, {role:"user",content:user}];M.json=!as;let o="";for await(const t of stream(M))o+=t;return o}finally{mode=was}},getJson:o=>getJson(o),bad:q=>KIDBAD.test(q)};
 $("#send").onclick=send;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 
 /* ---- previews ---- */
@@ -627,6 +628,6 @@ async function genPanel(what,btn){if(!what||busy)return;busy=true;btn.textConten
 drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
-<script src="kidzone.js?v=1"></script>
+<script src="kidzone.js?v=2"></script>
 </body>
 </html>
