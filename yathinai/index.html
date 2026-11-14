@@ -439,7 +439,7 @@ document.getElementById("pVer").onclick=async()=>{const er=document.getElementBy
 async function parentPick(kid){const pin=document.getElementById("pPin").value.trim();if(!/^\d{4}$/.test(pin)){document.getElementById("pErr3").textContent="Set a 4-digit PIN first.";return}
  localStorage.setItem("yai-pin",await sha("pin|"+pin));localStorage.setItem("yai-parent",pMail);box("loginBox");doneAge(kid)}
 document.getElementById("pKid").onclick=()=>parentPick(true);document.getElementById("pAdult").onclick=()=>parentPick(false);
-window.yaiParent=async()=>{const h=localStorage.getItem("yai-pin");if(!h){alert("No parent PIN set yet.");return}const p=prompt("Parent PIN:");if(!p)return;
+window.yaiParent=async()=>{const h=localStorage.getItem("yai-pin");if(!h){document.getElementById("prof").classList.remove("on");document.getElementById("login").classList.add("on");box("parBox");step(1);setTimeout(()=>document.getElementById("pEmail").focus(),50);return}const p=prompt("Parent PIN:");if(!p)return;
  if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const on=confirm("Turn Kids mode ON?\nOK = Kids mode on, Cancel = off (13 or older)");localStorage.setItem("yai-kid",on?"1":"0");document.body.classList.toggle("kid",on)};
 document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");
 if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setTimeout(askAge,0);
