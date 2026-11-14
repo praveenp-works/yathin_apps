@@ -205,8 +205,8 @@ body.kid .modes button[data-m="physics"]{display:none}
   <div id="parS2" style="display:none"><div class="note" id="pSent"></div>
    <div class="in"><input id="pCode" class="code" inputmode="numeric" maxlength="6" placeholder="000000"></div>
    <div class="err" id="pErr2"></div><div class="acts2"><button class="lnk" id="pRe" type="button">Send another code</button><button class="lg" id="pVer" type="button">Verify</button></div></div>
-  <div id="parS3" style="display:none"><div class="note">Thanks! Parent, is this person under 13?</div>
-   <div class="ages"><button id="pKid" class="k" type="button">Yes, Kids mode on</button><button id="pAdult" type="button">No, 13 or older</button></div>
+  <div id="parS3" style="display:none"><div class="note">Thanks! Parent, pick the mode for this person.</div>
+   <div class="ages"><button id="pKid" class="k" type="button">🧒 Kids mode (under 13)</button><button id="pAdult" type="button">🧑 Grown-up mode (13+)</button></div>
    <label for="pPin" style="margin-top:14px;display:block">Set a 4-digit parent PIN (to change this later)</label><div class="in"><input id="pPin" class="code" inputmode="numeric" maxlength="4" type="password" placeholder="••••"></div>
    <div class="err" id="pErr3"></div></div>
   <div class="ft">Secured by <b>Yathin AI</b></div>
@@ -485,7 +485,7 @@ document.getElementById("ageK").onclick=()=>doneAge(true);
 const EJ={s:"service_pqelqat",t:"template_fi4tlhp",k:"wWMmhZFuMnJ9VDYJF"};let pCodeH="",pMail="",pTries=0,adm=false,reT=null;const ADMIN_H="16a37f4fbdfd00cfc7fc57d8891be5572af8992f03380858413f861c07f915d7";
 const box=id=>["ageBox","parBox","loginBox"].forEach(b=>document.getElementById(b).style.display=b===id?"":"none");
 const step=n=>[1,2,3].forEach(i=>document.getElementById("parS"+i).style.display=i===n?"":"none");
-function parMode(a){adm=a;document.getElementById("parQ").textContent=a?"Admin login":"Ask a parent to confirm";document.getElementById("pNote").textContent=a?"Enter the admin email and we'll send you a code.":"To use Yathin AI as 13 or older, a parent or adult must confirm by email.";document.getElementById("pLbl").textContent=a?"Admin email":"Parent's email";document.getElementById("pEmail").placeholder=a?"admin@email.com":"parent@email.com";document.getElementById("pErr").textContent="";document.querySelector("#parS3 .note").textContent=a?"Admin: choose this person's mode.":"Thanks! Parent, is this person under 13?";box("parBox");step(1)}
+function parMode(a){adm=a;document.getElementById("parQ").textContent=a?"Admin login":"Ask a parent to confirm";document.getElementById("pNote").textContent=a?"Enter the admin email and we'll send you a code.":"To use Yathin AI as 13 or older, a parent or adult must confirm by email.";document.getElementById("pLbl").textContent=a?"Admin email":"Parent's email";document.getElementById("pEmail").placeholder=a?"admin@email.com":"parent@email.com";document.getElementById("pErr").textContent="";document.querySelector("#parS3 .note").textContent=a?"Admin: pick the mode for this account.":"Thanks! Parent, pick the mode for this person.";box("parBox");step(1)}
 document.getElementById("ageT").onclick=()=>parMode(false);document.getElementById("admBtn").onclick=()=>parMode(true);
 document.getElementById("pBack").onclick=()=>box("ageBox");
 async function sendCode(again){const e=again===true?pMail:document.getElementById("pEmail").value.trim().toLowerCase(),er=document.getElementById(again===true?"pErr2":"pErr");
@@ -506,7 +506,7 @@ async function parentPick(kid){const pin=document.getElementById("pPin").value.t
  localStorage.setItem("yai-pin",await sha("pin|"+pin));localStorage.setItem("yai-parent",pMail);if(adm)localStorage.setItem("yai-admin","1");box("loginBox");doneAge(kid)}
 document.getElementById("pKid").onclick=()=>parentPick(true);document.getElementById("pAdult").onclick=()=>parentPick(false);
 window.yaiParent=async()=>{const h=localStorage.getItem("yai-pin");if(!h){document.getElementById("prof").classList.remove("on");document.getElementById("login").classList.add("on");box("parBox");step(1);setTimeout(()=>document.getElementById("pEmail").focus(),50);return}const p=prompt("Parent PIN:");if(!p)return;
- if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const on=confirm("Turn Kids mode ON?\nOK = Kids mode on, Cancel = off (13 or older)");localStorage.setItem("yai-kid",on?"1":"0");document.body.classList.toggle("kid",on);if(on&&mode==="physics")setMode("chat");drawLim()};
+ if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const was=isKid();if(!confirm(was?"Kids mode is ON.\nSwitch to Grown-up mode (13+)?":"Grown-up mode is ON.\nSwitch to Kids mode (under 13)?"))return;doneAge(!was)};
 document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");document.body.classList.toggle("plus",localStorage.getItem("yai-plus")==="1");if(localStorage.getItem("yai-plus")==="1"){const gi=()=>document.querySelectorAll('img[src="yathinai_icon.png"]').forEach(i=>i.src="yathinai_icon_gold.png");gi();new MutationObserver(gi).observe(document.body,{childList:true,subtree:true})}
 if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setTimeout(askAge,0);
 document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");if(!localStorage.getItem("yai-pin")){localStorage.removeItem("yai-kid");document.body.classList.remove("kid")}document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
