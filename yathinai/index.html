@@ -220,7 +220,7 @@ body.kz-on #kz{display:block}body.kz-on #wrap,body.kz-on .side,body.kz-on .foot,
 .kzConf{position:fixed;inset:0;pointer-events:none;z-index:50}.kzConf i{position:absolute;top:-10px;width:10px;height:14px;border-radius:3px;animation:kzFall 1.8s ease-in forwards}@keyframes kzFall{to{transform:translateY(105vh) rotate(540deg)}}
 @media(max-width:700px){#kz{padding:96px 12px 70px}.kzCh{grid-template-columns:1fr}.kzTTT{grid-template-columns:repeat(3,84px)}.kzTTT button{height:84px}}
 </style>
-</head>
+<style>body:not(.plus) #themes .po{position:relative;opacity:.55}body:not(.plus) #themes .po::after{content:"🔒";position:absolute;right:-4px;bottom:-4px;font-size:11px}</style></head>
 <body>
 <div id="intro" style="display:none">
   <div class="s" id="s0"><div><h1><em>Yathin AI</em></h1><p id="by" style="color:#6b7280;opacity:0;transition:opacity .7s">by Yathin Pedamallu</p></div><div style="position:absolute;bottom:34px;left:0;right:0;color:#9ca3af;font-size:16px">A part of Yathin Looops</div></div>
@@ -279,10 +279,10 @@ body.kz-on #kz{display:block}body.kz-on #wrap,body.kz-on .side,body.kz-on .foot,
     <button data-t="aurora" title="Aurora" style="background:linear-gradient(135deg,#f9a8d4,#a5b4fc,#67e8f9)"></button>
     <button data-t="ocean" title="Ocean" style="background:linear-gradient(135deg,#38bdf8,#2dd4bf)"></button>
     <button data-t="sunset" title="Sunset" style="background:linear-gradient(135deg,#fb923c,#f472b6,#facc15)"></button>
-    <button data-t="forest" title="Forest" style="background:linear-gradient(135deg,#4ade80,#a3e635)"></button>
-    <button data-t="night" title="Night" style="background:linear-gradient(135deg,#0f172a,#2563eb,#db2777)"></button>
-    <button class="tb" id="upBg" title="Upload a photo" style="background:#fff">📷</button>
-    <button class="tb" id="genBg" title="Make a picture with AI" style="background:#fff">✨</button>
+    <button class="po" data-t="forest" title="Forest" style="background:linear-gradient(135deg,#4ade80,#a3e635)"></button>
+    <button class="po" data-t="night" title="Night" style="background:linear-gradient(135deg,#0f172a,#2563eb,#db2777)"></button>
+    <button class="tb po" id="upBg" title="Upload a photo" style="background:#fff">📷</button>
+    <button class="tb po" id="genBg" title="Make a picture with AI" style="background:#fff">✨</button>
     <input type="file" id="bgFile" accept="image/*" hidden>
   </div>
   <div id="genRow"><input id="genTxt" placeholder="e.g. cozy space station at sunset"><button id="genGo">Make it</button></div>
@@ -467,7 +467,7 @@ async function makeSite(q){
 function after(box,out,open){
  const m=cur?cur.mode:mode;
  if(m==="code"){const h=getHtml(out);if(h){box.innerHTML=fmt(out.replace(/```html[\s\S]*?```/i,"").trim()||"Your website is ready.");const b=document.createElement("button");b.className="btn";b.textContent="▶ Open website";b.onclick=()=>showSite(h);box.append(b);if(open||true){const f=document.createElement("button");f.className="btn";f.textContent="✨ Make it fancier";f.style.marginLeft="8px";f.onclick=()=>{$("#q").value=cur&&cur.spec?"Make it more exciting: pick a different palette and style, punchier headlines, more creative features and reviews.":"Make this much fancier: richer colors, animations, more features. Return the full HTML file.";send()};box.append(f)}if(open)showSite(h)}else box.innerHTML=fmt(out)}
- if(m==="model"){const j=getJson(out);if(j&&j.parts){box.innerHTML=`<b>${esc(j.name||"Your model")}</b> · ${window.YB?YB.expand(j.parts).length:j.parts.length} pieces. Spin it, then download the STL for your 3D printer.`;const b=document.createElement("button");b.className="btn";b.textContent="🧊 Open model";b.onclick=()=>show3D(j);box.append(b);if(open)show3D(j)}else box.textContent="That model didn't come out right. Try asking a little differently."}
+ if(m==="model"){const j=getJson(out);if(j&&Array.isArray(j.components)){j.parts=j.components.concat(Array.isArray(j.parts)?j.parts:[]);delete j.components}if(j&&j.parts){box.innerHTML=`<b>${esc(j.name||"Your model")}</b> · ${window.YB?YB.expand(j.parts).length:j.parts.length} pieces. Spin it, then download the STL for your 3D printer.`;const b=document.createElement("button");b.className="btn";b.textContent="🧊 Open model";b.onclick=()=>show3D(j);box.append(b);if(open)show3D(j)}else box.textContent="That model didn't come out right. Try asking a little differently."}
 }
 const KIT=`<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Poppins,system-ui,sans-serif;line-height:1.6;color:#1e1b2e}img{max-width:100%;border-radius:16px}h1,h2,h3{line-height:1.15}section,.section{padding:72px 6vw}.hero{padding:110px 6vw;text-align:center;background:linear-gradient(135deg,#6366f1,#ec4899,#f59e0b);color:#fff}.hero h1{font-size:clamp(36px,6vw,64px);margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px}.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(40,20,90,.1);transition:transform .25s,box-shadow .25s}.card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(40,20,90,.18)}.btn,button{display:inline-block;border:0;border-radius:999px;padding:12px 26px;font:600 15px Poppins,sans-serif;cursor:pointer;background:#1e1b2e;color:#fff;text-decoration:none;transition:transform .2s}.btn:hover,button:hover{transform:scale(1.05)}input,textarea,select{font:inherit;padding:10px 14px;border-radius:12px;border:1px solid #ddd}</style>`;
 function kit(h){if(h.includes("Made with Yathin AI"))return h;return /<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+KIT):KIT+h}
@@ -643,5 +643,5 @@ drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
 <script src="kidzone.js?v=4"></script>
-</body>
+<script>(function(){const P=()=>document.body.classList.contains("plus");document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#themes .po");if(b&&!P()){e.stopImmediatePropagation();e.preventDefault();const m=document.getElementById("genMsg");if(m)m.textContent="That one is for AI+ ✨";}},true);const fix=()=>{if(!P()&&["forest","night","photo"].includes(document.body.dataset.theme)){const a=document.querySelector('#themes button[data-t="aurora"]');if(a)a.click()}};setTimeout(fix,300);setInterval(fix,3000)})();</script></body>
 </html>
