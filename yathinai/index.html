@@ -166,7 +166,7 @@ body.home-on #homeV{display:block}body.home-on #wrap,body.home-on .side,body.hom
 #login .lnk{border:0;background:none;color:#6d28d9;font:500 13px Geist,sans-serif;cursor:pointer;padding:0;margin-top:8px}
 body.plus::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(circle at 12% 8%,rgba(255,200,0,.6),transparent 42%),radial-gradient(circle at 88% 92%,rgba(255,185,0,.55),transparent 46%),radial-gradient(circle at 70% 20%,rgba(255,220,90,.45),transparent 35%);mix-blend-mode:multiply;animation:goldglow 8s ease-in-out infinite}
 @keyframes goldglow{50%{opacity:.75}}
-body.plus #me,body.plus .avatar{box-shadow:0 0 0 3px #f5c518,0 0 18px rgba(245,197,24,.7)!important}
+body.plus #meBtn{box-shadow:0 0 0 3px #f5c518,0 0 18px rgba(245,197,24,.7)!important}
 body.kid .modes button[data-m="physics"]{display:none}
 </style>
 </head>
@@ -465,7 +465,7 @@ async function parentPick(kid){const pin=document.getElementById("pPin").value.t
 document.getElementById("pKid").onclick=()=>parentPick(true);document.getElementById("pAdult").onclick=()=>parentPick(false);
 window.yaiParent=async()=>{const h=localStorage.getItem("yai-pin");if(!h){document.getElementById("prof").classList.remove("on");document.getElementById("login").classList.add("on");box("parBox");step(1);setTimeout(()=>document.getElementById("pEmail").focus(),50);return}const p=prompt("Parent PIN:");if(!p)return;
  if(await sha("pin|"+p.trim())!==h){alert("Wrong PIN.");return}const on=confirm("Turn Kids mode ON?\nOK = Kids mode on, Cancel = off (13 or older)");localStorage.setItem("yai-kid",on?"1":"0");document.body.classList.toggle("kid",on);if(on&&mode==="physics")setMode("chat");drawLim()};
-document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");document.body.classList.toggle("plus",localStorage.getItem("yai-plus")==="1");
+document.body.classList.toggle("kid",localStorage.getItem("yai-kid")==="1");document.body.classList.toggle("plus",localStorage.getItem("yai-plus")==="1");if(localStorage.getItem("yai-plus")==="1"){const gi=()=>document.querySelectorAll('img[src="yathinai_icon.png"]').forEach(i=>i.src="yathinai_icon_gold.png");gi();new MutationObserver(gi).observe(document.body,{childList:true,subtree:true})}
 if(localStorage.getItem("yai-user")&&localStorage.getItem("yai-kid")===null)setTimeout(askAge,0);
 document.getElementById("signOut").onclick=()=>{localStorage.removeItem("yai-user");if(!localStorage.getItem("yai-pin")){localStorage.removeItem("yai-kid");document.body.classList.remove("kid")}document.getElementById("prof").classList.remove("on");document.getElementById("lPass").value="";openLogin()};
 if(localStorage.getItem("yai-intro"))openLogin();
