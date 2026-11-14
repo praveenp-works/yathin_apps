@@ -203,11 +203,19 @@ const SCRIPTS = {
 
  yathin: { bg:"linear-gradient(135deg,#0f766e 0%,#15803d 30%,#ca8a04 65%,#e07a1f 100%)", btn:"linear-gradient(90deg,#14b8a6,#22c55e,#f59e0b)",
   voice:"en-US-JennyNeural", rate:"-4%",
-  icon:"/looops_logo.png", icons:["/magiccursor/logo.png","/classview/classview_icon.png","/plantdoc/plantdoc_icon.png","/fridgechef/fridgechef_icon.png","/whattowear/whattowear_icon_sq.png","/screenread/screenread_icon_sq.png","/finko/finko_icon.png","/brickbuilder/brickbuilder_icon.png","/pettranslator/pettranslator_icon.png","/snapkit/snapkit_icon.png"],
+  icon:"/looops_logo.png", icons:["/yathinai/yathinai_icon.png","/magiccursor/logo.png","/classview/classview_icon.png","/plantdoc/plantdoc_icon.png","/fridgechef/fridgechef_icon.png","/whattowear/whattowear_icon_sq.png","/screenread/screenread_icon_sq.png","/finko/finko_icon.png","/brickbuilder/brickbuilder_icon.png","/pettranslator/pettranslator_icon.png","/snapkit/snapkit_icon.png"],
   title:"Yathin Looops", tag:"Free apps. One place.",
   chips:["100% free","Windows & web","Made by Yathin"], foot:"praveenp-works.github.io/yathin_apps",
   scenes:[
    {hook:["Simple apps.","One place."], strike:false, say:"Simple, free apps. All in one place."},
+   {tb:["/yathinai/yathinai_icon.png","Yathin AI"], say:"Yathin AI. A free AI you can just talk to. It chats, writes code, and even builds 3D models you can print.", pill:"Yathin AI: free AI, no key, no download", html:`
+     <div style="display:flex;gap:34px;align-items:center;height:100%"><div style="flex:1">
+      <div class="card hide ya" style="margin-left:auto;width:80%;font-size:28px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff">Build me a castle with 4 towers 🏰</div>
+      <div class="card hide ya" style="width:85%;font-size:26px;margin-top:20px">Here's your castle: towers, walls and a gate. Spin it, then download it for your 3D printer.</div>
+      <div style="margin-top:22px"><span class="chip hide">💬 Chat</span><span class="chip hide">👨‍💻 Code</span><span class="chip hide">🧊 3D</span><span class="chip hide">🧪 Physics</span></div></div>
+     <div class="card hide ya" id="cs" style="width:420px;height:380px;display:flex;align-items:flex-end;justify-content:center;gap:6px;padding-bottom:40px;box-sizing:border-box">
+      ${[[60,160],[90,110],[70,210],[90,110],[60,160]].map(b=>`<div style="width:${b[0]}px;height:${b[1]}px;background:#78716c;border-radius:6px 6px 0 0;position:relative"><div style="position:absolute;top:-34px;left:-6px;right:-6px;height:36px;background:#7f1d1d;clip-path:polygon(50% 0,100% 100%,0 100%)"></div></div>`).join("")}</div></div>`,
+    run: async () => { await sleep(300); await popAll(".ya",600); q("#cs").animate([{transform:"rotateY(-12deg)"},{transform:"rotateY(12deg)"}],{duration:1400,iterations:3,direction:"alternate"}); await popAll(".chip",300); }},
    {tb:["/magiccursor/logo.png","Magic Cursor"], say:"Magic Cursor. Draw a box around anything, and Gemini explains it, right beside your window.", pill:"Magic Cursor: ask AI about anything on screen", html:`
      <div style="display:flex;gap:34px"><div style="flex:1.1;position:relative">
       <div class="muted" style="font-size:20px">Math homework · Page 42</div>
