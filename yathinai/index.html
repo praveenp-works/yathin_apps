@@ -7,6 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yathin AI · Free AI that runs in your browser</title>
+<link rel="canonical" href="https://praveenp-works.github.io/yathin_apps/yathinai/">
 <meta name="description" content="Yathin AI: a free, independent AI that runs right in your browser. No API key, no server. Chat, write code and websites, make 3D print models, and solve physics. Part of Yathin Looops.">
 <link rel="icon" href="yathinai_icon.png"><link rel="apple-touch-icon" href="icon-180.png">
 <meta property="og:title" content="Yathin AI · Free, no API key"><meta property="og:description" content="An independent AI that runs in your browser."><meta property="og:image" content="https://praveenp-works.github.io/yathin_apps/promo/yathin-ai-free-app.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -93,7 +94,7 @@ body.thinking #sky i:nth-child(6){opacity:.45}
 .ask .add{border:0;background:none;font-size:28px;color:#777;cursor:pointer;width:40px}
 .ask .send{background:linear-gradient(135deg,#7c3aed,#ec4899)!important;width:74px;height:52px;border-radius:999px;border:0;background:#1d1d1f;color:#fff;font-size:24px;cursor:pointer}
 .ask .send:disabled{opacity:.4}
-.foot{position:fixed;left:20px;bottom:18px;max-width:240px;z-index:3;font-size:13px;color:rgba(30,40,60,.6);padding:10px 14px;border-radius:14px}
+.foot{position:fixed;left:20px;bottom:18px;max-width:240px;z-index:3;font-size:13px;color:rgba(30,40,60,.8);padding:10px 14px;border-radius:14px}
 /* ---- preview ---- */
 #view{position:fixed;top:90px;right:20px;bottom:100px;width:min(520px,44vw);z-index:6;border-radius:26px;padding:12px;display:none;flex-direction:column;background:rgba(255,255,255,.85)}
 #view.on{display:flex}
@@ -221,10 +222,10 @@ body.kid .modes button[data-m="physics"]{display:none}
 <div class="kidtag">🧒 Kids mode · ask a grown-up for help</div>
 <div id="sky"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
-<a class="home glass" href="../" title="Yathin Looops">⌂</a>
-<div class="modes glass">
+<header><a class="home glass" href="../" title="Yathin Looops" aria-label="Back to Yathin Looops">⌂</a>
+<div class="modes glass" role="navigation" aria-label="Modes">
   <button data-m="home">Home</button><button data-m="chat" class="on">Chat</button><button data-m="code">Code</button><button data-m="model">3D</button><button data-m="physics">Physics</button>
-</div>
+</div></header>
 <button class="me-btn" id="meBtn" title="Profile">Y</button>
 <div id="prof" class="glass">
   <h3 id="pName">You</h3><div class="sm" id="planTxt">Yathin AI · Free plan</div>
@@ -259,15 +260,15 @@ body.kid .modes button[data-m="physics"]{display:none}
 <nav class="side" id="side"></nav>
 <div id="homeV"><h1 id="hHi">Home</h1><div class="sub">Your panels. Remove any, or make a new one.</div><div class="pgrid" id="pgrid"></div></div>
 
-<div id="wrap">
+<main id="wrap">
   <div id="chat"></div>
   <div class="ask glass">
-    <textarea id="q" placeholder="Message Yathin AI"></textarea>
+    <textarea id="q" placeholder="Message Yathin AI" aria-label="Message Yathin AI"></textarea>
     <button class="add" id="addBtn" title="New chat">+</button>
     <button class="send" id="send" title="Send">↑</button>
   </div>
-</div>
-<div class="foot glass">Yathin AI · Part of Yathin Looops · Created by Yathin Pedamallu</div>
+</main>
+<footer class="foot glass">Yathin AI · Part of Yathin Looops · Created by Yathin Pedamallu</footer>
 
 <div id="view" class="glass"><iframe id="site" sandbox="allow-scripts"></iframe><div id="three"></div>
   <div class="bar2"><button id="dl">Download</button><button id="closeV">Close</button></div></div>
@@ -400,7 +401,7 @@ async function send(){
   think(false);if(!box)box=bubble("a",out);
   cur.msgs.push({role:"assistant",content:out});saveP();after(box,out,true);
   if(isKid()&&(kidN++%4!==3)){const n=document.createElement("div");n.className="parent";n.textContent="👪 Ask a parent or grown-up to help you with this.";box.append(n)}}
- catch(e){if(e!=="done"){think(false);bubble("a","Oops: "+(e.message||e))}}
+ catch(e){if(e!=="done"){think(false);{const m=String(e.message||e);bubble("a",/fetch|network|import|load/i.test(m)?"I couldn't reach my brain just now. Check your internet and try again in a moment.":"Oops: "+m)}}}
  document.body.classList.remove("thinking");busy=false;$("#send").disabled=false;
 }
 $("#send").onclick=send;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
