@@ -143,8 +143,8 @@ body.kid .kidtag{display:block}
 .side .it{position:relative}.side .ren{position:absolute;right:6px;top:8px;width:28px!important;padding:2px!important;opacity:0;text-align:center!important;font-size:14px!important}
 .side .it:hover .ren{opacity:.7}.side input.rn{width:100%;border:0;border-radius:12px;padding:10px 12px;font:600 16px Geist,sans-serif;background:#fff;outline:2px solid #a78bfa}
 /* ---- home panels ---- */
-#homeV{position:fixed;inset:0;z-index:3;display:none;overflow:auto;padding:100px 40px 80px 300px}
-body.home-on #homeV{display:block}body.home-on #wrap{display:none}
+#homeV{position:fixed;inset:0;z-index:3;display:none;overflow:auto;padding:110px max(40px,calc(50vw - 560px)) 80px}
+body.home-on #homeV{display:block}body.home-on #wrap,body.home-on .side,body.home-on .foot{display:none}
 #homeV h1{margin:0 0 4px;font-size:34px}#homeV .sub{color:#6e6e73;margin-bottom:22px}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
 .pnl{position:relative;border-radius:24px;padding:18px;min-height:170px;background:rgba(255,255,255,.62);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.7)}
