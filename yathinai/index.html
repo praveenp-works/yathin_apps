@@ -466,12 +466,12 @@ document.getElementById("lGo").onclick=async()=>{const e=document.getElementById
  if(acc[e]&&acc[e]!==h){er.textContent="Wrong password for this email.";return}
  acc[e]=h;localStorage.setItem("yai-accounts",JSON.stringify(acc));localStorage.setItem("yai-user",e);
  if(!localStorage.getItem("yai-name")){const n=e.split("@")[0].replace(/[^a-z]/gi," ").trim();localStorage.setItem("yai-name",n.charAt(0).toUpperCase()+n.slice(1))}
- drawName();askAge()};
+ drawName();{const m=JSON.parse(localStorage.getItem("yai-agefor")||"{}");if(e in m){doneAge(m[e]===1);return}}askAge()};
 document.getElementById("lPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("lGo").click()});
 const GCID="148201480683-9894qd6i7mjoqmrujbvq50k0pekqtafs.apps.googleusercontent.com";
 function gDone(r){try{const b=r.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");const j=JSON.parse(decodeURIComponent(escape(atob(b))));if(!j.email)throw 0;
  localStorage.setItem("yai-user",j.email.toLowerCase());localStorage.setItem("yai-name",j.given_name||j.name||j.email.split("@")[0]);if(j.picture)localStorage.setItem("yai-pic",j.picture);
- document.getElementById("login").classList.remove("on");drawName();askAge()}catch(e){document.getElementById("lErr").textContent="Google sign-in didn't work. Try email instead."}}
+ drawName();if(localStorage.getItem("yai-pin")&&localStorage.getItem("yai-kid")==="1")doneAge(true);else doneAge(false)}catch(e){document.getElementById("lErr").textContent="Google sign-in didn't work. Try email instead."}}
 function gInit(){if(!window.google||!google.accounts)return;google.accounts.id.initialize({client_id:GCID,callback:gDone,ux_mode:"popup"});
  const g=document.getElementById("lG");g.style.position="relative";g.style.overflow="hidden";const o=document.createElement("div");o.style.cssText="position:absolute;inset:0;opacity:.01;display:flex;align-items:center;justify-content:center;transform:scale(1.6)";g.append(o);
  google.accounts.id.renderButton(o,{type:"icon",size:"large",shape:"square"})}
@@ -479,7 +479,7 @@ document.getElementById("lG").onclick=()=>{if(!window.google)document.getElement
 {const sc=document.createElement("script");sc.src="https://accounts.google.com/gsi/client";sc.async=true;sc.onload=gInit;document.head.append(sc)}
 document.getElementById("lGuest").onclick=()=>{localStorage.setItem("yai-user","guest");askAge()};
 function askAge(){document.getElementById("loginBox").style.display="none";document.getElementById("ageBox").style.display="";document.getElementById("login").classList.add("on")}
-function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");document.body.classList.toggle("kid",kid);if(kid&&mode==="physics")setMode("chat");drawLim();box("loginBox");document.getElementById("login").classList.remove("on")}
+function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");{const u=localStorage.getItem("yai-user");if(u&&u!=="guest"){const m=JSON.parse(localStorage.getItem("yai-agefor")||"{}");m[u]=kid?1:0;localStorage.setItem("yai-agefor",JSON.stringify(m))}}document.body.classList.toggle("kid",kid);if(kid&&mode==="physics")setMode("chat");drawLim();box("loginBox");document.getElementById("login").classList.remove("on")}
 document.getElementById("ageK").onclick=()=>doneAge(true);
 const EJ={s:"service_pqelqat",t:"template_fi4tlhp",k:"wWMmhZFuMnJ9VDYJF"};let pCodeH="",pMail="",pTries=0,adm=false,reT=null;const ADMIN_H="16a37f4fbdfd00cfc7fc57d8891be5572af8992f03380858413f861c07f915d7";
 const box=id=>["ageBox","parBox","loginBox"].forEach(b=>document.getElementById(b).style.display=b===id?"":"none");
