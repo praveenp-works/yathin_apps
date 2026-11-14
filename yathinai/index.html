@@ -24,6 +24,16 @@ body{font-family:Geist,system-ui,sans-serif;color:#1d1d1f;overflow:hidden;backgr
 #sky i:nth-child(6){width:40vw;height:40vh;left:-5vw;top:40vh;background:#3b82f6;opacity:0;animation-duration:30s}
 #sky::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(120,90,200,.18) 1px,transparent 1px);background-size:22px 22px}
 @keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,-4vh) scale(1.15)}100%{transform:translate(-5vw,5vh) scale(.95)}}
+body[data-theme=ocean] #sky{background:#eef8ff}
+body[data-theme=ocean] #sky i:nth-child(1){background:#38bdf8}body[data-theme=ocean] #sky i:nth-child(2){background:#2dd4bf}body[data-theme=ocean] #sky i:nth-child(3){background:#818cf8}body[data-theme=ocean] #sky i:nth-child(4){background:#a5f3fc}
+body[data-theme=sunset] #sky{background:#fff6ee}
+body[data-theme=sunset] #sky i:nth-child(1){background:#fb923c}body[data-theme=sunset] #sky i:nth-child(2){background:#f472b6}body[data-theme=sunset] #sky i:nth-child(3){background:#facc15}body[data-theme=sunset] #sky i:nth-child(4){background:#fca5a5}
+body[data-theme=forest] #sky{background:#f2fbf3}
+body[data-theme=forest] #sky i:nth-child(1){background:#4ade80}body[data-theme=forest] #sky i:nth-child(2){background:#a3e635}body[data-theme=forest] #sky i:nth-child(3){background:#2dd4bf}body[data-theme=forest] #sky i:nth-child(4){background:#fde047}
+body[data-theme=night] #sky{background:#0f172a}
+body[data-theme=night] #sky i{opacity:.45}body[data-theme=night] #sky i:nth-child(1){background:#2563eb}body[data-theme=night] #sky i:nth-child(2){background:#db2777}body[data-theme=night] #sky i:nth-child(3){background:#0891b2}body[data-theme=night] #sky i:nth-child(4){background:#4f46e5}
+body[data-theme=night] .hello h1,body[data-theme=night] .side button.on{color:#fff}body[data-theme=night] .hello p,body[data-theme=night] .side button,body[data-theme=night] .foot{color:rgba(255,255,255,.7)}body[data-theme=night] .side button.on{background:rgba(255,255,255,.12)}body[data-theme=night] .home{color:#fff}body[data-theme=night] .glass{background:rgba(30,41,59,.55);border-color:rgba(255,255,255,.15)}body[data-theme=night] .modes button{color:#cbd5e1}body[data-theme=night] .ask textarea{color:#fff}body[data-theme=night] .ex button{color:#fff}body[data-theme=night] #prof{color:#f1f5f9}body[data-theme=night] .u{background:rgba(51,65,85,.8);color:#fff}
+.themes{display:flex;gap:8px;margin-top:8px}.themes button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 0 0 1px #ddd}.themes button.on{box-shadow:0 0 0 2px #7c3aed}
 body.thinking #sky{background:#eef0f6}
 body.thinking #sky i{animation-duration:9s!important}
 body.thinking #sky i:nth-child(1){background:#94a3b8}
@@ -103,6 +113,14 @@ body.thinking #sky i:nth-child(6){opacity:.45}
   <div class="lim">💬 Chat today <small id="lc"></small><div class="bar"><i id="bc"></i></div></div>
   <div class="lim">👨‍💻 Code today <small id="lk"></small><div class="bar"><i id="bk"></i></div></div>
   <div class="plus"><span>COMING SOON</span><b>Yathin AI+</b><br>Way smarter: a brain about 5 times bigger for chat, code, 3D and physics. 140 hours of chat and 130 hours of code a month. No daily limits.</div>
+  <div class="lim">🎨 Theme</div>
+  <div class="themes" id="themes">
+    <button data-t="aurora" title="Aurora" style="background:linear-gradient(135deg,#f9a8d4,#a5b4fc,#67e8f9)"></button>
+    <button data-t="ocean" title="Ocean" style="background:linear-gradient(135deg,#38bdf8,#2dd4bf)"></button>
+    <button data-t="sunset" title="Sunset" style="background:linear-gradient(135deg,#fb923c,#f472b6,#facc15)"></button>
+    <button data-t="forest" title="Forest" style="background:linear-gradient(135deg,#4ade80,#a3e635)"></button>
+    <button data-t="night" title="Night" style="background:linear-gradient(135deg,#0f172a,#2563eb,#db2777)"></button>
+  </div>
   <label class="row"><input type="checkbox" id="useOl"> Use my Ollama</label>
   <input type="text" id="olModel" value="llama3.2" placeholder="Ollama model">
   <div class="sm" style="margin-top:6px">Start Ollama with OLLAMA_ORIGINS=* first. Without it, Yathin AI runs fully in your browser.</div>
@@ -249,6 +267,8 @@ async function show3D(j){
  (function loop(){oc.update();r.render(sc,cam);requestAnimationFrame(loop)})();
  const stl=new STLExporter().parse(g,{binary:true});lastFile={name:(j.name||"model").replace(/\W+/g,"-").toLowerCase()+".stl",blob:new Blob([stl],{type:"model/stl"})};$("#dl").textContent="Download STL";
 }
+function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("yai-theme",t);document.querySelectorAll("#themes button").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
+document.querySelectorAll("#themes button").forEach(b=>b.onclick=()=>setTheme(b.dataset.t));setTheme(localStorage.getItem("yai-theme")||"aurora");
 drawName();drawLim();setMode("chat");
 </script>
 <script>(function(){try{var b="https://abacus.jasoncameron.dev/hit/praveenp-yathinai/";fetch(b+"visits",{mode:"cors"}).catch(function(){});if(!localStorage.getItem("yai_seen")){localStorage.setItem("yai_seen","1");fetch(b+"visitors",{mode:"cors"}).catch(function(){});}}catch(e){}})();</script>
