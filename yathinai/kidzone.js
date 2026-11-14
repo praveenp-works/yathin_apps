@@ -124,14 +124,23 @@ function mathRace(){const b=shell("➕ Math Race",gamesHome);let sc=0,t=60,tm=nu
   b.querySelector("#kzEq").textContent=`${a} ${op} ${c} = ?`;const box=b.querySelector("#kzAns");box.innerHTML="";[...ch].sort(()=>Math.random()-.5).forEach(v=>{const x=document.createElement("button");x.textContent=v;x.onclick=()=>{if(!tm)return;if(v===r){sc++;yay()}else boo();b.querySelector("#kzSc").textContent="Score: "+sc;next()};box.append(x)})};
  b.innerHTML=`<div class="kzScore"><span id="kzSc">Score: 0</span> · <span id="kzT">60s</span></div><div class="kzCard"><div class="kzEq" id="kzEq">Ready?</div><div class="kzCh kzAns" id="kzAns"></div></div><div class="kzRow"><button class="kzBtn" id="kzGo">Start</button></div>`;
  b.querySelector("#kzGo").onclick=()=>{clearInterval(tm);sc=0;t=60;b.querySelector("#kzSc").textContent="Score: 0";next();tm=setInterval(()=>{t--;b.querySelector("#kzT").textContent=t+"s";if(t<=0){clearInterval(tm);tm=null;b.querySelector("#kzEq").textContent=`⏰ Time! You got ${sc}`;b.querySelector("#kzAns").innerHTML="";if(sc>=10){addStar(2);confetti()}}},1000)}}
-function ttt(){const b=shell("❌ Tic-Tac-Toe",gamesHome);let B=Array(9).fill(""),over=false;const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
- const win=p=>L.some(l=>l.every(i=>B[i]===p));b.innerHTML=`<div class="kzScore" id="kzTs">You are ❌. Your turn!</div><div class="kzTTT"></div><div class="kzRow"><button class="kzBtn" id="kzRe">New game</button></div>`;
+function ttt(){const b=shell("❌ Tic-Tac-Toe",gamesHome);let B=Array(9).fill(""),over=false,lv=localStorage.getItem("yai-ttt-lv")||"medium";const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+ const LV={easy:["🙂 Easy",1],medium:["😎 Medium",2],hard:["🔥 Hard",3]};
+ const win=(p,X=B)=>L.some(l=>l.every(i=>X[i]===p));b.innerHTML=`<div class="kzRow" id="kzLv" style="justify-content:center"></div><div class="kzScore" id="kzTs"></div><div class="kzTTT"></div><div class="kzRow"><button class="kzBtn" id="kzRe">New game</button></div>`;
+ const lvBox=b.querySelector("#kzLv");const showLv=()=>{lvBox.innerHTML="";Object.keys(LV).forEach(k=>{const x=document.createElement("button");x.className="kzBtn"+(k===lv?"":" ghost");x.textContent=LV[k][0];x.onclick=()=>{lv=k;localStorage.setItem("yai-ttt-lv",k);showLv();reset()};lvBox.append(x)})};
  const g=b.querySelector(".kzTTT");const draw=()=>{g.innerHTML="";B.forEach((v,i)=>{const c=document.createElement("button");c.textContent=v==="X"?"❌":v==="O"?"⭕":"";c.onclick=()=>move(i);g.append(c)})};
  const end=t=>{over=true;b.querySelector("#kzTs").textContent=t};
- const move=i=>{if(over||B[i])return;B[i]="X";beep(520,.08);if(win("X")){draw();end("🎉 You win!");addStar(2);confetti();return}if(!B.includes("")){draw();end("It's a tie! 🤝");return}
-  let m=-1;for(const p of["O","X"])for(const l of L){const v=l.map(k=>B[k]);if(v.filter(x=>x===p).length===2&&v.includes("")){m=l[v.indexOf("")];break}if(m>=0)break}
-  if(m<0&&Math.random()<.35)m=-1;if(m<0)m=B[4]===""?4:B.map((v,k)=>v?-1:k).filter(k=>k>=0).sort(()=>Math.random()-.5)[0];B[m]="O";draw();if(win("O"))end("Yathin wins this time! Try again 💪");else if(!B.includes(""))end("It's a tie! 🤝")};
- b.querySelector("#kzRe").onclick=()=>{B=Array(9).fill("");over=false;b.querySelector("#kzTs").textContent="You are ❌. Your turn!";draw()};draw()}
+ const free=X=>X.map((v,k)=>v?-1:k).filter(k=>k>=0),rnd=a=>a[Math.floor(Math.random()*a.length)];
+ const two=p=>{for(const l of L){const v=l.map(k=>B[k]);if(v.filter(x=>x===p).length===2&&v.includes(""))return l[v.indexOf("")]}return -1};
+ const mm=(X,t)=>{if(win("O",X))return 10;if(win("X",X))return -10;const f=free(X);if(!f.length)return 0;const r=f.map(k=>{X[k]=t;const v=mm(X,t==="O"?"X":"O");X[k]="";return v});return t==="O"?Math.max(...r)-1:Math.min(...r)+1};
+ const ai=()=>{const f=free(B);
+  if(lv==="easy"){const w=two("O");return w>=0&&Math.random()<.5?w:rnd(f)}
+  if(lv==="medium"){let m=two("O");if(m<0)m=two("X");if(m<0||Math.random()<.2)m=B[4]===""&&Math.random()<.6?4:rnd(f);return m}
+  let best=-1e9,bm=[];for(const k of f){B[k]="O";const v=mm(B,"X");B[k]="";if(v>best){best=v;bm=[k]}else if(v===best)bm.push(k)}return rnd(bm)};
+ const move=i=>{if(over||B[i])return;B[i]="X";beep(520,.08);if(win("X")){draw();end("🎉 You beat "+LV[lv][0]+"!");addStar(LV[lv][1]);confetti();return}if(!B.includes("")){draw();end(lv==="hard"?"A tie on Hard? Amazing! 🤝":"It's a tie! 🤝");if(lv==="hard")addStar();return}
+  B[ai()]="O";draw();if(win("O"))end("Yathin wins this time! Try again 💪");else if(!B.includes(""))end("It's a tie! 🤝")};
+ const reset=()=>{B=Array(9).fill("");over=false;b.querySelector("#kzTs").textContent="You are ❌ · "+LV[lv][0]+" · Your turn!";draw()};
+ b.querySelector("#kzRe").onclick=reset;showLv();reset()}
 function words(){const b=shell("🔤 Word Scramble",gamesHome);const W=["apple","tiger","planet","rocket","garden","pencil","school","rainbow","dolphin","castle","banana","jungle","puzzle","guitar","window","friend","summer","bridge","turtle","cookie"];let w,sc=0;
  b.innerHTML=`<div class="kzScore" id="kzWs">Score: 0</div><div class="kzCard"><div class="kzEq" id="kzW"></div><div class="kzIn"><input id="kzGuess" placeholder="Type the word" autocomplete="off"><button class="kzBtn" id="kzChk">Check</button></div><div class="kzSub" id="kzWm"></div><div class="kzRow"><button class="kzBtn ghost" id="kzHint">💡 Hint</button><button class="kzBtn ghost" id="kzSkip">Skip</button></div></div>`;
  const next=()=>{w=W[Math.floor(Math.random()*W.length)];let s;do{s=w.split("").sort(()=>Math.random()-.5).join("")}while(s===w);b.querySelector("#kzW").textContent=s.toUpperCase();b.querySelector("#kzGuess").value="";b.querySelector("#kzWm").textContent=""};
