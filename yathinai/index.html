@@ -465,8 +465,15 @@ document.getElementById("lGo").onclick=async()=>{const e=document.getElementById
  if(!localStorage.getItem("yai-name")){const n=e.split("@")[0].replace(/[^a-z]/gi," ").trim();localStorage.setItem("yai-name",n.charAt(0).toUpperCase()+n.slice(1))}
  drawName();askAge()};
 document.getElementById("lPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("lGo").click()});
-const soon=()=>{document.getElementById("lErr").textContent="Google sign-in is coming soon. Use email for now."};
-document.getElementById("lG").onclick=soon;
+const GCID="148201480683-9894qd6i7mjoqmrujbvq50k0pekqtafs.apps.googleusercontent.com";
+function gDone(r){try{const b=r.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");const j=JSON.parse(decodeURIComponent(escape(atob(b))));if(!j.email)throw 0;
+ localStorage.setItem("yai-user",j.email.toLowerCase());localStorage.setItem("yai-name",j.given_name||j.name||j.email.split("@")[0]);if(j.picture)localStorage.setItem("yai-pic",j.picture);
+ document.getElementById("login").classList.remove("on");drawName();askAge()}catch(e){document.getElementById("lErr").textContent="Google sign-in didn't work. Try email instead."}}
+function gInit(){if(!window.google||!google.accounts)return;google.accounts.id.initialize({client_id:GCID,callback:gDone,ux_mode:"popup"});
+ const g=document.getElementById("lG");g.style.position="relative";g.style.overflow="hidden";const o=document.createElement("div");o.style.cssText="position:absolute;inset:0;opacity:.01;display:flex;align-items:center;justify-content:center;transform:scale(1.6)";g.append(o);
+ google.accounts.id.renderButton(o,{type:"icon",size:"large",shape:"square"})}
+document.getElementById("lG").onclick=()=>{if(!window.google)document.getElementById("lErr").textContent="Google is still loading. Try again in a second."};
+{const sc=document.createElement("script");sc.src="https://accounts.google.com/gsi/client";sc.async=true;sc.onload=gInit;document.head.append(sc)}
 document.getElementById("lGuest").onclick=()=>{localStorage.setItem("yai-user","guest");askAge()};
 function askAge(){document.getElementById("loginBox").style.display="none";document.getElementById("ageBox").style.display="";document.getElementById("login").classList.add("on")}
 function doneAge(kid){localStorage.setItem("yai-kid",kid?"1":"0");document.body.classList.toggle("kid",kid);if(kid&&mode==="physics")setMode("chat");drawLim();box("loginBox");document.getElementById("login").classList.remove("on")}
